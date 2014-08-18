@@ -793,7 +793,7 @@ protected:
 	uint _timeLimit;
 	uint _maxRounds;
 	uint _roundLimit;
-	steady_clock::time_point _roundStart;
+	std::chrono::monotonic_clock::time_point _roundStart;
 };
 
 Timer Timer::instance(8, 53);
@@ -807,12 +807,12 @@ Timer::Timer(uint timeLimit, uint maxRounds)
 
 void Timer::nextRound()
 {
-	_roundStart = steady_clock::now();
+	_roundStart = monotonic_clock::now();
 }
 
 bool Timer::ponder()
 {
-	steady_clock::time_point now = steady_clock::now();
+	monotonic_clock::time_point now = monotonic_clock::now();
 	uint duration = duration_cast<microseconds>(now - _roundStart).count();
 	return duration < _roundLimit;
 }
@@ -824,7 +824,7 @@ public:
 	static constexpr float explorationParameter = sqrt(2.0);
 	static uint numNodes() { return _numNodes; }
 	
-	TreeNode(): TreeNode(nullptr, Move()) {}
+	TreeNode();
 	TreeNode(TreeNode* parent, Move move);
 	~TreeNode();
 	
@@ -883,6 +883,19 @@ protected:
 };
 
 uint TreeNode::_numNodes = 0;
+
+TreeNode::TreeNode()
+: _move(Move())
+, _backwardVisits(0)
+, _backwardValue(0.0)
+, _forwardVisits(0)
+, _forwardValue(0.0)
+, _parent(nullptr)
+, _child(nullptr)
+, _sibling(nullptr)
+{
+	_numNodes++;
+}
 
 TreeNode::TreeNode(TreeNode* parent, Move move)
 : _move(move)
