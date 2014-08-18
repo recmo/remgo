@@ -1,23 +1,24 @@
 #pragma once
 #include "BoardPoint.h"
 
-class Move: public BoardPoint {
+class Move {
 public:
-	static constexpr uint maxIndex = 106;
-	static constexpr uint numIndices = 107;
-	static Move fromIndex(uint index) { return Move(index + 1); }
-	static Move Swap;
+	Move(): _from(), _to() { }
+	Move(BoardPoint from, BoardPoint to): _from(from), _to(to) { }
 	
-	Move(): BoardPoint(0) { }
-	Move(const BoardPoint& point): BoardPoint(point) { }
-	explicit Move(const string& str);
-	Move(uint position): BoardPoint(position) { }
-	~Move() { }
+	bool operator==(const Move& other) const { return _from == other._from && _to == other._to; }
+	bool operator!=(const Move& other) const { return !operator==(other); }
 	
-	bool isValid() const { return BoardPoint::isValid() || (*this == Swap); }
+	BoardPoint from() const { return _from; }
+	BoardPoint to() const { return _to; }
+	Move& from(BoardPoint value) { _from = value; return *this; }
+	Move& to(BoardPoint value) { _to = value; return *this; }
+	
+	bool isValid() const { return _from.isValid() && _to.isValid(); }
 	
 protected:
-	static const BoardMask _neighbors[106];
+	BoardPoint _from;
+	BoardPoint _to;
 };
 
 std::ostream& operator<<(std::ostream& out, const Move& move);

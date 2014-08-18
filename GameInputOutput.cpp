@@ -28,7 +28,8 @@ void GameInputOutput::run()
 			return;
 		}
 		if(line != "Start") {
-			Move move(line);
+			Move move;
+			std::stringstream(line) >> move;
 			assert(move.isValid());
 			playMove(move);
 			if(_board.gameOver())
@@ -66,12 +67,9 @@ Move GameInputOutput::generateMove()
 	// Iterate MCTS a couple of times
 	Timer::instance.nextRound();
 	while(Timer::instance.ponder()) {
-		for(uint i = 0; i < 100; ++i)
-			_current->selectAction(_board);
+		_current->selectAction(_board);
 	}
 	
-	// cerr << "White heatmap " << HeatMap::white << endl;
-	// cerr << "Black heatmap " << HeatMap::black << endl;
 	cerr << "Current depth " << _board.moveCount() << endl;
 	cerr << "Estimated total depth " << DepthEstimator::instance.estimate() << endl;
 	

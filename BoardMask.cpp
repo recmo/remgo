@@ -3,12 +3,17 @@
 
 std::ostream& operator<<(std::ostream& out, const BoardMask& mask)
 {
-	for(BoardPoint point: BoardMask::fullBoard)
-		out << (mask.isSet(point) ? "#" : ".");
+	for(uint row = 0; row < 11; ++row) {
+		for(uint col = 0; col < 11; ++col) {
+			BoardPoint i(10 - row, col);
+			out << (mask.isSet(i) ? "#" : ".");
+		}
+		out << endl;
+	}
 	return out;
 }
 
-const BoardMask BoardMask::fullBoard = BoardMask().setFullBoard();
+const BoardMask BoardMask::fullBoard(const128(0x1ffffffffffffffUL, 0xffffffffffffffffUL));
 
 BoardMask& BoardMask::setFullBoard()
 {
@@ -29,25 +34,29 @@ BoardMask::Iterator BoardMask::itterator() const
 
 BoardMask BoardMask::expanded() const
 {
-	BoardMask result(*this);
-	for(BoardPoint p: *this)
-		result |= p.neighbors();
-	return result;
+	// Flanks, all non border positions
+	static const uint128 right = const128(0x1ffffffffffffffUL, 0xfffffffffffff800UL);
+	static const uint128 left  = const128(0x0003fffffffffffUL, 0xffffffffffffffffUL);
+	static const uint128 upper = const128(0x1ffbff7feffdffbUL, 0xff7feffdffbff7feUL);
+	static const uint128 lower = const128(0x0ffdffbff7feffdUL, 0xffbff7feffdffbffUL);
+	uint128 r = _mask;
+	r |= (_mask & lower) << 1;
+	r |= (_mask & upper) >> 1;
+	r |= (_mask & right) >> 11;
+	r |= (_mask & left ) << 11;
+	return BoardMask(r);
 }
 
 BoardMask BoardMask::connected(const BoardMask& seed) const
 {
 	assert(isValid() && seed.isValid());
 	BoardMask result = *this & seed;
-	BoardMask border = result;
-	while(border) {
-		BoardMask nextBorder;
-		for(BoardPoint p: border)
-			nextBorder |= p.neighbors() & *this;
-		nextBorder -= result;
-		result |= nextBorder;
-		border = nextBorder;
-	}
+	BoardMask oldResult;
+	do {
+		oldResult = result;
+		result.expand();
+		result &= *this;
+	} while(oldResult != result);
 	return result;
 }
 

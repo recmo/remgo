@@ -49,8 +49,8 @@ public:
 	void forwardUpdate(float score);
 	
 	void selectAction(Board board);
-	bool isLeaf() { return !_child; }
-	   void rollOut(const Board& board);
+	bool isLeaf() const { return !_child; }
+	void rollOut(const Board& board);
 	
 	Move bestMove() const;
 	

@@ -10,15 +10,15 @@ public:
 	HeatMap();
 	~HeatMap() { }
 	
-	void add(BoardMask moves);
+	void add(BoardMask points);
 	void scale(uint factor);
-	Move bestMove(BoardMask moves) const;
-	float score(Move move) const;
+	BoardPoint bestPoint(BoardMask mask) const;
+	float score(BoardPoint point) const;
 	
 protected:
 	friend ostream& operator<<(ostream& out, const HeatMap& heatmap);
 	uint _max;
-	uint _map[Move::maxIndex];
+	uint _map[BoardPoint::numPositions];
 };
 
 ostream& operator<<(ostream& out, const HeatMap& heatmap);

@@ -6,7 +6,7 @@ HeatMap HeatMap::black;
 
 ostream& operator<<(ostream& out, const HeatMap& heatmap)
 {
-	for(uint i = 0; i < Move::maxIndex; ++i)
+	for(uint i = 0; i < BoardPoint::numPositions; ++i)
 		out << " " << (float(heatmap._map[i]) / heatmap._max);
 	return out;
 }
@@ -15,42 +15,42 @@ HeatMap::HeatMap()
 : _max(0)
 , _map()
 {
-	for(uint i = 0; i < Move::maxIndex; ++i)
+	for(uint i = 0; i < BoardPoint::numPositions; ++i)
 		_map[i] = 0;
 }
 
-void HeatMap::add(BoardMask moves)
+void HeatMap::add(BoardMask points)
 {
 	++_max;
-	for(BoardMask::Iterator i = moves.itterator(); i; ++i)
-		++_map[i->position()];
+	for(BoardPoint p: points)
+		++_map[p.position()];
 }
 
 void HeatMap::scale(uint factor)
 {
 	_max /= factor;
-	for(uint i = 0; i < Move::maxIndex; ++i)
+	for(uint i = 0; i < BoardPoint::numPositions; ++i)
 		_map[i] /= factor;
 }
 
-Move HeatMap::bestMove(BoardMask moves) const
+BoardPoint HeatMap::bestPoint(BoardMask mask) const
 {
 	uint bestScore = 0;
-	Move bestMove;
-	for(BoardMask::Iterator i = moves.itterator(); i; ++i) {
-		const uint moveScore = _map[i->position()];
+	BoardPoint bestPoint;
+	for(BoardPoint p: mask) {
+		const uint moveScore = _map[p.position()];
 		if(moveScore <= bestScore)
 			continue;
 		bestScore = moveScore;
-		bestMove = *i;
+		bestPoint = p;
 	}
-	return bestMove;
+	return bestPoint;
 }
 
-float HeatMap::score(Move move) const
+float HeatMap::score(BoardPoint point) const
 {
 	if(_max == 0)
 		return 0.5;
-	return float(_map[move.position()]) / float(_max);
+	return float(_map[point.position()]) / float(_max);
 }
 

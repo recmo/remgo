@@ -24,26 +24,3 @@ uint32 entropy(uint upperBound)
 	available /= upperBound;
 	return dice;
 }
-
-// true = white
-bool blackOrWhite(uint numBlack, uint numWhite)
-{
-	// Short cut if there is no entropy involved
-	if(numBlack == 0)
-		return true;
-	if(numWhite == 0)
-		return false;
-	
-	// We can divide out gcd(numBlack, numWhite) , let's only do it for powers of two
-	//uint ctz = trailingZeros(numBlack | numWhite);
-	//numBlack >>= ctz;
-	//numWhite >>= ctz;
-	uint orred = numBlack | numWhite;
-	while((orred & 1) == 0) {
-		orred >>= 1;
-		numBlack >>= 1;
-		numWhite >>= 1;
-	}
-	
-	return entropy(numBlack + numWhite) < numWhite;
-}

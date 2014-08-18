@@ -36,3 +36,10 @@ Testing
 ------
 
     make competition
+
+
+Todo
+------
+
+ * https://github.com/Yelp/MOE
+ * https://jaberg.github.io/hyperopt/

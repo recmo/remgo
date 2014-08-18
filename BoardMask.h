@@ -8,7 +8,7 @@ public:
 	
 	BoardMask(): _mask(0) { }
 	BoardMask(const BoardMask& other): _mask(other._mask) { }
-	BoardMask(BoardPoint point);
+	explicit BoardMask(BoardPoint point);
 	~BoardMask() { }
 	operator bool() const { return !isEmpty(); }
 	BoardMask& operator=(const BoardMask& other) { _mask = other._mask;return *this; }
@@ -22,6 +22,7 @@ public:
 	BoardMask operator-(const BoardMask& other) const { return *this & (~other); }
 	BoardMask operator~() const { return BoardMask(~_mask) & fullBoard; }
 	BoardMask expanded() const;
+	BoardMask connected(BoardPoint seed) const { return connected(BoardMask(seed)); }
 	BoardMask connected(const BoardMask& seed) const;
 	vector<BoardMask> groups() const;
 	BoardMask& invert() { return operator=(operator~()); }
@@ -40,10 +41,10 @@ public:
 	
 	Iterator begin() const;
 	Iterator end() const;
+	explicit BoardMask(uint128 mask): _mask(mask) { }
 
 protected:
 	uint128 _mask;
-	BoardMask(uint128 mask): _mask(mask) { }
 	BoardMask& setFullBoard();
 };
 

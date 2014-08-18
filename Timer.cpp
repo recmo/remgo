@@ -1,6 +1,6 @@
 #include "Timer.h"
 
-Timer Timer::instance(8, 53);
+Timer Timer::instance(8, 100);
 
 Timer::Timer(uint timeLimit, uint maxRounds)
 : _timeLimit(timeLimit)

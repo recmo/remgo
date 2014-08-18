@@ -31,11 +31,9 @@ BoardMask BoardPoint::mask() const
 
 BoardMask BoardPoint::neighbors() const
 {
-	BoardMask result;
-	if(left().isValid()) result.set(left());
-	if(right().isValid()) result.set(right());
-	if(up().isValid()) result.set(up());
-	if(down().isValid()) result.set(down());
+	BoardMask result(*this);
+	result.expand();
+	result.clear(*this);
 	return result;
 }
 

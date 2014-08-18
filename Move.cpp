@@ -1,28 +1,20 @@
 #include "Move.h"
 
-Move Move::Swap(107);
-
 std::ostream& operator<<(std::ostream& out, const Move& move)
 {
-	if(move == Move::Swap)
-		out << "-1";
-	else
-		out << move.position();
+	out << move.from() << "-" << move.to();
 	return out;
 }
 
 std::istream& operator>>(std::istream& in, Move& move)
 {
-	int position;
-	in >> position;
-	move = (position == -1) ? Move::Swap : Move(position);
-	assert(move.isValid());
+	BoardPoint p;
+	in >> p;
+	move.from(p);
+	char c;
+	in >> c;
+	assert(c == '-');
+	in >> p;
+	move.to(p);
 	return in;
-}
-
-Move::Move(const string& str)
-: BoardPoint(0)
-{
-	stringstream stream(str);
-	stream >> *this;
 }

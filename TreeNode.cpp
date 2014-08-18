@@ -122,7 +122,7 @@ BoardMask TreeNode::visitedChildren() const
 {
 	BoardMask result;
 	for(TreeNode* c = _child; c; c = c->_sibling)
-		result.set(c->_move);
+		result.set(c->_move.from());
 	return result;
 }
 
@@ -145,7 +145,6 @@ void TreeNode::backwardRecurse(const Board& endGame, float value)
 	if(_parent)
 		_parent->backwardRecurse(endGame, 1.0 - value);
 	else
-		/// @todo Colours are incorrect if there was a swap!!
 		forwardRecurse(endGame.white(), endGame.black(), value);
 }
 
@@ -157,16 +156,9 @@ void TreeNode::backwardUpdate(float value)
 
 void TreeNode::forwardRecurse(const BoardMask& self, const BoardMask& other, float score)
 {
-	// Swap node
-	if(_move == Move::Swap) {
-		forwardUpdate(score);
-		score = 1.0 - score;
-		for(TreeNode* c = _child; c; c = c->_sibling)
-			c->forwardRecurse(self, other, score);
-		
 	// Regular moves
-	} else if(_move.isValid()) {
-		if(!self.isSet(_move))
+	if(_move.isValid()) {
+		if(!self.isSet(_move.to()))
 			return;
 		forwardUpdate(score);
 		score = 1.0 - score;
@@ -217,7 +209,7 @@ void TreeNode::write(ostream& out, uint treshold) const
 			++numTresholdChildren;
 	
 	// Write out this node
-	out.put(_move.position());
+	out.put(_move.from().position());
 	out.write(reinterpret_cast<const char*>(&_backwardVisits), sizeof(_backwardVisits));
 	out.write(reinterpret_cast<const char*>(&_backwardValue), sizeof(_backwardValue));
 	out.write(reinterpret_cast<const char*>(&_forwardVisits), sizeof(_forwardVisits));
@@ -265,7 +257,7 @@ void TreeNode::read(istream& in, uint rotation)
 	// Read child nodes
 	uint numChildren = in.get();
 	for(uint i = 0; i < numChildren; ++i) {
-		Move move = Move::fromIndex(in.get());
+		Move move;
 		assert(move.isValid());
 		TreeNode* c = child(move);
 		c->read(in);
@@ -274,42 +266,35 @@ void TreeNode::read(istream& in, uint rotation)
 
 TreeNode* TreeNode::select(const Board& board)
 {
-	const HeatMap& heatmap = (board.player() == 1) ? HeatMap::white : HeatMap::black;
-	
-	// Index over moves
-	bool valid[Move::numIndices];
-	float values[Move::numIndices];
-	
-	// Initialize moves with heatmap
-	/// @todo Unexplored should outmax explored
-	for(uint i = 0; i < Move::numIndices; ++i) {
-		values[i] = heatmap.score(Move::fromIndex(i));
-		valid[i] = false;
+	const vector<Move> moves = board.validMoves();
+	if(moves.empty()) {
+		assert(board.gameOver());
+		return nullptr;
 	}
 	
-	// Enable non swap moves
-	BoardMask moves = board.nonSwapMoves();
-	for(BoardMask::Iterator i = moves.itterator(); i; ++i)
-		valid[i->position()] = true;
+	// Index over moves
+	float values[moves.size()];
 	
 	// Load existing child data
 	const float logParentVisits = log(this->backwardVisits() + 1);
 	for(TreeNode* c = _child; c; c = c->_sibling) {
-		values[c->_move.position()] = c->raveScore(logParentVisits);
+		Move childMove = c->_move;
+		for(uint i = 0; i < moves.size(); ++i) {
+			if(moves[i] == childMove)
+				values[i] == c->raveScore(logParentVisits);
+		}
 	}
 	
 	// UCT select node
 	uint selectedIndex = 0;
 	float bestValue = 0.0;
-	for(uint i = 0; i < Move::numIndices; ++i) {
-		if(!valid[i])
-			continue;
+	for(uint i = 0; i < moves.size(); ++i) {
 		if(values[i] > bestValue || (values[i] == bestValue && entropy(1))) {
 			selectedIndex = i;
 			bestValue = values[i];
 		}
 	}
-	return child(Move::fromIndex(selectedIndex));
+	return child(moves[selectedIndex]);
 }
 
 void TreeNode::loadGames(const string& filename)
@@ -349,21 +334,31 @@ void TreeNode::loadGames(const string& filename)
 void TreeNode::selectAction(Board board)
 {
 	TreeNode* current = this;
+	
+	// Select an existing leaf
 	while(!current->isLeaf()) {
 		current = current->select(board);
 		board.playMove(current->_move);
 	}
-	if(!current->isLeaf()) {
+	
+	// Expand one more
+	{
 		TreeNode* newNode = current->select(board);
-		assert(newNode);
+		if(!newNode)
+			return;
 		current = newNode;
 		board.playMove(current->_move);
 	}
+	
+	// Roll out randomly
 	current->rollOut(board);
+	assert(!isLeaf());
 }
 
 Move TreeNode::bestMove() const
 {
+	assert(!isLeaf());
+	
 	// Find node with highest playout count
 	TreeNode* best = nullptr;
 	for(TreeNode* c = _child; c; c = c->_sibling)
@@ -376,38 +371,26 @@ Move TreeNode::bestMove() const
 void TreeNode::rollOut(const Board& board)
 {
 	Board fillOut(board);
-	fillOut.bambooBridges();
-	fillOut.randomFillUp();
+	
+	// Play till there is a winner
+	vector<Move> moves;
+	for(;;) {
+		moves = fillOut.validMoves();
+		if(moves.empty())
+			break;
+		fillOut.playMove(moves[entropy(moves.size())]);
+	}
+	
+	// Update the depth estimator
+	DepthEstimator::instance.addEstimate(fillOut.moveCount());
 	
 	// Find the winner
-	uint winner = 0;
-	BoardMask winningSet;
-	
-	// No winner
-	
-	// Update HeatMap
-	if(winner == 1)
-		HeatMap::white.add(fillOut.white());
-	if(winner == 2)
-		HeatMap::black.add(fillOut.black());
-	
-	// Estimate depth
-	if(winner == 1) {
-		BoardMask addedPieces = winningSet - board.white();
-		uint depth = board.moveCount() + (2 * addedPieces.popcount());
-		DepthEstimator::instance.addEstimate(depth);
-	}
-	if(winner == 2) {
-		BoardMask addedPieces = winningSet - board.black();
-		uint depth = board.moveCount() + (2 * addedPieces.popcount());
-		DepthEstimator::instance.addEstimate(depth);
-	}
+	assert(fillOut.gameOver());
+	Board::Player winner = fillOut.winner();
+	assert(winner == Board::Black || winner == Board::White);
 	
 	// Update scores
-	if(winner == 0)
-		backwardRecurse(fillOut, 0.5);
-	else
-		backwardRecurse(fillOut, (winner == board.player()) ? 1.0 : 0.0);
+	backwardRecurse(fillOut, (winner == board.player()) ? 1.0 : 0.0);
 }
 
 void TreeNode::scaleStatistics(uint factor)
