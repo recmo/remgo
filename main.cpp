@@ -1,5 +1,4 @@
 #include "Utilities.h"
-#include "Uint128.h"
 #include "Random.h"
 #include "Timer.h"
 #include "BoardPoint.h"
@@ -50,10 +49,28 @@ int main(int argc, char* argv[])
 	cerr << "sizeof(TreeNode) = " << sizeof(TreeNode) << endl;
 	srand(time(0));
 	
-	
 	BoardPoint p;
 	cin >> p;
 	cout << p << endl;
+	
+	BoardMask b(p);
+	for(BoardPoint p: b)
+		cout << p << " ";
+	cout << b << endl;
+	cout << endl;
+	
+	b = p.neighbors();
+	cout << b << endl;
+	for(BoardPoint p: b)
+		cout << p << " ";
+	cout << endl;
+	
+	cout << b.randomPoint() << endl;
+	cout << b.randomPoint() << endl;
+	cout << b.randomPoint() << endl;
+	cout << b.randomPoint() << endl;
+	cout << b.randomPoint() << endl;
+	cout << b.randomPoint() << endl;
 	return 0;
 	
 	//convertGames("competitions-sym.txt", "games.bin");

@@ -381,14 +381,7 @@ void TreeNode::rollOut(const Board& board)
 	
 	// Find the winner
 	uint winner = 0;
-	BoardMask winningSet = fillOut.white().winningSet();
-	if(winningSet) {
-		winner = 1; // White won
-	} else {
-		winningSet = fillOut.black().winningSet();
-		if(winningSet)
-			winner = 2; // black won
-	}
+	BoardMask winningSet;
 	
 	// No winner
 	
