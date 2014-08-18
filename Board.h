@@ -19,6 +19,7 @@ public:
 	
 	vector<Move> validMoves(BoardPoint piece) const;
 	vector<Move> validMoves() const;
+	Move randomMove(BoardPoint piece) const;
 	Move randomMove() const;
 	
 	uint moveCount() const { return _moveCount; }

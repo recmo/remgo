@@ -101,14 +101,55 @@ vector<Move> Board::validMoves() const
 	return result;
 }
 
+Move Board::randomMove(BoardPoint piece) const
+{
+	const BoardMask pp = playerPieces();
+	const BoardMask empty = free();
+	assert(pp.isSet(piece));
+	
+	BoardMask group = playerPieces().connected(piece);
+	BoardMask nonGroup = playerPieces() - group;
+	if(nonGroup.isEmpty()) {
+		// Single big group, no valid moves left, we have won!
+		return Move();
+	}
+	
+	// Find the nearest units
+	BoardMask nearest;
+	BoardMask frontier = group;
+	do {
+		BoardMask oldFrontier = frontier;
+		frontier.expand();
+		nearest = frontier & nonGroup;
+		frontier &= empty;
+		
+		// No paths to other units
+		if(!nearest && frontier == oldFrontier)
+			return Move();
+	} while(!nearest);
+	
+	// Find the positions that decrease the distance towards them
+	BoardMask boundary = group.expanded() & empty;
+	BoardMask decreasers;
+	frontier = nearest;
+	do {
+		frontier.expand();
+		frontier &= empty;
+		decreasers = frontier & boundary;
+	} while(!decreasers);
+	
+	// Return a random valid move
+	return Move(piece, decreasers.randomPoint());
+}
+
 Move Board::randomMove() const
 {
 	BoardMask pp = playerPieces();
 	do {
 		BoardPoint p = pp.randomPoint();
-		vector<Move> m = validMoves(p);
-		if(!m.empty())
-			return m[entropy(m.size())];
+		Move m = randomMove(p);
+		if(m.isValid())
+			return m;
 		pp.clear(p);
 	} while(pp);
 	return Move();
