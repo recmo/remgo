@@ -11,7 +11,11 @@ public:
 	void addEstimate(uint depth);
 	float estimate() const;
 	
+	void currentDepth(uint depth) { _current = depth; }
+	float estimateRemaining() const { return estimate() - _current; }
+	
 protected:
 	uint _count;
 	uint _total;
+	uint _current;
 };

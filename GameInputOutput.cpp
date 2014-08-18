@@ -21,7 +21,9 @@ void GameInputOutput::run()
 	string line;
 	for(;;) {
 		// Player move
+		Timer::instance.stop();
 		cin >> line;
+		Timer::instance.start();
 		cerr << "In: " << line << endl;
 		if(line == "Quit") {
 			cerr << "Quiting" << endl;
@@ -45,7 +47,9 @@ void GameInputOutput::run()
 		if(_board.gameOver())
 			break;
 	}
+	Timer::instance.stop();
 	cin >> line;
+	Timer::instance.start();
 	cerr << "In: " << line << endl;
 	cerr << "Quiting" << endl;
 }
@@ -63,6 +67,7 @@ Move GameInputOutput::generateMove()
 	
 	// Reset depth estimator
 	DepthEstimator::instance.reset();
+	DepthEstimator::instance.currentDepth(_board.moveCount());
 	
 	// Iterate MCTS a couple of times
 	Timer::instance.nextRound();
@@ -72,6 +77,9 @@ Move GameInputOutput::generateMove()
 	
 	cerr << "Current depth " << _board.moveCount() << endl;
 	cerr << "Estimated total depth " << DepthEstimator::instance.estimate() << endl;
+	
+	cerr << "Estimated moves remaining " << DepthEstimator::instance.estimateRemaining() / 2 << endl;
+	cerr << "Time remaining " << Timer::instance.remaining() << endl;
 	
 	cerr << "Thought to ";
 	cerr << TreeNode::numNodes()  << " nodes (" << _current->backwardVisits() << " visits)" << " (";

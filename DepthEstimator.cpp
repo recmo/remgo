@@ -16,5 +16,7 @@ void DepthEstimator::addEstimate(uint depth)
 
 float DepthEstimator::estimate() const
 {
+	if(_count == 0)
+		return 100.0;
 	return float(_total) / float(_count);
 }

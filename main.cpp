@@ -12,6 +12,7 @@
 
 int main(int argc, char* argv[])
 {
+	Timer::instance.start();
 	cerr << "R " << argv[0]  << endl;
 	cerr << "RAND_MAX = " << RAND_MAX << endl;
 	cerr << "sizeof(float) = " << sizeof(float) << endl;
@@ -28,5 +29,6 @@ int main(int argc, char* argv[])
 	GameInputOutput gio;
 	gio.run();
 	cerr << "Exit" << endl;
+	Timer::instance.stop();
 	return 0;
 }
