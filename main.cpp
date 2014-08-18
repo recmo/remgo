@@ -50,6 +50,12 @@ int main(int argc, char* argv[])
 	cerr << "sizeof(TreeNode) = " << sizeof(TreeNode) << endl;
 	srand(time(0));
 	
+	
+	BoardPoint p;
+	cin >> p;
+	cout << p << endl;
+	return 0;
+	
 	//convertGames("competitions-sym.txt", "games.bin");
 	// convertGames("competitions-sym.txt", "itterated.bin");
 	// ponder("itterated.bin");

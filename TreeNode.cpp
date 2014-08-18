@@ -217,7 +217,7 @@ void TreeNode::write(ostream& out, uint treshold) const
 			++numTresholdChildren;
 	
 	// Write out this node
-	out.put(_move.index());
+	out.put(_move.position());
 	out.write(reinterpret_cast<const char*>(&_backwardVisits), sizeof(_backwardVisits));
 	out.write(reinterpret_cast<const char*>(&_backwardValue), sizeof(_backwardValue));
 	out.write(reinterpret_cast<const char*>(&_forwardVisits), sizeof(_forwardVisits));
@@ -234,7 +234,7 @@ void TreeNode::read(const string& filename, uint rotation)
 {
 	cerr << "Reading " << filename << endl;
 	if(rotation == -1) {
-		for(rotation = 0; rotation < Move::maxRotation; ++rotation)
+		for(rotation = 0; rotation < 1; ++rotation)
 			read(filename, rotation);
 		return;
 	}
@@ -267,8 +267,6 @@ void TreeNode::read(istream& in, uint rotation)
 	for(uint i = 0; i < numChildren; ++i) {
 		Move move = Move::fromIndex(in.get());
 		assert(move.isValid());
-		if(move != Move::Swap)
-			move.rotate(rotation);
 		TreeNode* c = child(move);
 		c->read(in);
 	}
@@ -289,19 +287,15 @@ TreeNode* TreeNode::select(const Board& board)
 		valid[i] = false;
 	}
 	
-	// Enable swap move if allowed
-	if(board.moveCount() == 1)
-		valid[Move::Swap.index()] = true;
-	
 	// Enable non swap moves
 	BoardMask moves = board.nonSwapMoves();
 	for(BoardMask::Iterator i = moves.itterator(); i; ++i)
-		valid[i->index()] = true;
+		valid[i->position()] = true;
 	
 	// Load existing child data
 	const float logParentVisits = log(this->backwardVisits() + 1);
 	for(TreeNode* c = _child; c; c = c->_sibling) {
-		values[c->_move.index()] = c->raveScore(logParentVisits);
+		values[c->_move.position()] = c->raveScore(logParentVisits);
 	}
 	
 	// UCT select node
@@ -328,31 +322,27 @@ void TreeNode::loadGames(const string& filename)
 	for(string line; getline(file, line); ) {
 		
 		// Iterate over all symmetries
-		for(uint rotation = 0; rotation < BoardPoint::maxRotation; ++rotation) {
-			stringstream ss(line);
-			Board board;
-			TreeNode* gameState = this;
-			while(ss.good()) {
-				Move move;
-				ss >> move;
-				assert(move.isValid());
-				if(move != Move::Swap)
-					move.rotate(rotation);
-				board.playMove(move);
-				gameState = gameState->child(move);
-				assert(gameState);
-			}
-			if(!board.gameOver()) {
-				cerr << "!!! Not entire game!" << endl;
-				continue;
-			}
-			
-			/// @todo Commit score
-			float value = (board.winner() == board.player()) ? 1.0 : 0.0;
-			// value = 1.0 - value;
-			for(uint i = 0; i < 10; ++i)
-				gameState->backwardRecurse(board, value);
+		stringstream ss(line);
+		Board board;
+		TreeNode* gameState = this;
+		while(ss.good()) {
+			Move move;
+			ss >> move;
+			assert(move.isValid());
+			board.playMove(move);
+			gameState = gameState->child(move);
+			assert(gameState);
 		}
+		if(!board.gameOver()) {
+			cerr << "!!! Not entire game!" << endl;
+			continue;
+		}
+		
+		/// @todo Commit score
+		float value = (board.winner() == board.player()) ? 1.0 : 0.0;
+		// value = 1.0 - value;
+		for(uint i = 0; i < 10; ++i)
+			gameState->backwardRecurse(board, value);
 	}
 }
 

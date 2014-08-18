@@ -23,7 +23,7 @@ void HeatMap::add(BoardMask moves)
 {
 	++_max;
 	for(BoardMask::Iterator i = moves.itterator(); i; ++i)
-		++_map[i->index()];
+		++_map[i->position()];
 }
 
 void HeatMap::scale(uint factor)
@@ -38,7 +38,7 @@ Move HeatMap::bestMove(BoardMask moves) const
 	uint bestScore = 0;
 	Move bestMove;
 	for(BoardMask::Iterator i = moves.itterator(); i; ++i) {
-		const uint moveScore = _map[i->index()];
+		const uint moveScore = _map[i->position()];
 		if(moveScore <= bestScore)
 			continue;
 		bestScore = moveScore;
@@ -51,6 +51,6 @@ float HeatMap::score(Move move) const
 {
 	if(_max == 0)
 		return 0.5;
-	return float(_map[move.index()]) / float(_max);
+	return float(_map[move.position()]) / float(_max);
 }
 
