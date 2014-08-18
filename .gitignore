@@ -1,6 +1,9 @@
 callgrind.*
 caia*
 *.pdf
+*.o
 .*
 *.kdev4
-main
+entry
+monolith.cpp
+monolith
