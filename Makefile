@@ -18,4 +18,4 @@ monolith.cpp: sources $(shell cat sources)
 	sed -i "s|^#include \".*$$||g" monolith.cpp
 
 competition: monolith
-	cd caia/ayu/bin; ./competition.sh player1 player2 player3 monolith
+	cd caia/ayu/bin; ./competition.sh player1 player2 player3 6a0d886 monolith 

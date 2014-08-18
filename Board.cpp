@@ -101,6 +101,19 @@ vector<Move> Board::validMoves() const
 	return result;
 }
 
+Move Board::randomMove() const
+{
+	BoardMask pp = playerPieces();
+	do {
+		BoardPoint p = pp.randomPoint();
+		vector<Move> m = validMoves(p);
+		if(!m.empty())
+			return m[entropy(m.size())];
+		pp.clear(p);
+	} while(pp);
+	return Move();
+}
+
 void Board::playMove(Move move)
 {
 	// Placement move

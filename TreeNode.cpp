@@ -257,12 +257,11 @@ void TreeNode::rollOut(const Board& board)
 	Board fillOut(board);
 	
 	// Play till there is a winner
-	vector<Move> moves;
 	for(;;) {
-		moves = fillOut.validMoves();
-		if(moves.empty())
+		Move move = fillOut.randomMove();
+		if(!move.isValid())
 			break;
-		fillOut.playMove(moves[entropy(moves.size())]);
+		fillOut.playMove(move);
 	}
 	
 	// Update the depth estimator
