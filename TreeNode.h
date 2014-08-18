@@ -6,7 +6,6 @@
 
 class TreeNode {
 public:
-	static constexpr int nActions = 5;
 	static constexpr float epsilon = 1e-6;
 	static constexpr float explorationParameter = sqrt(2.0);
 	static uint numNodes() { return _numNodes; }

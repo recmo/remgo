@@ -14,7 +14,7 @@ typedef unsigned char uint8;
 typedef uint32_t uint32;
 typedef uint64_t uint64;
 typedef signed int sint;
-typedef __uint128_t uint128;
+typedef unsigned __int128 uint128;
 
 #define const128(high,low)\
 	((static_cast<uint128>(high) << 64) | static_cast<uint128>(low))

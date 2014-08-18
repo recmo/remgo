@@ -139,19 +139,19 @@ void TreeNode::vincent(TreeNode* child)
 	_child->_sibling = nullptr;
 }
 
-void TreeNode::backwardRecurse(const Board& endGame, float value)
+void TreeNode::backwardRecurse(const Board& endGame, float score)
 {
-	backwardUpdate(value);
+	backwardUpdate(score);
 	if(_parent)
-		_parent->backwardRecurse(endGame, 1.0 - value);
+		_parent->backwardRecurse(endGame, 1.0 - score);
 	else
-		forwardRecurse(endGame.white(), endGame.black(), value);
+		forwardRecurse(endGame.white(), endGame.black(), score);
 }
 
-void TreeNode::backwardUpdate(float value)
+void TreeNode::backwardUpdate(float score)
 {
-	++_backwardValue;
-	_backwardValue += value;
+	++_backwardVisits;
+	_backwardValue += score;
 }
 
 void TreeNode::forwardRecurse(const BoardMask& self, const BoardMask& other, float score)
@@ -178,92 +178,6 @@ void TreeNode::forwardUpdate(float score)
 	_forwardValue += score;
 }
 
-void TreeNode::writeOut(ostream& out, uint treshold) const
-{
-	if(backwardVisits() < treshold)
-		return;
-	out << *this << endl;
-	for(TreeNode* c = _child; c; c = c->_sibling)
-		c->writeOut(out, treshold);
-}
-
-void TreeNode::write(const string& filename, uint treshold) const
-{
-	ofstream file(filename, ofstream::out | ofstream::trunc | ofstream::binary);
-	write(file, treshold);
-	file.close();
-}
-
-void TreeNode::write(ostream& out, uint treshold) const
-{
-	assert(out.good());
-	
-	// Skip if the number of visits is insufficient
-	if(backwardVisits() < treshold)
-		return;
-	
-	// Count number of children that pass the threshold
-	uint numTresholdChildren = 0;
-	for(TreeNode* c = _child; c; c = c->_sibling)
-		if(c->backwardVisits() >= treshold)
-			++numTresholdChildren;
-	
-	// Write out this node
-	out.put(_move.from().position());
-	out.write(reinterpret_cast<const char*>(&_backwardVisits), sizeof(_backwardVisits));
-	out.write(reinterpret_cast<const char*>(&_backwardValue), sizeof(_backwardValue));
-	out.write(reinterpret_cast<const char*>(&_forwardVisits), sizeof(_forwardVisits));
-	out.write(reinterpret_cast<const char*>(&_forwardValue), sizeof(_forwardValue));
-	out.put(numTresholdChildren);
-	
-	// Write out child nodes
-	for(TreeNode* c = _child; c; c = c->_sibling)
-		if(c->backwardVisits() >= treshold)
-			c->write(out, treshold);
-}
-
-void TreeNode::read(const string& filename, uint rotation)
-{
-	cerr << "Reading " << filename << endl;
-	if(rotation == -1) {
-		for(rotation = 0; rotation < 1; ++rotation)
-			read(filename, rotation);
-		return;
-	}
-	uint before = TreeNode::numNodes();
-	ifstream file(filename, ifstream::in | ifstream::binary);
-	assert(file.get() == 0xff); // Skip first node move
-	read(file, rotation);
-	file.close();
-	cerr << "Read " << (TreeNode::numNodes() - before) << " nodes" << endl;
-}
-
-void TreeNode::read(istream& in, uint rotation)
-{
-	assert(in.good());
-	
-	// Read this node
-	uint visits;
-	float value;
-	in.read(reinterpret_cast<char*>(&visits), sizeof(visits));
-	in.read(reinterpret_cast<char*>(&value), sizeof(value));
-	_forwardVisits += visits;
-	_forwardValue += value;
-	in.read(reinterpret_cast<char*>(&visits), sizeof(visits));
-	in.read(reinterpret_cast<char*>(&value), sizeof(value));
-	_backwardVisits += visits;
-	_backwardValue += value;
-	
-	// Read child nodes
-	uint numChildren = in.get();
-	for(uint i = 0; i < numChildren; ++i) {
-		Move move;
-		assert(move.isValid());
-		TreeNode* c = child(move);
-		c->read(in);
-	}
-}
-
 TreeNode* TreeNode::select(const Board& board)
 {
 	const vector<Move> moves = board.validMoves();
@@ -272,16 +186,20 @@ TreeNode* TreeNode::select(const Board& board)
 		return nullptr;
 	}
 	
-	// Index over moves
+	// Unexplored moves go first
 	float values[moves.size()];
+	for(uint i = 0; i < moves.size(); ++i) {
+		values[i] = std::numeric_limits<float>::max();
+	}
 	
 	// Load existing child data
 	const float logParentVisits = log(this->backwardVisits() + 1);
 	for(TreeNode* c = _child; c; c = c->_sibling) {
 		Move childMove = c->_move;
 		for(uint i = 0; i < moves.size(); ++i) {
-			if(moves[i] == childMove)
-				values[i] == c->raveScore(logParentVisits);
+			if(moves[i] == childMove) {
+				values[i] = c->backwardScore(logParentVisits);
+			}
 		}
 	}
 	
@@ -295,40 +213,6 @@ TreeNode* TreeNode::select(const Board& board)
 		}
 	}
 	return child(moves[selectedIndex]);
-}
-
-void TreeNode::loadGames(const string& filename)
-{
-	ifstream file(filename);
-	if(!file.good()) {
-		cerr << "Could not read: " << filename << endl;
-		return;
-	}
-	for(string line; getline(file, line); ) {
-		
-		// Iterate over all symmetries
-		stringstream ss(line);
-		Board board;
-		TreeNode* gameState = this;
-		while(ss.good()) {
-			Move move;
-			ss >> move;
-			assert(move.isValid());
-			board.playMove(move);
-			gameState = gameState->child(move);
-			assert(gameState);
-		}
-		if(!board.gameOver()) {
-			cerr << "!!! Not entire game!" << endl;
-			continue;
-		}
-		
-		/// @todo Commit score
-		float value = (board.winner() == board.player()) ? 1.0 : 0.0;
-		// value = 1.0 - value;
-		for(uint i = 0; i < 10; ++i)
-			gameState->backwardRecurse(board, value);
-	}
 }
 
 void TreeNode::selectAction(Board board)
@@ -390,12 +274,11 @@ void TreeNode::rollOut(const Board& board)
 	assert(winner == Board::Black || winner == Board::White);
 	
 	// Update scores
-	backwardRecurse(fillOut, (winner == board.player()) ? 1.0 : 0.0);
+	backwardRecurse(fillOut, (winner == board.player()) ? 0.0 : 1.0);
 }
 
 void TreeNode::scaleStatistics(uint factor)
 {
-
 	_backwardVisits /= factor;
 	_backwardValue /= factor;
 	_forwardVisits /= factor;
