@@ -22,6 +22,14 @@ void Timer::stop()
 	_timeLimit -= duration;
 }
 
+void Timer::update()
+{
+	monotonic_clock::time_point now = monotonic_clock::now();
+	uint duration = duration_cast<microseconds>(now - _start).count();
+	_timeLimit -= duration;
+	_start = now;
+}
+
 void Timer::nextRound()
 {
 	_roundStart = monotonic_clock::now();

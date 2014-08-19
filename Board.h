@@ -10,28 +10,28 @@ public:
 		None
 	};
 	
-	Board();
-	~Board() { }
-	bool operator==(const Board& other) const { return _moveCount == other._moveCount && _white == other._white && _black == other._black; }
+	Board() funk;
+	~Board() funk { }
+	bool operator==(const Board& other) const funk { return _moveCount == other._moveCount && _white == other._white && _black == other._black; }
 	
-	bool gameOver() const { return validMoves().empty(); }
-	void playMove(Move move);
+	bool gameOver() const funk { return validMoves().empty(); }
+	void playMove(Move move) funk;
 	
-	vector<Move> validMoves(BoardPoint piece) const;
-	vector<Move> validMoves() const;
-	Move randomMove(BoardPoint piece) const;
-	Move randomMove() const;
+	vector<Move> validMoves(BoardPoint piece) const funk;
+	vector<Move> validMoves() const funk;
+	Move randomMove(BoardPoint piece) const funk;
+	Move randomMove() const funk;
 	
-	uint moveCount() const { return _moveCount; }
-	BoardMask white() const { return _white; }
-	BoardMask black() const { return _black; }
-	BoardMask playerPieces() const { return player() == White ? _white : _black; }
-	BoardMask opponentPieces() const { return player() == White ? _black : _white; }
-	BoardMask occupied() const { return _white | _black; }
-	BoardMask free() const { return ~occupied(); }
+	uint moveCount() const funk { return _moveCount; }
+	BoardMask white() const funk { return _white; }
+	BoardMask black() const funk { return _black; }
+	BoardMask playerPieces() const funk { return player() == White ? _white : _black; }
+	BoardMask opponentPieces() const funk { return player() == White ? _black : _white; }
+	BoardMask occupied() const funk { return _white | _black; }
+	BoardMask free() const funk { return ~occupied(); }
 	
-	Player player() const { return (_moveCount & 1) ? Black : White; }
-	Player winner() const { return gameOver() ? player() : None; }
+	Player player() const funk { return (_moveCount & 1) ? Black : White; }
+	Player winner() const funk { return gameOver() ? player() : None; }
 	
 protected:
 	BoardMask _white;

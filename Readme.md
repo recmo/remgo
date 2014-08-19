@@ -38,8 +38,36 @@ Testing
     make competition
 
 
+Uint128 benchmarking
+---------------------
+
+The competition server has no __int128 intrinsics, so they need to be replaced by either a pair of uint64s or 128 bit sse register (which can be enable trough some trickery, despite the compilation flags).
+
+A benchmark shows the following:
+
+| Tech      | Componentized | Monolith | Competition
+| intrinsic |      18367.8  | 19104.7  | unavailable
+| uint64    |      12852    | 12884.9  |     4351.73
+| sse       |       4279.59 |  4279.59 |     1648.84
+
+But the SSE one still allows optimizations:
+
+http://mischasan.wordpress.com/2011/04/04/what-is-sse-good-for-2-bit-vector-operations/
+http://mischasan.wordpress.com/2013/04/07/the-c-preprocessor-not-as-cryptic-as-youd-think/
+
+After some optimizations:
+
+| Tech      | Componentized | Monolith | Competition
+| intrinsic |      18098.8  | 18948.2  | unavailable
+| uint64    |      14596.1  | 14664.5  |      4283.9
+| sse       |      15853.9  | 16202.8  |      5866.11
+
+-> Go for SSE
+
+
 Todo
 ------
 
  * https://github.com/Yelp/MOE
  * https://jaberg.github.io/hyperopt/
+

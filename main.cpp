@@ -12,6 +12,24 @@
 
 /// TODO: Can we combine MCTS with the cellular automata supperoptimization?
 
+void benchmark()
+{
+	// Benchmark
+	const Board startingBoard;
+	TreeNode root;
+	uint simulations = 0;
+	Timer::instance.update();
+	float start = Timer::instance.remaining();
+	while(Timer::instance.remaining() > 20.0) {
+		root.rollOut(startingBoard);
+		++simulations;
+		Timer::instance.update();
+	}
+	float stop = Timer::instance.remaining();
+	cerr << "Time: " << (start - stop) << endl;
+	cerr << "Simulations: " << simulations << endl;
+	cerr << "S/sec: " << (float(simulations)/(start - stop)) << endl;
+}
 
 int main(int argc, char* argv[])
 {

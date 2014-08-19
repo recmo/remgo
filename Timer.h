@@ -15,6 +15,7 @@ public:
 	void nextRound();
 	bool ponder();
 	void stop();
+	void update();
 	
 	float remaining() const { return _timeLimit / 1000000.0; }
 	

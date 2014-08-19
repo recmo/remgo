@@ -25,8 +25,8 @@ typedef __m128i m128;
 // or
 // xor
 
-void print128(std::ostream& out, uint8* data) funk
-void print128(std::ostream& out, uint8* data);
+void print128(std::ostream& out, uint8* data) funk;
+void print128(std::ostream& out, uint8* data)
 {
 	out.fill('0');
 	out << std::hex;

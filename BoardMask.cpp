@@ -32,21 +32,6 @@ BoardMask::Iterator BoardMask::itterator() const
 	return Iterator(*this);
 }
 
-BoardMask BoardMask::expanded() const
-{
-	// Flanks, all non border positions
-	static const uint128 right = const128(0x1ffffffffffffffUL, 0xfffffffffffff800UL);
-	static const uint128 left  = const128(0x0003fffffffffffUL, 0xffffffffffffffffUL);
-	static const uint128 upper = const128(0x1ffbff7feffdffbUL, 0xff7feffdffbff7feUL);
-	static const uint128 lower = const128(0x0ffdffbff7feffdUL, 0xffbff7feffdffbffUL);
-	uint128 r = _mask;
-	r |= (_mask & lower) << 1;
-	r |= (_mask & upper) >> 1;
-	r |= (_mask & right) >> 11;
-	r |= (_mask & left ) << 11;
-	return BoardMask(r);
-}
-
 BoardMask BoardMask::connected(const BoardMask& seed) const
 {
 	assert(isValid() && seed.isValid());
