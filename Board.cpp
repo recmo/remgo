@@ -173,3 +173,7 @@ void Board::playMove(Move move)
 	// Increase move counter
 	++_moveCount;
 }
+
+// TODO: Heuristic: What is the minimal number of stones required to connect all connectable units?
+// Subtract players count from opponents to get a basic heuristic of the positions strength.
+

@@ -10,6 +10,9 @@
 #include "TreeNode.h"
 #include "GameInputOutput.h"
 
+/// TODO: Can we combine MCTS with the cellular automata supperoptimization?
+
+
 int main(int argc, char* argv[])
 {
 	Timer::instance.start();

@@ -10,6 +10,7 @@
 #include <cmath>
 #include <sys/types.h>
 #include <cstdint>
+#define funk __attribute__((optimize("O3"), __target__("sse4.1")));
 using namespace std;
 typedef unsigned int uint;
 typedef unsigned char uint8;
@@ -45,3 +46,4 @@ std::ostream& operator<<(std::ostream& out, const vector<T>& vec)
 
 #include "Uint128.h"
 #include "ForwardDeclare.h"
+
