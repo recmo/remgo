@@ -37,6 +37,7 @@ BoardMask BoardMask::connected(const BoardMask& seed) const
 	assert(isValid() && seed.isValid());
 	BoardMask result = *this & seed;
 	BoardMask oldResult;
+	/// TODO: We can unroll expanded and precompose our mask with the four masks
 	do {
 		oldResult = result;
 		result.expand();
@@ -67,6 +68,7 @@ BoardPoint BoardMask::firstPoint() const
 
 BoardPoint BoardMask::randomPoint() const
 {
+	/// TODO: Optimize
 	uint p = popcount();
 	if(p == 0)
 		return BoardPoint();

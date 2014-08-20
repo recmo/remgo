@@ -64,6 +64,9 @@ After some optimizations:
 
 -> Go for SSE
 
+Laptop sse: 10101.4 (Componentized) 10293 (Monolith)
+10764.4
+11408.8
 
 Todo
 ------

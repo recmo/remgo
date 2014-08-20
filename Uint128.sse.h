@@ -203,13 +203,13 @@ inline u_int64_t Uint128::high() const
 	u_int64_t bits[2] __attribute__ ((aligned (16)));
 	_mm_store_si128(reinterpret_cast<m128*>(bits), _v);
 	return bits[1];
+	
+	return _mm_cvtsi128_si64x(_mm_srli_si128(_v, 8));
 }
 
 inline u_int64_t Uint128::low() const
 {
-	u_int64_t bits[2] __attribute__ ((aligned (16)));
-	_mm_store_si128(reinterpret_cast<m128*>(bits), _v);
-	return bits[0];
+	return _mm_cvtsi128_si64x(_v);
 }
 
 inline std::ostream& operator<<(std::ostream& out, const uint128& n)
@@ -221,13 +221,19 @@ inline std::ostream& operator<<(std::ostream& out, const uint128& n)
 
 inline uint popcount(uint128 n)
 {
-	return __builtin_popcountll(n.low()) + __builtin_popcountll(n.high());
+	const m128 lut = _mm_setr_epi8(0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4);
+	const m128 msk = _mm_set1_epi8(0xf);
+	m128 highNibles = _mm_and_si128(msk, _mm_srli_epi16(n._v, 4));
+	m128 lowNibles = _mm_and_si128(msk, n._v);
+	m128 highCount = _mm_shuffle_epi8(lut, highNibles);
+	m128 lowCount = _mm_shuffle_epi8(lut, lowNibles);
+	m128 counts = _mm_add_epi8(highCount, lowCount);
+	m128 sums = _mm_sad_epu8(counts, _mm_setzero_si128());
+	return _mm_cvtsi128_si64x(_mm_srli_si128(sums, 8)) + _mm_cvtsi128_si64x(sums);
 }
 
 inline uint trailingZeros(uint128 n)
 {
-	if(n.low())
-		return __builtin_ctzll(n.low());
-	else
-		return 64 + __builtin_ctzll(n.high());
+	const u_int64_t l = n.low();
+	return l ? __builtin_ctzll(l) : 64 + __builtin_ctzll(n.high());
 }
