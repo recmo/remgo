@@ -3,15 +3,18 @@
 
 class BoardMask {
 public:
+	static void initialize() funk;
+	static BoardMask masks[BoardPoint::numPositions + 1] __attribute__ ((aligned (16)));
+	
 	class Iterator; 
 	const static BoardMask fullBoard;
 	
-	BoardMask() funk: _mask(0) { }
+	BoardMask() funk: _mask() { }
 	BoardMask(const BoardMask& other) funk: _mask(other._mask) { }
 	explicit BoardMask(BoardPoint point) funk;
 	~BoardMask() funk { }
 	operator bool() const funk { return !isEmpty(); }
-	BoardMask& operator=(const BoardMask& other) funk { _mask = other._mask;return *this; }
+	BoardMask& operator=(const BoardMask& other) funk { _mask = other._mask; return *this; }
 	bool operator==(const BoardMask& other) const funk { return _mask == other._mask; }
 	bool operator!=(const BoardMask& other) const funk { return !operator==(other); }
 	BoardMask& operator&=(const BoardMask& other) funk { return operator=(operator&(other)); }
@@ -19,20 +22,20 @@ public:
 	BoardMask& operator-=(const BoardMask& other) funk { return operator=(operator-(other)); }
 	BoardMask operator&(const BoardMask& other) const funk { return BoardMask(_mask & other._mask); }
 	BoardMask operator|(const BoardMask& other) const funk { return BoardMask(_mask | other._mask); }
-	BoardMask operator-(const BoardMask& other) const funk { return *this & (~other); }
-	BoardMask operator~() const funk { return BoardMask(~_mask) & fullBoard; }
+	BoardMask operator-(const BoardMask& other) const funk { return BoardMask(_mask - other._mask); }
+	BoardMask operator~() const funk { return fullBoard - *this; }
 	BoardMask expanded() const funk;
-	BoardMask connected(BoardPoint seed) const funk { return connected(BoardMask(seed)); }
+	BoardMask connected(BoardPoint seed) const funk { return connected(BoardMask::masks[seed.position()]); }
 	BoardMask connected(const BoardMask& seed) const funk;
 	vector<BoardMask> groups() const funk;
 	BoardMask& invert() funk { return operator=(operator~()); }
 	BoardMask& expand() funk { return operator=(expanded()); }
-	BoardMask& clear() funk { return operator=(BoardMask()); }
+	BoardMask& clear() funk { _mask.clear(); return *this; }
 	uint popcount() const funk { return ::popcount(_mask); }
-	bool isSet(BoardPoint point) const funk { return !(*this & BoardMask(point)).isEmpty(); }
-	BoardMask& set(BoardPoint point) funk { return operator=(*this | BoardMask(point)); }
-	BoardMask& clear(BoardPoint point) funk { return operator=(*this & ~BoardMask(point)); }
-	bool isEmpty() const funk { return operator==(BoardMask()); }
+	bool isSet(BoardPoint point) const funk { return !(*this & BoardMask::masks[point.position()]).isEmpty(); }
+	BoardMask& set(BoardPoint point) funk { return operator=(*this | BoardMask::masks[point.position()]); }
+	BoardMask& clear(BoardPoint point) funk { return operator=(*this - BoardMask::masks[point.position()]); }
+	bool isEmpty() const funk { return mask().isZero(); }
 	bool isValid() const funk { return operator==(*this & fullBoard); }
 	BoardPoint firstPoint() const funk;
 	BoardPoint randomPoint() const funk;

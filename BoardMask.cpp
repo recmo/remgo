@@ -1,5 +1,19 @@
 #include "BoardMask.h"
 #include "Random.h"
+#include "Board.h"
+
+BoardMask BoardMask::masks[BoardPoint::numPositions + 1] __attribute__ ((aligned (16)));
+
+void BoardMask::initialize()
+{
+	BoardMask mask(const128(0,1));
+	for(uint i = 0; i < BoardPoint::numPositions; ++i) {
+		masks[i] = mask;
+		mask._mask <<= 1;
+	}
+	mask.clear();
+	masks[BoardPoint::numPositions] = mask;
+}
 
 std::ostream& operator<<(std::ostream& out, const BoardMask& mask)
 {
@@ -23,7 +37,7 @@ BoardMask& BoardMask::setFullBoard()
 }
 
 BoardMask::BoardMask(BoardPoint point)
-: _mask(uint128(1) << point.position())
+: _mask(BoardMask::masks[point.position()]._mask)
 {
 }
 
@@ -34,21 +48,12 @@ BoardMask::Iterator BoardMask::itterator() const
 
 BoardMask BoardMask::connected(const BoardMask& seed) const
 {
-	assert(isValid() && seed.isValid());
-	
 	// Flanks, all non border positions
-	uint128 right = const128(0x1ffffffffffffffUL, 0xfffffffffffff800UL);
-	uint128 left  = const128(0x0003fffffffffffUL, 0xffffffffffffffffUL);
-	uint128 upper = const128(0x1ffbff7feffdffbUL, 0xff7feffdffbff7feUL);
-	uint128 lower = const128(0x0ffdffbff7feffdUL, 0xffbff7feffdffbffUL);
-	
-	// right masks everything that can go right
-	upper = _mask & ((_mask & upper) >> 1); 
-	lower = _mask & ((_mask & lower) >> 1); 
-	right = _mask & ((_mask & right) >> 11);
-	left  = _mask & ((_mask & left ) << 11);
-	
-	uint128 r = seed.mask() & _mask;
+	const uint128 right = _mask & const128(0x1ffffffffffffffUL, 0xfffffffffffff800UL);
+	const uint128 left  = _mask & const128(0x0003fffffffffffUL, 0xffffffffffffffffUL);
+	const uint128 upper = _mask & const128(0x1ffbff7feffdffbUL, 0xff7feffdffbff7feUL);
+	const uint128 lower = _mask & const128(0x0ffdffbff7feffdUL, 0xffbff7feffdffbffUL);
+	uint128 r = seed.mask();
 	uint128 oldr = r;
 	do {
 		oldr = r;
@@ -56,6 +61,7 @@ BoardMask BoardMask::connected(const BoardMask& seed) const
 		r |= (r & upper) >> 1;
 		r |= (r & right) >> 11;
 		r |= (r & left ) << 11;
+		r &= _mask;
 	} while(r != oldr);
 	return BoardMask(r);
 }
@@ -82,13 +88,14 @@ BoardPoint BoardMask::firstPoint() const
 
 BoardPoint BoardMask::randomPoint() const
 {
-	/// TODO: Optimize
-	uint p = popcount();
-	if(p == 0)
+	uint n = popcount();
+	if(n == 0)
 		return BoardPoint();
-	uint n = entropy(p);
-	Iterator i(*this);
-	while(n--)
-		i++;
-	return *i;
+	uint i = entropy(n);
+	uint j = 0;
+	for(BoardPoint p: *this) {
+		if(i == j++)
+			return p;
+	}
+	return BoardPoint();
 }

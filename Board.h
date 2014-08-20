@@ -1,6 +1,7 @@
 #pragma once
 #include "Utilities.h"
 #include "BoardMask.h"
+#include "Move.h"
 
 class Board {
 public:

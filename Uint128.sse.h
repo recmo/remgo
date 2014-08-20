@@ -18,12 +18,14 @@ typedef __m128i m128;
 
 class Uint128 {
 public:
+	Uint128() funk;
 	explicit Uint128(u_int64_t low) funk;
 	explicit Uint128(u_int64_t high, u_int64_t low) funk;
 	Uint128(const Uint128& copy) funk: _v(copy._v) { }
 	Uint128& operator=(const Uint128& copy)funk { _v = copy._v; return *this; }
 	
 	operator bool() const funk { return !isZero(); }
+	void clear() funk;
 	bool isZero() const funk;
 	bool operator==(const Uint128& rhs) const funk;
 	bool operator!=(const Uint128& rhs) const funk { return !operator==(rhs); }
@@ -31,9 +33,11 @@ public:
 	Uint128 operator&(const Uint128& rhs) const funk;
 	Uint128 operator|(const Uint128& rhs) const funk;
 	Uint128 operator^(const Uint128& rhs) const funk;
+	Uint128 operator-(const Uint128& rhs) const funk;
 	Uint128& operator&=(const Uint128& rhs) funk;
 	Uint128& operator|=(const Uint128& rhs) funk;
 	Uint128& operator^=(const Uint128& rhs) funk;
+	Uint128& operator-=(const Uint128& rhs) funk;
 	Uint128 operator~() const funk;
 	
 	Uint128 operator<<(int rhs) const funk;
@@ -67,6 +71,11 @@ inline m128 mm_set_ones()
 	return _mm_cmpeq_epi8(junk, junk);
 }
 
+inline Uint128::Uint128()
+: _v(_mm_setzero_si128())
+{
+}
+
 inline Uint128::Uint128(u_int64_t low)
 : _v(_mm_set_epi64x(0, low))
 {
@@ -77,9 +86,14 @@ inline Uint128::Uint128(u_int64_t high, u_int64_t low)
 {
 }
 
+inline void Uint128::clear()
+{
+	_v = _mm_setzero_si128();
+}
+
 inline bool Uint128::isZero() const
 {
-	return _mm_testc_si128(_mm_setzero_si128(), _v);
+	return _mm_testz_si128(_v, _v);
 }
 
 inline bool Uint128::operator==(const Uint128& rhs) const
@@ -102,6 +116,11 @@ inline Uint128 Uint128::operator^(const Uint128& rhs) const
 	return Uint128(_mm_xor_si128(_v, rhs._v));
 }
 
+inline Uint128 Uint128::operator-(const Uint128& rhs) const
+{
+	return Uint128(_mm_andnot_si128(rhs._v, _v));
+}
+
 inline Uint128& Uint128::operator&=(const Uint128& rhs)
 {
 	_v = _mm_and_si128(_v, rhs._v);
@@ -117,6 +136,12 @@ inline Uint128& Uint128::operator|=(const Uint128& rhs)
 inline Uint128& Uint128::operator^=(const Uint128& rhs)
 {
 	_v = _mm_xor_si128(_v, rhs._v);
+	return *this;
+}
+
+inline Uint128& Uint128::operator-=(const Uint128& rhs)
+{
+	_v = _mm_andnot_si128(rhs._v, _v);
 	return *this;
 }
 
@@ -200,10 +225,6 @@ inline Uint128 Uint128::operator>>(int rhs) const
 
 inline u_int64_t Uint128::high() const
 {
-	u_int64_t bits[2] __attribute__ ((aligned (16)));
-	_mm_store_si128(reinterpret_cast<m128*>(bits), _v);
-	return bits[1];
-	
 	return _mm_cvtsi128_si64x(_mm_srli_si128(_v, 8));
 }
 

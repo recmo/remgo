@@ -46,6 +46,7 @@ int main(int argc, char* argv[])
 	cerr << "sizeof(Board) = " << sizeof(Board) << endl;
 	cerr << "sizeof(TreeNode) = " << sizeof(TreeNode) << endl;
 	srand(time(0));
+	BoardMask::initialize();
 	
 	benchmark();
 	
