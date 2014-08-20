@@ -174,6 +174,30 @@ void Board::playMove(Move move)
 	++_moveCount;
 }
 
+sint Board::connectionBalance() const
+{
+	return connectionNumber(player()) - connectionNumber(opponent());
+}
+
+uint Board::connectionNumber(Board::Player player) const
+{
+	BoardMask pp = playerPieces();
+	BoardMask empty = free();
+	
+	/// TODO: What is the minimum number of pieces we need to add to pp to
+	/// connect all connectable pieces
+	
+	// Minimal spanning tree?
+	
+	// Take groups and distances between them, using Dijkstra,
+	// Then take the MST of the group-connection graph
+
+}
+
+
+
+
+
 // TODO: Heuristic: What is the minimal number of stones required to connect all connectable units?
 // Subtract players count from opponents to get a basic heuristic of the positions strength.
 

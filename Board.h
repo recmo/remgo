@@ -32,7 +32,11 @@ public:
 	BoardMask free() const funk { return ~occupied(); }
 	
 	Player player() const funk { return (_moveCount & 1) ? Black : White; }
+	Player opponent() const funk { return (_moveCount & 1) ? White : Black; }
 	Player winner() const funk { return gameOver() ? player() : None; }
+	
+	sint connectionBalance() const funk;
+	uint connectionNumber(Player player) const funk;
 	
 protected:
 	BoardMask _white;

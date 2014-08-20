@@ -254,7 +254,8 @@ inline uint popcount(uint128 n)
 	m128 lowCount = _mm_shuffle_epi8(lut, lowNibles);
 	m128 counts = _mm_add_epi8(highCount, lowCount);
 	m128 sums = _mm_sad_epu8(counts, _mm_setzero_si128());
-	return _mm_cvtsi128_si64x(_mm_srli_si128(sums, 8)) + _mm_cvtsi128_si64x(sums);
+	const u_int64_t* bits = reinterpret_cast<const u_int64_t*>(&sums);
+	return bits[0] + bits[1];
 }
 
 inline uint trailingZeros(uint128 n)
