@@ -225,12 +225,16 @@ inline Uint128 Uint128::operator>>(int rhs) const
 
 inline u_int64_t Uint128::high() const
 {
-	return _mm_cvtsi128_si64x(_mm_srli_si128(_v, 8));
+	const u_int64_t* bits = reinterpret_cast<const u_int64_t*>(&_v);
+	return bits[1];
+	// return _mm_cvtsi128_si64x(_mm_srli_si128(_v, 8));
 }
 
 inline u_int64_t Uint128::low() const
 {
-	return _mm_cvtsi128_si64x(_v);
+	const u_int64_t* bits = reinterpret_cast<const u_int64_t*>(&_v);
+	return bits[0];
+	// return _mm_cvtsi128_si64x(_v);
 }
 
 inline std::ostream& operator<<(std::ostream& out, const uint128& n)

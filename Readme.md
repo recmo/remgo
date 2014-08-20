@@ -71,6 +71,12 @@ Laptop sse: 10101.4 (Componentized)
 14650.4
 18751.3
 
+Competition server non-sse random point: 10724.9
+Competition server sse random point:      7741.27
+
+-> non-sse random
+
+
 Todo
 ------
 
