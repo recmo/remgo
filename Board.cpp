@@ -191,7 +191,8 @@ uint Board::connectionNumber(Board::Player player) const
 	
 	// Take groups and distances between them, using Dijkstra,
 	// Then take the MST of the group-connection graph
-
+	
+	return 0;
 }
 
 

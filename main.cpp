@@ -48,8 +48,6 @@ int main(int argc, char* argv[])
 	srand(time(0));
 	BoardMask::initialize();
 	
-	benchmark();
-	
 	GameInputOutput gio;
 	gio.run();
 	cerr << "Exit" << endl;
