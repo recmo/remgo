@@ -35,15 +35,29 @@ BoardMask::Iterator BoardMask::itterator() const
 BoardMask BoardMask::connected(const BoardMask& seed) const
 {
 	assert(isValid() && seed.isValid());
-	BoardMask result = *this & seed;
-	BoardMask oldResult;
-	/// TODO: We can unroll expanded and precompose our mask with the four masks
+	
+	// Flanks, all non border positions
+	uint128 right = const128(0x1ffffffffffffffUL, 0xfffffffffffff800UL);
+	uint128 left  = const128(0x0003fffffffffffUL, 0xffffffffffffffffUL);
+	uint128 upper = const128(0x1ffbff7feffdffbUL, 0xff7feffdffbff7feUL);
+	uint128 lower = const128(0x0ffdffbff7feffdUL, 0xffbff7feffdffbffUL);
+	
+	// right masks everything that can go right
+	upper = _mask & ((_mask & upper) >> 1); 
+	lower = _mask & ((_mask & lower) >> 1); 
+	right = _mask & ((_mask & right) >> 11);
+	left  = _mask & ((_mask & left ) << 11);
+	
+	uint128 r = seed.mask() & _mask;
+	uint128 oldr = r;
 	do {
-		oldResult = result;
-		result.expand();
-		result &= *this;
-	} while(oldResult != result);
-	return result;
+		oldr = r;
+		r |= (r & lower) << 1;
+		r |= (r & upper) >> 1;
+		r |= (r & right) >> 11;
+		r |= (r & left ) << 11;
+	} while(r != oldr);
+	return BoardMask(r);
 }
 
 vector<BoardMask> BoardMask::groups() const

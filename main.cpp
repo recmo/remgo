@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 	cerr << "sizeof(TreeNode) = " << sizeof(TreeNode) << endl;
 	srand(time(0));
 	
-	// benchmark();
+	benchmark();
 	
 	GameInputOutput gio;
 	gio.run();
