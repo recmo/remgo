@@ -88,14 +88,25 @@ BoardPoint BoardMask::firstPoint() const
 
 BoardPoint BoardMask::randomPoint() const
 {
-	uint n = popcount();
-	if(n == 0)
+	/// TODO: Test this on competition machine, 64 bit popcount/ctz might be slow
+	const uint64* bits = reinterpret_cast<const uint64*>(&_mask);
+	uint64 l = bits[0];
+	uint64 h = bits[1];
+	uint lc = ::popcount(l);
+	uint hc = ::popcount(h);
+	uint c = lc + hc;
+	if(c == 0)
 		return BoardPoint();
-	uint i = entropy(n);
-	uint j = 0;
-	for(BoardPoint p: *this) {
-		if(i == j++)
-			return p;
+	uint i = entropy(c);
+	if(i < lc) {
+		while(i--)
+			l &= l -1;
+		return BoardPoint(trailingZeros(l));
+	} else {
+		i -= lc;
+		while(i--)
+			h &= h -1;
+		return BoardPoint(64 + trailingZeros(h));
 	}
 	return BoardPoint();
 }
