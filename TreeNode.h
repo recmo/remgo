@@ -58,6 +58,8 @@ protected:
 	static uint _numNodes;
 	
 	Move _move;
+	Board _board;
+	vector<Move> _moves;
 	uint _backwardVisits;
 	float _backwardValue;
 	uint _forwardVisits;

@@ -11,9 +11,12 @@
 #include <cmath>
 #include <sys/types.h>
 #include <cstdint>
+#include <algorithm>
 using namespace std;
+typedef signed char sing8;
 typedef unsigned int uint;
 typedef unsigned char uint8;
+typedef unsigned short uint16;
 typedef uint32_t uint32;
 typedef uint64_t uint64;
 typedef signed int sint;

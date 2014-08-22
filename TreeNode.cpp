@@ -7,6 +7,8 @@ uint TreeNode::_numNodes = 0;
 
 TreeNode::TreeNode()
 : _move(Move())
+, _board()
+, _moves(_board.sortedMoves())
 , _backwardVisits(0)
 , _backwardValue(0.0)
 , _forwardVisits(0)
@@ -20,6 +22,8 @@ TreeNode::TreeNode()
 
 TreeNode::TreeNode(TreeNode* parent, Move move)
 : _move(move)
+, _board(Board(parent->_board).playMove(move))
+, _moves(_board.sortedMoves())
 , _backwardVisits(0)
 , _backwardValue(0.0)
 , _forwardVisits(0)
@@ -180,39 +184,33 @@ void TreeNode::forwardUpdate(float score)
 
 TreeNode* TreeNode::select(const Board& board)
 {
-	const vector<Move> moves = board.validMoves();
-	if(moves.empty()) {
-		assert(board.gameOver());
+	// Explore unexplored nodes first first
+	if(!_moves.empty()) {
+		// Find the most suitable move
+		Move m = _moves.front();
+		_moves.erase(_moves.begin());
+		
+		// Create a new child
+		return child(m);
+	}
+	
+	// No moves to explore, check for children
+	if(!_child)
 		return nullptr;
-	}
-	
-	// Unexplored moves go first
-	float values[moves.size()];
-	for(uint i = 0; i < moves.size(); ++i) {
-		values[i] = std::numeric_limits<float>::max();
-	}
-	
-	// Load existing child data
-	const float logParentVisits = log(this->backwardVisits() + 1);
-	for(TreeNode* c = _child; c; c = c->_sibling) {
-		Move childMove = c->_move;
-		for(uint i = 0; i < moves.size(); ++i) {
-			if(moves[i] == childMove) {
-				values[i] = c->backwardScore(logParentVisits);
-			}
-		}
-	}
 	
 	// UCT select node
-	uint selectedIndex = 0;
+	const float logParentVisits = log(this->backwardVisits() + 1);
 	float bestValue = 0.0;
-	for(uint i = 0; i < moves.size(); ++i) {
-		if(values[i] > bestValue || (values[i] == bestValue && entropy(1))) {
-			selectedIndex = i;
-			bestValue = values[i];
+	TreeNode* selected = nullptr;
+	for(TreeNode* c = _child; c; c = c->_sibling) {
+		Move childMove = c->_move;
+		const float value = c->backwardScore(logParentVisits);
+		if(value > bestValue || (value == bestValue && entropy(1))) {
+			bestValue = value;
+			selected = c;
 		}
 	}
-	return child(moves[selectedIndex]);
+	return selected;
 }
 
 void TreeNode::selectAction(Board board)
