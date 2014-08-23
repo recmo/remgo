@@ -8,7 +8,7 @@ uint TreeNode::_numNodes = 0;
 TreeNode::TreeNode()
 : _move(Move())
 , _board()
-, _moves(_board.sortedMoves())
+, _moves()
 , _backwardVisits(0)
 , _backwardValue(0.0)
 , _forwardVisits(0)
@@ -17,13 +17,14 @@ TreeNode::TreeNode()
 , _child(nullptr)
 , _sibling(nullptr)
 {
+	_moves = _board.validMoves();
 	_numNodes++;
 }
 
 TreeNode::TreeNode(TreeNode* parent, Move move)
 : _move(move)
-, _board(Board(parent->_board).playMove(move))
-, _moves(_board.sortedMoves())
+, _board(parent->_board)
+, _moves()
 , _backwardVisits(0)
 , _backwardValue(0.0)
 , _forwardVisits(0)
@@ -32,6 +33,8 @@ TreeNode::TreeNode(TreeNode* parent, Move move)
 , _child(nullptr)
 , _sibling(nullptr)
 {
+	_board.playMove(move);
+	_moves = _board.validMoves();
 	_numNodes++;
 }
 
@@ -87,9 +90,11 @@ TreeNode* TreeNode::child(Move move)
 	assert(move.isValid());
 	
 	// See if there already is an childnode for it
-	for(TreeNode* c = _child; c; c = c->_sibling)
-		if(c->_move == move)
+	for(TreeNode* c = _child; c; c = c->_sibling) {
+		if(c->_move == move) {
 			return c;
+		}
+	}
 	
 	// Construct a new child node
 	TreeNode* node = new TreeNode(this, move);
@@ -239,6 +244,8 @@ void TreeNode::selectAction(Board board)
 
 Move TreeNode::bestMove() const
 {
+	return _board.randomMove();
+	
 	assert(!isLeaf());
 	
 	// Find node with highest playout count

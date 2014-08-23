@@ -25,6 +25,9 @@ std::ostream& operator<<(std::ostream& out, const Board& board)
 		out << "White to play" << endl;
 	else
 		out << "Black to play" << endl;
+	
+	out << "Board(" << board.white().mask() << ", " << board.black().mask() << ", " << board.moveCount() << ")" << endl;
+	
 	return out;
 }
 
@@ -39,6 +42,13 @@ Board::Board()
 	for(uint r = 1; r < 11; r += 2)
 	for(uint c = 0; c < 11; c += 2)
 		_black.set(BoardPoint(r, c));
+}
+
+Board::Board(BoardMask white, BoardMask black, uint moveCount)
+: _white(white)
+, _black(black)
+, _moveCount(moveCount)
+{
 }
 
 vector<Move> Board::validMoves(BoardPoint piece) const
@@ -66,8 +76,9 @@ vector<Move> Board::validMoves(BoardPoint piece) const
 		frontier &= empty;
 		
 		// No paths to other units
-		if(!nearest && frontier == oldFrontier)
+		if(!nearest && frontier == oldFrontier) {
 			return result;
+		}
 	} while(!nearest);
 	
 	// Find the positions that decrease the distance towards them
@@ -150,8 +161,8 @@ Move Board::randomMove(BoardPoint piece) const
 Move Board::randomMove() const
 {
 	// Accurate random move
-	//vector<Move> moves = validMoves();
-	//return moves[entropy(moves.size())];
+	vector<Move> moves = validMoves();
+	return moves[entropy(moves.size())];
 	
 	// This one is fast, but biased:
 	BoardMask pp = playerPieces();
@@ -167,6 +178,18 @@ Move Board::randomMove() const
 
 Board& Board::playMove(Move move)
 {
+	// Verify the move correctness
+	vector<Move> moves = validMoves();
+	if(find(moves.begin(), moves.end(), move) == moves.end()) {
+		cerr << "AYGUR MOVE NOT GENERATED" << endl;
+		cerr << *this << endl;
+		cerr << "white = " << _white.mask() << endl;
+		cerr << "black = " << _black.mask() << endl;
+		cerr << "move  = " << _moveCount << endl;
+		cerr << moves << endl;
+		cerr << move;
+	}
+	
 	// Placement move
 	if(player() == White) {
 		assert(_white.isSet(move.from()));

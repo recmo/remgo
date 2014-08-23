@@ -71,13 +71,14 @@ Move GameInputOutput::generateMove()
 	
 	// Iterate MCTS a couple of times
 	Timer::instance.nextRound();
-	while(Timer::instance.ponder()) {
-		_current->selectAction(_board);
-	}
+	//while(Timer::instance.ponder()) {
+	//	_current->selectAction(_board);
+	//}
 	
 	cerr << "Current depth " << _board.moveCount() << endl;
 	cerr << "Estimated total depth " << DepthEstimator::instance.estimate() << endl;
 	
+	Timer::instance.update();
 	cerr << "Estimated moves remaining " << DepthEstimator::instance.estimateRemaining() / 2 << endl;
 	cerr << "Time remaining " << Timer::instance.remaining() << endl;
 	
@@ -90,7 +91,7 @@ Move GameInputOutput::generateMove()
 void GameInputOutput::playMove(Move move)
 {
 	_board.playMove(move);
-	TreeNode* vincent = _current->child(move);	
+	TreeNode* vincent = _current->child(move);
 	_current->vincent(vincent);
 	_current = vincent;
 	cerr << "Playing " << move << " ";

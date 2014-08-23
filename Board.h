@@ -12,6 +12,7 @@ public:
 	};
 	
 	Board() funk;
+	Board(BoardMask white, BoardMask black, uint moveCount) funk;
 	~Board() funk { }
 	bool operator==(const Board& other) const funk { return _moveCount == other._moveCount && _white == other._white && _black == other._black; }
 	

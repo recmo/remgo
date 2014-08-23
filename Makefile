@@ -18,4 +18,13 @@ monolith.cpp: sources $(shell cat sources)
 	sed -i "s|^#include \".*$$||g" monolith.cpp
 
 competition: monolith
-	cd caia/ayu/bin; ./competition.sh player1 player2 player3 6a0d886 d930825 monolith 
+	# 6a0d886 d930825
+	cd caia/ayu/bin; ./competition.sh player1 player2 6a0d886 d930825 monolith 
+	cd caia/ayu/refereelogs; grep -R disqualified
+
+clean:
+	rm *.o
+
+clean-comp:
+	rm caia/ayu/*logs*/* caia/ayu/competition-*/*
+
