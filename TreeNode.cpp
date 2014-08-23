@@ -153,8 +153,8 @@ void TreeNode::backwardRecurse(const Board& endGame, float score)
 	backwardUpdate(score);
 	if(_parent)
 		_parent->backwardRecurse(endGame, 1.0 - score);
-	else
-		forwardRecurse(endGame.white(), endGame.black(), score);
+	//else
+	//	forwardRecurse(endGame.white(), endGame.black(), score);
 }
 
 void TreeNode::backwardUpdate(float score)

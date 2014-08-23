@@ -190,11 +190,8 @@ Move Board::randomMove() const
 	do {
 		BoardPoint p = pp.randomPoint();
 		Move m = randomMove(p);
-		if(m.isValid()) {
-			
-			assert(isValidMove(m));
+		if(m.isValid())
 			return m;
-		}
 		pp.clear(p);
 	} while(pp);
 	return Move();

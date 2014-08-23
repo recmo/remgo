@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 	srand(time(0));
 	BoardMask::initialize();
 	
-	// benchmarkSelect();
+	//benchmarkSelect();
 	
 	GameInputOutput gio;
 	gio.run();
