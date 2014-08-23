@@ -40,7 +40,6 @@ uint DijkstraHeuristic::dijkstra()
 			if(_distance[neighbor.position()] != 0xff)
 				continue;
 			uint8 path = distance;
-			bool piecePlace = false;
 			if(_free.isSet(neighbor))
 				++path;
 			else {

@@ -17,7 +17,7 @@ TreeNode::TreeNode()
 , _child(nullptr)
 , _sibling(nullptr)
 {
-	_moves = _board.validMoves();
+	_moves = _board.sortedMoves();
 	_numNodes++;
 }
 
@@ -34,7 +34,7 @@ TreeNode::TreeNode(TreeNode* parent, Move move)
 , _sibling(nullptr)
 {
 	_board.playMove(move);
-	_moves = _board.validMoves();
+	_moves = _board.sortedMoves();
 	_numNodes++;
 }
 

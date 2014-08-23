@@ -1,4 +1,4 @@
-CPP:=g++-4.6 -Wall -O2 -g -std=c++0x -lm -DLOCAL -march=nocona -Wextra -Wno-unused-parameter -Werror=return-type -Werror=switch -I.
+CPP:=g++-4.6 -Wall -O2 -g -std=c++0x -lm -DLOCAL -march=nocona -Wextra -Werror=return-type -Werror=switch -I.
 
 
 SOURCES=$(shell cat sources | grep .cpp)
@@ -22,7 +22,7 @@ monolith.cpp: sources $(shell cat sources)
 
 
 competition: monolith heuristic
-	cd caia/ayu/bin; ./competition.sh random player1 player2 player3 6a0d886 d930825 monolith heuristic
+	cd caia/ayu/bin; ./competition.sh random player1 player2 player3 6a0d886 d930825 monolith heuristic unordered
 	# cd caia/ayu/bin; ./competition.sh random player1 player2 player3 d930825 heuristic
 	# cd caia/ayu/bin; ./competition.sh player1 heuristic monolith
 	rm -f caia/ayu/refereelogs/*-player3.* caia/ayu/refereelogs/player3-*.*
