@@ -117,6 +117,13 @@ vector<Move> Board::validMoves() const
 	return result;
 }
 
+bool Board::isValidMove(Move move) const
+{
+	vector<Move> moves = validMoves();
+	return find(moves.begin(), moves.end(), move) != moves.end();
+}
+
+
 Move Board::randomMove(BoardPoint piece) const
 {
 	const BoardMask pp = playerPieces();
@@ -144,6 +151,8 @@ Move Board::randomMove(BoardPoint piece) const
 			return Move();
 	} while(!nearest);
 	
+	
+	
 	// Find the positions that decrease the distance towards them
 	BoardMask boundary = group.expanded() & empty;
 	BoardMask decreasers;
@@ -154,23 +163,38 @@ Move Board::randomMove(BoardPoint piece) const
 		decreasers = frontier & boundary;
 	} while(!decreasers);
 	
-	// Return a random valid move
-	return Move(piece, decreasers.randomPoint());
+	
+	// For each distance decreasing destination
+	while(!decreasers.isEmpty()) {
+		// Pick a move and make sure we are not splitting up the group with this move
+		BoardPoint to = decreasers.randomPoint();
+		BoardMask newGroup = group;
+		newGroup.clear(piece);
+		newGroup.set(to);
+		if(newGroup.connected(to) == newGroup)
+			return Move(piece, to);
+		decreasers.clear(to);
+	}
+	
+	return Move();
 }
 
 Move Board::randomMove() const
 {
 	// Accurate random move
-	vector<Move> moves = validMoves();
-	return moves[entropy(moves.size())];
+	//vector<Move> moves = validMoves();
+	//return moves[entropy(moves.size())];
 	
 	// This one is fast, but biased:
 	BoardMask pp = playerPieces();
 	do {
 		BoardPoint p = pp.randomPoint();
 		Move m = randomMove(p);
-		if(m.isValid())
+		if(m.isValid()) {
+			
+			assert(isValidMove(m));
 			return m;
+		}
 		pp.clear(p);
 	} while(pp);
 	return Move();
@@ -179,16 +203,7 @@ Move Board::randomMove() const
 Board& Board::playMove(Move move)
 {
 	// Verify the move correctness
-	vector<Move> moves = validMoves();
-	if(find(moves.begin(), moves.end(), move) == moves.end()) {
-		cerr << "AYGUR MOVE NOT GENERATED" << endl;
-		cerr << *this << endl;
-		cerr << "white = " << _white.mask() << endl;
-		cerr << "black = " << _black.mask() << endl;
-		cerr << "move  = " << _moveCount << endl;
-		cerr << moves << endl;
-		cerr << move;
-	}
+	// assert(isValidMove(move));
 	
 	// Placement move
 	if(player() == White) {
@@ -212,14 +227,12 @@ sint Board::heuristicStrength() const
 {
 	DijkstraHeuristic playerHeuristic(playerPieces(), free());
 	DijkstraHeuristic opponentHeuristic(opponentPieces(), free());
-	return opponentHeuristic.dijkstra() /*- playerHeuristic.dijkstra()*/;
+	return playerHeuristic.dijkstra() - opponentHeuristic.dijkstra();
 }
 
 vector<Move> Board::sortedMoves() const
 {
 	vector<Move> moves = validMoves();
-	//random_shuffle(moves.begin(), moves.end());
-	//return moves;
 	vector<pair<sint, Move>> sorted;
 	sorted.reserve(moves.size());
 	for(Move move: moves) {

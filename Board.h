@@ -21,6 +21,7 @@ public:
 	
 	vector<Move> validMoves(BoardPoint piece) const funk;
 	vector<Move> validMoves() const funk;
+	bool isValidMove(Move move) const funk;
 	vector<Move> sortedMoves() const funk;
 	Move heuristicMove() const funk;
 	Move randomMove(BoardPoint piece) const funk;

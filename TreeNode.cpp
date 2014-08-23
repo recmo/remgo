@@ -244,17 +244,19 @@ void TreeNode::selectAction(Board board)
 
 Move TreeNode::bestMove() const
 {
-	return _board.randomMove();
-	
-	assert(!isLeaf());
-	
-	// Find node with highest playout count
-	TreeNode* best = nullptr;
-	for(TreeNode* c = _child; c; c = c->_sibling)
-		if(!best || c->backwardVisits() > best->backwardVisits())
-			best = c;
-	assert(best);
-	return best->_move;
+	#ifdef HEURISTIC
+		return _board.heuristicMove();
+	#else
+		assert(!isLeaf());
+		
+		// Find node with highest playout count
+		TreeNode* best = nullptr;
+		for(TreeNode* c = _child; c; c = c->_sibling)
+			if(!best || c->backwardVisits() > best->backwardVisits())
+				best = c;
+		assert(best);
+		return best->_move;
+	#endif
 }
 
 void TreeNode::rollOut(const Board& board)

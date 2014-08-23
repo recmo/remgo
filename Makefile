@@ -12,15 +12,22 @@ entry: $(patsubst %.cpp,%.o,$(SOURCES))
 monolith: monolith.cpp
 	$(CPP) monolith.cpp -o monolith
 
+heuristic: monolith.cpp
+	$(CPP) -DHEURISTIC monolith.cpp -o heuristic
+
 monolith.cpp: sources $(shell cat sources)
 	cat `cat sources` > monolith.cpp
 	sed -i "s|^#pragma once$$||g" monolith.cpp
 	sed -i "s|^#include \".*$$||g" monolith.cpp
 
-competition: monolith
-	# 6a0d886 d930825
-	cd caia/ayu/bin; ./competition.sh player1 player2 6a0d886 d930825 monolith 
-	cd caia/ayu/refereelogs; grep -R disqualified
+
+competition: monolith heuristic
+	# cd caia/ayu/bin; ./competition.sh random player1 player2 player3 6a0d886 d930825 monolith heuristic
+	# cd caia/ayu/bin; ./competition.sh random player1 player2 player3 d930825 heuristic
+	cd caia/ayu/bin; ./competition.sh player1 heuristic monolith
+	rm -f caia/ayu/refereelogs/*-player3.* caia/ayu/refereelogs/player3-*.*
+	grep -R disqualified caia/ayu/refereelogs
+	grep -R AYGUR caia/ayu/playerlogs
 
 clean:
 	rm *.o

@@ -33,6 +33,7 @@ void GameInputOutput::run()
 			Move move;
 			std::stringstream(line) >> move;
 			assert(move.isValid());
+			// assert(_board.isValidMove(move));
 			playMove(move);
 			if(_board.gameOver())
 				break;
@@ -69,11 +70,13 @@ Move GameInputOutput::generateMove()
 	DepthEstimator::instance.reset();
 	DepthEstimator::instance.currentDepth(_board.moveCount());
 	
-	// Iterate MCTS a couple of times
-	Timer::instance.nextRound();
-	//while(Timer::instance.ponder()) {
-	//	_current->selectAction(_board);
-	//}
+	#ifndef HEURISTIC
+		// Iterate MCTS a couple of times
+		Timer::instance.nextRound();
+		while(Timer::instance.ponder()) {
+			_current->selectAction(_board);
+		}
+	#endif
 	
 	cerr << "Current depth " << _board.moveCount() << endl;
 	cerr << "Estimated total depth " << DepthEstimator::instance.estimate() << endl;
@@ -94,6 +97,7 @@ void GameInputOutput::playMove(Move move)
 	TreeNode* vincent = _current->child(move);
 	_current->vincent(vincent);
 	_current = vincent;
+	assert(_board == _current->board());
 	cerr << "Playing " << move << " ";
 	cerr << TreeNode::numNodes()  << " nodes (" << _current->backwardVisits() << " visits)" << " (";
 	cerr << (TreeNode::numNodes() * sizeof(TreeNode) / (1024*1024))  << " MB)" << endl;

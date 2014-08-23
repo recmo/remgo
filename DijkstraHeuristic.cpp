@@ -11,11 +11,14 @@ DijkstraHeuristic::DijkstraHeuristic(const BoardMask& pieces, const BoardMask& f
 
 uint DijkstraHeuristic::dijkstra()
 {
+	assert(_frontierSize == 0);
 	BoardMask pieces = _pieces;
 	
 	// Initialize the board
 	for(uint i = 0; i < BoardPoint::numPositions; ++i)
 		_distance[i] = 0xff;
+	
+	assert(pieces.popcount() == 30);
 	
 	// Initialize the frontier
 	addVertex(pieces.firstPoint(), 0);
@@ -29,6 +32,8 @@ uint DijkstraHeuristic::dijkstra()
 	while(!frontierEmpty()) {
 		const BoardPoint front = bestVertex();
 		uint distance = _distance[front.position()];
+		
+		assert(front.isValid());
 		
 		// For each direction
 		for(BoardPoint neighbor: front.neighbors() & traversable) {
@@ -48,13 +53,15 @@ uint DijkstraHeuristic::dijkstra()
 				_distance[neighbor.position()] = path;
 				addVertex(neighbor, path);
 			}
-		}
-		
+		}		
 		if(frontierEmpty() && piecesDiscovered < 30) {
+			assert(!pieces.isEmpty());
+			
 			// Pick a new frontier
 			addVertex(pieces.firstPoint(), 0);
 			_distance[pieces.firstPoint().position()] = 0;
 			pieces.clear(pieces.firstPoint());
+			++piecesDiscovered;
 		}
 	}
 	
@@ -84,6 +91,7 @@ uint DijkstraHeuristic::dijkstra()
 
 BoardPoint DijkstraHeuristic::bestVertex()
 {
+	assert(_frontierSize < BoardPoint::numPositions);
 	uint32 best = 0xffffffff;
 	uint bestIndex = 0;
 	for(uint i = 0; i < _frontierSize; ++i) {
@@ -99,5 +107,6 @@ BoardPoint DijkstraHeuristic::bestVertex()
 
 void DijkstraHeuristic::addVertex(BoardPoint p, uint distance)
 {
+	assert(_frontierSize < (BoardPoint::numPositions - 1));
 	_frontier[_frontierSize++] = (distance << 8) | p.position();
 }
