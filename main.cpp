@@ -9,10 +9,11 @@
 #include "HeatMap.h"
 #include "TreeNode.h"
 #include "GameInputOutput.h"
+#include "DijkstraHeuristic.h"
 
 /// TODO: Can we combine MCTS with the cellular automata supperoptimization?
 
-void benchmark()
+void benchmarkRollout()
 {
 	// Benchmark
 	const Board startingBoard;
@@ -31,6 +32,26 @@ void benchmark()
 	cerr << "S/sec: " << (float(simulations)/(start - stop)) << endl;
 }
 
+void benchmarkSelect()
+{
+	// Benchmark
+	const Board startingBoard;
+	TreeNode root;
+	uint simulations = 0;
+	Timer::instance.update();
+	float start = Timer::instance.remaining();
+	while(Timer::instance.remaining() > 20.0) {
+		root.selectAction(startingBoard);
+		++simulations;
+		Timer::instance.update();
+	}
+	float stop = Timer::instance.remaining();
+	cerr << "Time: " << (start - stop) << endl;
+	cerr << "Simulations: " << simulations << endl;
+	cerr << "S/sec: " << (float(simulations)/(start - stop)) << endl;
+}
+
+
 int main(int argc, char* argv[])
 {
 	Timer::instance.start();
@@ -47,6 +68,8 @@ int main(int argc, char* argv[])
 	cerr << "sizeof(TreeNode) = " << sizeof(TreeNode) << endl;
 	srand(time(0));
 	BoardMask::initialize();
+	
+	// benchmarkSelect();
 	
 	GameInputOutput gio;
 	gio.run();

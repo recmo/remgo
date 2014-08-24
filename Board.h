@@ -12,14 +12,18 @@ public:
 	};
 	
 	Board() funk;
+	Board(BoardMask white, BoardMask black, uint moveCount) funk;
 	~Board() funk { }
 	bool operator==(const Board& other) const funk { return _moveCount == other._moveCount && _white == other._white && _black == other._black; }
 	
 	bool gameOver() const funk { return validMoves().empty(); }
-	void playMove(Move move) funk;
+	Board& playMove(Move move) funk;
 	
 	vector<Move> validMoves(BoardPoint piece) const funk;
 	vector<Move> validMoves() const funk;
+	bool isValidMove(Move move) const funk;
+	vector<Move> sortedMoves() const funk;
+	Move heuristicMove() const funk;
 	Move randomMove(BoardPoint piece) const funk;
 	Move randomMove() const funk;
 	
@@ -35,8 +39,7 @@ public:
 	Player opponent() const funk { return (_moveCount & 1) ? White : Black; }
 	Player winner() const funk { return gameOver() ? player() : None; }
 	
-	sint connectionBalance() const funk;
-	uint connectionNumber(Player player) const funk;
+	sint heuristicStrength() const funk;
 	
 protected:
 	BoardMask _white;

@@ -1,6 +1,7 @@
 #include "Board.h"
 #include "Move.h"
 #include "Random.h"
+#include "DijkstraHeuristic.h"
 
 std::ostream& operator<<(std::ostream& out, const Board& board)
 {
@@ -20,6 +21,13 @@ std::ostream& operator<<(std::ostream& out, const Board& board)
 		}
 		out << endl;
 	}
+	if(board.player() == Board::White)
+		out << "White to play" << endl;
+	else
+		out << "Black to play" << endl;
+	
+	out << "Board(" << board.white().mask() << ", " << board.black().mask() << ", " << board.moveCount() << ")" << endl;
+	
 	return out;
 }
 
@@ -34,6 +42,13 @@ Board::Board()
 	for(uint r = 1; r < 11; r += 2)
 	for(uint c = 0; c < 11; c += 2)
 		_black.set(BoardPoint(r, c));
+}
+
+Board::Board(BoardMask white, BoardMask black, uint moveCount)
+: _white(white)
+, _black(black)
+, _moveCount(moveCount)
+{
 }
 
 vector<Move> Board::validMoves(BoardPoint piece) const
@@ -61,8 +76,9 @@ vector<Move> Board::validMoves(BoardPoint piece) const
 		frontier &= empty;
 		
 		// No paths to other units
-		if(!nearest && frontier == oldFrontier)
+		if(!nearest && frontier == oldFrontier) {
 			return result;
+		}
 	} while(!nearest);
 	
 	// Find the positions that decrease the distance towards them
@@ -101,6 +117,13 @@ vector<Move> Board::validMoves() const
 	return result;
 }
 
+bool Board::isValidMove(Move move) const
+{
+	vector<Move> moves = validMoves();
+	return find(moves.begin(), moves.end(), move) != moves.end();
+}
+
+
 Move Board::randomMove(BoardPoint piece) const
 {
 	const BoardMask pp = playerPieces();
@@ -128,6 +151,8 @@ Move Board::randomMove(BoardPoint piece) const
 			return Move();
 	} while(!nearest);
 	
+	
+	
 	// Find the positions that decrease the distance towards them
 	BoardMask boundary = group.expanded() & empty;
 	BoardMask decreasers;
@@ -138,12 +163,29 @@ Move Board::randomMove(BoardPoint piece) const
 		decreasers = frontier & boundary;
 	} while(!decreasers);
 	
-	// Return a random valid move
-	return Move(piece, decreasers.randomPoint());
+	
+	// For each distance decreasing destination
+	while(!decreasers.isEmpty()) {
+		// Pick a move and make sure we are not splitting up the group with this move
+		BoardPoint to = decreasers.randomPoint();
+		BoardMask newGroup = group;
+		newGroup.clear(piece);
+		newGroup.set(to);
+		if(newGroup.connected(to) == newGroup)
+			return Move(piece, to);
+		decreasers.clear(to);
+	}
+	
+	return Move();
 }
 
 Move Board::randomMove() const
 {
+	// Accurate random move
+	//vector<Move> moves = validMoves();
+	//return moves[entropy(moves.size())];
+	
+	// This one is fast, but biased:
 	BoardMask pp = playerPieces();
 	do {
 		BoardPoint p = pp.randomPoint();
@@ -155,8 +197,11 @@ Move Board::randomMove() const
 	return Move();
 }
 
-void Board::playMove(Move move)
+Board& Board::playMove(Move move)
 {
+	// Verify the move correctness
+	// assert(isValidMove(move));
+	
 	// Placement move
 	if(player() == White) {
 		assert(_white.isSet(move.from()));
@@ -172,32 +217,44 @@ void Board::playMove(Move move)
 	
 	// Increase move counter
 	++_moveCount;
+	return *this;
 }
 
-sint Board::connectionBalance() const
+sint Board::heuristicStrength() const
 {
-	return connectionNumber(player()) - connectionNumber(opponent());
+	DijkstraHeuristic playerHeuristic(playerPieces(), free());
+	DijkstraHeuristic opponentHeuristic(opponentPieces(), free());
+	return playerHeuristic.dijkstra() - opponentHeuristic.dijkstra();
 }
 
-uint Board::connectionNumber(Board::Player player) const
+vector<Move> Board::sortedMoves() const
 {
-	BoardMask pp = playerPieces();
-	BoardMask empty = free();
+	vector<Move> moves = validMoves();
+	vector<pair<sint, Move>> sorted;
+	sorted.reserve(moves.size());
+	for(Move move: moves) {
+		// Calculate strength _after_ the move, so lower is better
+		sint strength = Board(*this).playMove(move).heuristicStrength();
+		sorted.push_back(make_pair(strength, move));
+	}
+	sort(sorted.begin(), sorted.end());
+	reverse(sorted.begin(), sorted.end());
 	
-	/// TODO: What is the minimum number of pieces we need to add to pp to
-	/// connect all connectable pieces
-	
-	// Minimal spanning tree?
-	
-	// Take groups and distances between them, using Dijkstra,
-	// Then take the MST of the group-connection graph
-
+	moves.clear();
+	for(auto p: sorted) {
+		moves.push_back(p.second);
+	}
+	return moves;
 }
 
-
-
+Move Board::heuristicMove() const
+{
+	return sortedMoves().front();
+}
 
 
 // TODO: Heuristic: What is the minimal number of stones required to connect all connectable units?
 // Subtract players count from opponents to get a basic heuristic of the positions strength.
 
+// We can also do move ordering by preferring moves that are on the MST
+// We can prefer moves that would block the opponent MST (unless this makes opponent disconnected)

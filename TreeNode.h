@@ -14,6 +14,8 @@ public:
 	TreeNode(TreeNode* parent, Move move);
 	~TreeNode();
 	
+	Board board() const funk { return _board; }
+	
 	Move move() const { return _move; }
 	uint backwardVisits() const { return _backwardVisits; }
 	uint backwardValue() const { return _backwardValue; }
@@ -58,6 +60,8 @@ protected:
 	static uint _numNodes;
 	
 	Move _move;
+	Board _board;
+	vector<Move> _moves;
 	uint _backwardVisits;
 	float _backwardValue;
 	uint _forwardVisits;

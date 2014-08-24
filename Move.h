@@ -3,24 +3,32 @@
 
 class Move {
 public:
-	Move(): _from(), _to() { }
-	Move(BoardPoint from, BoardPoint to): _from(from), _to(to) { }
+	Move() funk: _from(), _to() { }
+	Move(BoardPoint from, BoardPoint to) funk: _from(from), _to(to) { }
 	
-	bool operator==(const Move& other) const { return _from == other._from && _to == other._to; }
-	bool operator!=(const Move& other) const { return !operator==(other); }
+	bool operator==(const Move& other) const funk { return _from == other._from && _to == other._to; }
+	bool operator!=(const Move& other) const funk { return !operator==(other); }
+	bool operator<(const Move& other) const funk;
 	
-	BoardPoint from() const { return _from; }
-	BoardPoint to() const { return _to; }
-	Move& from(BoardPoint value) { _from = value; return *this; }
-	Move& to(BoardPoint value) { _to = value; return *this; }
+	BoardPoint from() const funk { return _from; }
+	BoardPoint to() const funk { return _to; }
+	Move& from(BoardPoint value) funk { _from = value; return *this; }
+	Move& to(BoardPoint value) funk { _to = value; return *this; }
 	
-	bool isValid() const { return _from.isValid() && _to.isValid(); }
+	bool isValid() const funk { return _from.isValid() && _to.isValid(); }
 	
 protected:
 	BoardPoint _from;
 	BoardPoint _to;
 };
 
-std::ostream& operator<<(std::ostream& out, const Move& move);
+std::ostream& operator<<(std::ostream& out, const Move& move) funk;
 
-std::istream& operator>>(std::istream& in, Move& move);
+std::istream& operator>>(std::istream& in, Move& move) funk;
+
+inline bool Move::operator<(const Move& other) const
+{
+	if(_from != other._from)
+		return _from < other._from;
+	return _to < other._to;
+}
