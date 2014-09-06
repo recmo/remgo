@@ -10,64 +10,64 @@ public:
 	static constexpr float explorationParameter = sqrt(2.0);
 	static uint numNodes() { return _numNodes; }
 	
-	TreeNode();
-	TreeNode(TreeNode* parent, Move move);
-	~TreeNode();
+	TreeNode() funk;
+	TreeNode(TreeNode* parent, Move move) funk;
+	~TreeNode() funk;
 	
 	Board board() const funk { return _board; }
 	
-	Move move() const { return _move; }
-	uint backwardVisits() const { return _backwardVisits; }
-	uint backwardValue() const { return _backwardValue; }
-	uint forwardVisits() const { return _forwardVisits; }
-	uint forwardValue() const { return _forwardValue; }
-	float backwardScore(float logParentVisits) const;
-	float forwardScore(float logParentVisits) const;
-	float alphaAmafScore(float logParentVisits, float alpha) const;
-	float raveAlpha() const;
-	float raveScore(float logParentVisits) const;
-	uint depth() const;
-	uint numVisitedChildren() const;
-	BoardMask visitedChildren() const;
-	TreeNode* top() const;
-	TreeNode* child(Move move);
+	Move move() const funk { return _move; }
+	uint backwardVisits() const funk { return _backwardVisits; }
+	uint backwardValue() const funk { return _backwardValue; }
+	uint forwardVisits() const funk { return _forwardVisits; }
+	uint forwardValue() const funk { return _forwardValue; }
+	float backwardScore(float logParentVisits) const funk;
+	float forwardScore(float logParentVisits) const funk;
+	float alphaAmafScore(float logParentVisits, float alpha) const funk;
+	float raveAlpha() const funk;
+	float raveScore(float logParentVisits) const funk;
+	uint depth() const funk;
+	uint numVisitedChildren() const funk;
+	BoardMask visitedChildren() const funk;
+	TreeNode* top() const funk;
+	TreeNode* child(Move move) funk;
 	
 	void vincent(TreeNode* child); ///< Favorite child, forget all other children
 	
-	void loadGames(const string& file);
-	void read(const string& filename, uint rotation = 0);
-	void read(istream& in, uint rotation = 0);
-	void write(const string& filename, uint treshold = 0) const;
-	void write(ostream& out, uint treshold = 0) const;
+	void loadGames(const string& file) funk;
+	void read(const string& filename, uint rotation = 0) funk;
+	void read(istream& in, uint rotation = 0) funk;
+	void write(const string& filename, uint treshold = 0) const funk;
+	void write(ostream& out, uint treshold = 0) const funk;
 	
-	void writeOut(ostream& out, uint depth) const;
+	void writeOut(ostream& out, uint depth) const funk;
 	
-	void scaleStatistics(uint factor);
+	void scaleStatistics(uint factor) funk;
 	
-	void backwardRecurse(const Board& endGame, float value);
-	void backwardUpdate(float value);
-	void forwardRecurse(const BoardMask& self, const BoardMask& other, float score);
-	void forwardUpdate(float score);
+	void backwardRecurse(const Board& endGame, float value) funk;
+	void backwardUpdate(float value) funk;
+	void forwardRecurse(const BoardMask& self, const BoardMask& other, float score) funk;
+	void forwardUpdate(float score) funk;
 	
-	void selectAction(Board board);
-	bool isLeaf() const { return !_child; }
-	void rollOut(const Board& board);
+	void selectAction(Board board) funk;
+	bool isLeaf() const funk { return !_child; }
+	void rollOut(const Board& board) funk;
 	
-	Move bestMove() const;
+	Move bestMove() const funk;
 	
 protected:
-	friend ostream& operator<<(ostream& out, const TreeNode& treeNode);
+	friend ostream& operator<<(ostream& out, const TreeNode& treeNode) funk;
 	static uint _numNodes;
 	
-	Move _move;
-	Board _board;
+	Board _board aligned;
 	vector<Move> _moves;
+	TreeNode* _parent;
+	TreeNode* _child;
+	TreeNode* _sibling;
 	uint _backwardVisits;
 	float _backwardValue;
 	uint _forwardVisits;
 	float _forwardValue;
-	TreeNode* _parent;
-	TreeNode* _child;
-	TreeNode* _sibling;
-	TreeNode* select(const Board& board);
+	Move _move;
+	TreeNode* select(const Board& board) funk;
 };

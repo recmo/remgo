@@ -2,7 +2,7 @@
 #include "Random.h"
 #include "Board.h"
 
-BoardMask BoardMask::masks[BoardPoint::numPositions + 1] __attribute__ ((aligned (16)));
+BoardMask BoardMask::masks[BoardPoint::numPositions + 1] aligned;
 
 void BoardMask::initialize()
 {

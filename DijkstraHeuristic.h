@@ -11,6 +11,8 @@ public:
 	uint evalPosition() funk { return _total; }
 	sint evalMove(Move move) funk;
 	
+	BoardMask minimalSpanningTree() funk;
+	
 private:
 	friend std::ostream& operator<<(std::ostream& out, const DijkstraHeuristic& dh) funk;
 	

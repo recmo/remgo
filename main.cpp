@@ -13,6 +13,8 @@
 
 /// TODO: Can we combine MCTS with the cellular automata supperoptimization?
 
+int main(int argc, char* argv[]) funk;
+
 void benchmarkRollout()
 {
 	// Benchmark
@@ -51,7 +53,6 @@ void benchmarkSelect()
 	cerr << "S/sec: " << (float(simulations)/(start - stop)) << endl;
 }
 
-
 int main(int argc, char* argv[])
 {
 	Timer::instance.start();
@@ -70,7 +71,6 @@ int main(int argc, char* argv[])
 	BoardMask::initialize();
 	
 	// benchmarkSelect();
-	
 	GameInputOutput gio;
 	gio.run();
 	cerr << "Exit" << endl;

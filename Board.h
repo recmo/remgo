@@ -42,8 +42,8 @@ public:
 	sint heuristicStrength() const funk;
 	
 protected:
-	BoardMask _white;
-	BoardMask _black;
+	BoardMask _white aligned;
+	BoardMask _black aligned;
 	uint _moveCount;
 };
 

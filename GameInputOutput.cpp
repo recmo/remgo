@@ -5,9 +5,11 @@
 
 GameInputOutput::GameInputOutput()
 : _board()
-, _tree(new TreeNode())
-, _current(_tree)
+, _tree(nullptr)
+, _current()
 {
+	_tree = new TreeNode();
+	_current = _tree;
 }
 
 GameInputOutput::~GameInputOutput()
