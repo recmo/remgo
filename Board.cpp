@@ -36,7 +36,6 @@ Board::Board()
 , _black()
 , _moveCount(0)
 {
-	tracecall;
 	for(uint r = 0; r < 11; r += 2)
 	for(uint c = 1; c < 11; c += 2)
 		_white.set(BoardPoint(r, c));

@@ -6,7 +6,6 @@ BoardMask BoardMask::masks[BoardPoint::numPositions + 1] aligned;
 
 void BoardMask::initialize()
 {
-	tracecall;
 	BoardMask mask(const128(0,1));
 	for(uint i = 0; i < BoardPoint::numPositions; ++i) {
 		masks[i] = mask;

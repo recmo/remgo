@@ -57,7 +57,6 @@ int main(int argc, char* argv[])
 {
 	Timer::instance.start();
 	cerr << "R " << argv[0]  << endl;
-	tracecall;
 	cerr << "RAND_MAX = " << RAND_MAX << endl;
 	cerr << "sizeof(float) = " << sizeof(float) << endl;
 	cerr << "sizeof(uint) = " << sizeof(uint) << endl;
@@ -69,15 +68,11 @@ int main(int argc, char* argv[])
 	cerr << "sizeof(Board) = " << sizeof(Board) << endl;
 	cerr << "sizeof(TreeNode) = " << sizeof(TreeNode) << endl;
 	srand(time(0));
-	trace;
 	BoardMask::initialize();
 	
 	// benchmarkSelect();
-	trace;
 	GameInputOutput gio;
-	trace;
 	gio.run();
-	trace;
 	cerr << "Exit" << endl;
 	Timer::instance.stop();
 	return 0;

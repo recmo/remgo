@@ -8,7 +8,6 @@ GameInputOutput::GameInputOutput()
 , _tree(nullptr)
 , _current()
 {
-	tracecall;
 	_tree = new TreeNode();
 	_current = _tree;
 }
@@ -20,7 +19,6 @@ GameInputOutput::~GameInputOutput()
 
 void GameInputOutput::run()
 {
-	tracecall;
 	cerr << "Game loop" << endl;
 	string line;
 	for(;;) {
