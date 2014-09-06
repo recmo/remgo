@@ -223,8 +223,10 @@ Board& Board::playMove(Move move)
 sint Board::heuristicStrength() const
 {
 	DijkstraHeuristic playerHeuristic(playerPieces(), free());
+	playerHeuristic.dijkstra();
 	DijkstraHeuristic opponentHeuristic(opponentPieces(), free());
-	return playerHeuristic.dijkstra() - opponentHeuristic.dijkstra();
+	opponentHeuristic.dijkstra();
+	return playerHeuristic.evalPosition() - opponentHeuristic.evalPosition();
 }
 
 vector<Move> Board::sortedMoves() const

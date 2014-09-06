@@ -1,5 +1,26 @@
 #include "DijkstraHeuristic.h"
 
+std::ostream& operator<<(std::ostream& out, const DijkstraHeuristic& dh)
+{
+	// Print
+	for(uint row = 0; row < 11; ++row) {
+		for(uint col = 0; col < 11; ++col) {
+			BoardPoint i(10 - row, col);
+			if(dh._distance[i.position()] == 0xff)
+				out << ".";
+			else
+				out << uint(dh._distance[i.position()]);
+			if(dh._pieces.isSet(i))
+				out << "] ";
+			else
+				out << "  ";
+		}
+		out << endl;
+	}
+	out << dh._total << endl;
+	out << endl;
+	return out;
+}
 
 DijkstraHeuristic::DijkstraHeuristic(const BoardMask& pieces, const BoardMask& free)
 : _pieces(pieces)
@@ -9,12 +30,13 @@ DijkstraHeuristic::DijkstraHeuristic(const BoardMask& pieces, const BoardMask& f
 {
 }
 
-uint DijkstraHeuristic::dijkstra()
+void DijkstraHeuristic::dijkstra()
 {
 	assert(_frontierSize == 0);
 	BoardMask pieces = _pieces;
 	
 	// Initialize the board
+	_minimalSpanningTree.clear();
 	for(uint i = 0; i < BoardPoint::numPositions; ++i)
 		_distance[i] = 0xff;
 	
@@ -27,7 +49,7 @@ uint DijkstraHeuristic::dijkstra()
 	
 	// Dijkstra
 	const BoardMask traversable = _pieces | _free;
-	uint total = 0;
+	_total = 0;
 	uint piecesDiscovered = 1;
 	while(!frontierEmpty()) {
 		const BoardPoint front = bestVertex();
@@ -45,15 +67,18 @@ uint DijkstraHeuristic::dijkstra()
 			else {
 				++piecesDiscovered;
 				pieces.clear(neighbor);
-				total += path;
+				_total += path;
 				path = 0;
+				
+				// A shortest path has been found, add it to the MST
 			}
 			if(path < _distance[neighbor.position()]) {
 				_distance[neighbor.position()] = path;
 				addVertex(neighbor, path);
 			}
-		}		
+		}
 		if(frontierEmpty() && piecesDiscovered < 30) {
+			// We explored the component, but there are more pieces in another component.
 			assert(!pieces.isEmpty());
 			
 			// Pick a new frontier
@@ -64,28 +89,82 @@ uint DijkstraHeuristic::dijkstra()
 		}
 	}
 	
-	/// TODO: Board may be disconnected. Keep track of number of pieces encounter -> constant
+	// Make sure we found all connected components
 	assert(piecesDiscovered == 30);
+}
+
+uint DijkstraHeuristic::evalMove(Move move)
+{
+	const bool playerMove = _pieces.isSet(move.from());
+	const bool fromMst = _minimalSpanningTree.isSet(move.from());
+	const bool toMst = _minimalSpanningTree.isSet(move.to());
+	assert(!_free.isSet(move.from()));
+	assert(_free.isSet(move.to()));
 	
-	return total;
-	
-	// Print
-	for(uint row = 0; row < 11; ++row) {
-		for(uint col = 0; col < 11; ++col) {
-			BoardPoint i(10 - row, col);
-			if(_distance[i.position()] == 0xff)
-				cerr << " ";
-			else
-				cerr << uint(_distance[i.position()]);
-			if(_pieces.isSet(i))
-				cerr << "] ";
-			else
-				cerr << "  ";
+	if(playerMove) {
+		if(fromMst && !toMst)
+			return -1;
+		if(!fromMst && toMst)
+			return 1;
+	} else {
+		if(toMst) {
+			// Check for component split?
+			return -1;
 		}
-		cerr << endl;
 	}
-	cerr << total << endl;
-	cerr << endl;
+	return 0;
+}
+
+void DijkstraHeuristic::updateVertex(BoardPoint p)
+{
+	const uint weigth = 0xff;
+	if(_free.isSet(p))
+		weigth = 1;
+	else if(_pieces.isSet(p))
+		weigth = 0;
+	
+	// Update the vertex itself
+	
+	// Propagate the update to its neighbors
+}
+
+void DijkstraHeuristic::propagateDistance(BoardPoint p, uint distance)
+{
+	assert(frontierEmpty());
+	if(_distance[p.position()] == distance)
+		return;
+	
+	// Traversable places
+	const BoardMask traversable = _pieces | _free;
+	
+	// Set the distance and start the frontier
+	_distance[p.position()] = distance;
+	addVertex(p, distance);
+	
+	// Propagate in Dijkstra fashion
+	while(!frontierEmpty()) {
+		const BoardPoint front = bestVertex();
+		uint distance = _distance[front.position()];
+		
+		// For each direction
+		for(BoardPoint neighbor: front.neighbors() & traversable) {
+			if(_distance[neighbor.position()] != 0xff)
+				continue;
+			uint8 path = distance;
+			if(_free.isSet(neighbor))
+				++path;
+			else {
+				++piecesDiscovered;
+				pieces.clear(neighbor);
+				_total += path;
+				path = 0;
+			}
+			if(path < _distance[neighbor.position()]) {
+				_distance[neighbor.position()] = path;
+				addVertex(neighbor, path);
+			}
+		}
+	}
 }
 
 BoardPoint DijkstraHeuristic::bestVertex()

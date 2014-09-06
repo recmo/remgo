@@ -76,6 +76,19 @@ Competition server sse random point:      7741.27
 
 -> non-sse random
 
+Heuristic
+----------
+
+Dijsktra minimal spanning forest.
+
+| player - opponent | 146
+| player            | 142
+| - opponent        | 120
+| opponent          |  74
+| - player          |  76
+| opponent - player |  64
+
+
 
 Todo
 ------
