@@ -12,6 +12,8 @@
 #include <sys/types.h>
 #include <cstdint>
 #include <algorithm>
+#include <stdlib.h>
+#include <malloc.h>
 using namespace std;
 typedef signed char sing8;
 typedef unsigned int uint;
@@ -21,6 +23,17 @@ typedef uint32_t uint32;
 typedef uint64_t uint64;
 typedef signed int sint;
 #define aligned __attribute__((aligned(16)))
+
+// Aligned allocations
+inline void* operator new(std::size_t sz)
+{
+	return memalign(16, sz);
+}
+
+inline void operator delete(void* ptr) noexcept
+{
+	free(ptr);
+}
 
 class CallTracer {
 public:

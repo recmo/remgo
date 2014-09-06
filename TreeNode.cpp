@@ -6,8 +6,8 @@
 uint TreeNode::_numNodes = 0;
 
 TreeNode::TreeNode()
-: _move(Move())
-, _board()
+: _board()
+, _move(Move())
 , _moves()
 , _backwardVisits(0)
 , _backwardValue(0.0)
@@ -23,8 +23,8 @@ TreeNode::TreeNode()
 }
 
 TreeNode::TreeNode(TreeNode* parent, Move move)
-: _move(move)
-, _board(parent->_board)
+: _board(parent->_board)
+, _move(move)
 , _moves()
 , _backwardVisits(0)
 , _backwardValue(0.0)
