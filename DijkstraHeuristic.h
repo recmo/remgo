@@ -11,6 +11,8 @@ public:
 	uint evalPosition() funk;
 	uint evalMove(Move move) funk;
 	
+	BoardMask minimalSpanningTree() funk;
+	
 private:
 	BoardMask _pieces;
 	BoardMask _free;

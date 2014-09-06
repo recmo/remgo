@@ -3,6 +3,7 @@
 #pragma GCC target ("sse4.1")
 #pragma GCC optimize ("O3")
 #define funk __attribute__ ((__target__ ("sse4.1"), optimize("O3")))
+#define aligned __attribute__((aligned(16)))
 #define __MMX__
 #define __SSE__
 #define __SSE2__
@@ -52,7 +53,7 @@ protected:
 	explicit Uint128(m128 v) funk: _v(v) { }
 	friend uint popcount(Uint128 n) funk;
 	friend uint trailingZeros(Uint128 n) funk;
-	m128 _v;
+	m128 _v aligned;
 };
 
 #define const128(high,low)\

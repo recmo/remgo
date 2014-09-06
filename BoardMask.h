@@ -4,7 +4,7 @@
 class BoardMask {
 public:
 	static void initialize() funk;
-	static BoardMask masks[BoardPoint::numPositions + 1] __attribute__ ((aligned (16)));
+	static BoardMask masks[BoardPoint::numPositions + 1] aligned;
 	
 	class Iterator; 
 	const static BoardMask fullBoard;
@@ -47,7 +47,7 @@ public:
 	explicit BoardMask(uint128 mask) funk: _mask(mask) { }
 
 protected:
-	uint128 _mask;
+	uint128 _mask aligned;
 	BoardMask& setFullBoard() funk;
 };
 

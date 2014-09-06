@@ -17,6 +17,7 @@ TreeNode::TreeNode()
 , _child(nullptr)
 , _sibling(nullptr)
 {
+	tracecall;
 	_moves = _board.sortedMoves();
 	_numNodes++;
 }
