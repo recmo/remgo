@@ -4,6 +4,8 @@ caia*
 *.o
 .*
 *.kdev4
+*.pyc
+moe
 entry
 monolith.cpp
 monolith

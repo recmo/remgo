@@ -1,25 +1,6 @@
-#include "DijkstraHeuristic.h"
+#include "Dijkstra.h"
 
-/*
-
-The MST should be those board place (free or occupied) that need to be filled with player
-pieces such that all the players pieces form one unit.
-
-This means that anything but the leafs are included.
-
-The from location of a move can be either of two cases:
-* Removing MST piece.
-* Removing non-MST piece.
-
-The to location can be either of four cases:
-* Filling MST vacancy and blocking opponent MST vacancy.
-* Filling own MST vacancy.
-* Blocking opponent vacancy.
-* Placing as non-MST piece.
-
-*/
-
-std::ostream& operator<<(std::ostream& out, const DijkstraHeuristic& dh)
+std::ostream& operator<<(std::ostream& out, const Dijkstra& dh)
 {
 	// Print
 	for(uint row = 0; row < 11; ++row) {
@@ -39,7 +20,7 @@ std::ostream& operator<<(std::ostream& out, const DijkstraHeuristic& dh)
 	return out;
 }
 
-DijkstraHeuristic::DijkstraHeuristic(const BoardMask& pieces, const BoardMask& free)
+Dijkstra::Dijkstra(const BoardMask& pieces, const BoardMask& free)
 : _pieces(pieces)
 , _free(free)
 , _frontier()
@@ -47,13 +28,14 @@ DijkstraHeuristic::DijkstraHeuristic(const BoardMask& pieces, const BoardMask& f
 {
 }
 
-void DijkstraHeuristic::dijkstra()
+void Dijkstra::dijkstra()
 {
 	assert(_frontierSize == 0);
 	BoardMask pieces = _pieces;
 	
 	// Initialize the board
 	_minimalSpanningTree.clear();
+	_minimalSpanningTreeRedudant.clear();
 	for(uint i = 0; i < BoardPoint::numPositions; ++i)
 		_distance[i] = 0xff;
 	
@@ -87,6 +69,7 @@ void DijkstraHeuristic::dijkstra()
 				_total += path;
 				
 				// A shortest path has been found, add it to the MST
+				addMST(front);
 			}
 			if(path < _distance[neighbor.position()]) {
 				_distance[neighbor.position()] = path;
@@ -109,7 +92,7 @@ void DijkstraHeuristic::dijkstra()
 	assert(piecesDiscovered == 30);
 }
 
-BoardPoint DijkstraHeuristic::bestVertex()
+BoardPoint Dijkstra::bestVertex()
 {
 	assert(_frontierSize < BoardPoint::numPositions);
 	uint32 best = 0xffffffff;
@@ -125,8 +108,68 @@ BoardPoint DijkstraHeuristic::bestVertex()
 	return BoardPoint(best & 0xff);
 }
 
-void DijkstraHeuristic::addVertex(BoardPoint p, uint distance)
+void Dijkstra::addVertex(BoardPoint p, uint distance)
 {
 	assert(_frontierSize < (BoardPoint::numPositions - 1));
 	_frontier[_frontierSize++] = (distance << 8) | p.position();
+}
+
+void Dijkstra::addMST(BoardPoint p, BoardMask visited)
+{
+	// If we hit the MST we are done
+	if(_minimalSpanningTree.isSet(p))
+		return;
+	
+	// If we hit a start we are also done
+	if(_distance[p.position()] == 0)
+		return;
+	
+	// Mark visited
+	assert(!visited.isSet(p));
+	visited.set(p);
+	assert(visited.isSet(p));
+
+	// Find the lowest ranked neighbor
+	BoardPoint path;
+	uint distance = 0x100;
+	uint count = 0;
+	for(BoardPoint neighbor: p.neighbors()) {
+		if(visited.isSet(neighbor))
+			continue;
+		if(_distance[neighbor.position()] < distance) {
+			path = neighbor;
+			distance = _distance[neighbor.position()];
+			count = 1;
+		} else if(_distance[neighbor.position()] == distance) {
+			++count;
+		}
+	}
+	if(count == 0) {
+		cerr << visited << endl;
+		cerr << _pieces << endl;
+		cerr << _pieces.mask() << endl;
+		cerr << _free << endl;
+		cerr << _free.mask() << endl;
+		cerr << *this << endl;
+		assert(false);
+		return;
+	}
+	
+	if(count == 1) {
+		// Unique path
+		addMST(path, visited);
+	} else {
+		for(BoardPoint neighbor: p.neighbors()) {
+			if(visited.isSet(neighbor))
+				continue;
+			// Multiple redundant paths
+			if(_distance[neighbor.position()] == distance) {
+				_minimalSpanningTreeRedudant.set(neighbor);
+				addMST(neighbor, visited);
+			}
+		}
+	}
+	
+	// Add to the MST
+	_minimalSpanningTree.set(p);
 }

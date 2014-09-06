@@ -23,11 +23,13 @@ monolith.cpp: sources $(shell cat sources)
 
 competition: monolith heuristic
 	# cd caia/ayu/bin; ./competition.sh random player1 player2 player3 6a0d886 d930825 monolith heuristic unordered
-	cd caia/ayu/bin; ./competition.sh random player1 player2 player3 d930825 d17a66e heuristic monolith
-	# cd caia/ayu/bin; ./competition.sh player1 heuristic monolith
+	# cd caia/ayu/bin; ./competition.sh random player1 player2 player3 d930825 d17a66e heuristic monolith
+	cd caia/ayu/bin; ./competition.sh random player1 player2 player3 d930825 d17a66e heuristic
 	rm -f caia/ayu/refereelogs/*-player3.* caia/ayu/refereelogs/player3-*.*
-	grep -R disqualified caia/ayu/refereelogs
-	grep -R AYGUR caia/ayu/playerlogs
+	@if grep -R disqualified caia/ayu/refereelogs; \
+	then echo There where errors; \
+	else echo There where no errors; \
+	fi
 
 clean:
 	rm *.o

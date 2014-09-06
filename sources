@@ -7,7 +7,8 @@ BoardPoint.h
 BoardMask.h
 Move.h
 Board.h
-DijkstraHeuristic.h
+Dijkstra.h
+MoveHeuristic.h
 DepthEstimator.h
 HeatMap.h
 TreeNode.h
@@ -18,7 +19,9 @@ BoardPoint.cpp
 BoardMask.cpp
 Move.cpp
 Board.cpp
-DijkstraHeuristic.cpp
+Dijkstra.cpp
+MoveHeuristic.conf.h
+MoveHeuristic.cpp
 DepthEstimator.cpp
 HeatMap.cpp
 TreeNode.cpp

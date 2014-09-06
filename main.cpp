@@ -9,7 +9,7 @@
 #include "HeatMap.h"
 #include "TreeNode.h"
 #include "GameInputOutput.h"
-#include "DijkstraHeuristic.h"
+#include "Dijkstra.h"
 
 /// TODO: Can we combine MCTS with the cellular automata supperoptimization?
 
@@ -69,24 +69,6 @@ int main(int argc, char* argv[])
 	cerr << "sizeof(TreeNode) = " << sizeof(TreeNode) << endl;
 	srand(time(0));
 	BoardMask::initialize();
-	
-	/*
-	Board b(BoardMask(const128(0x2a2814822506UL, 0xaa000a9c002a9800UL)), BoardMask(const128(0xaa8002aa000aa8UL, 0x102aa1402a940002UL)), 16);
-	
-	cerr << b << endl;
-	
-	DijkstraHeuristic dh(b.black(), b.free());
-	
-	dh.dijkstra();
-	
-	cerr << dh <<endl;
-	
-	cerr << dh.minimalSpanningTree() << endl;
-	
-	return 0;
-	
-	benchmarkSelect();
-	*/
 	
 	GameInputOutput gio;
 	gio.run();

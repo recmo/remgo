@@ -89,6 +89,43 @@ Dijsktra minimal spanning forest.
 | opponent - player |  64
 
 
+Heuristic bugfix
+------------------
+
+Before:
+
+399  d930825
+332  monolith
+321  d17a66e
+304  heuristic
+278  player2
+171  player3
+170  player1
+152  random
+
+After:
+
+402  d930825
+346  monolith
+329  d17a66e
+284  player2
+268  heuristic
+173  player3
+172  player1
+152  random
+
+
+MoveHeuristic superoptimization
+-------------------------------
+
+Against: d930825 d17a66e player2 player3 random player1
+
+Itteration time: 3m16s.
+
+| improveMST | nonLeafPiece | opponentHinder | freeNeighbor | opponentNeighbor | Score
+| 1.0 | -0.5 | 0.3 | 0.7 | -0.4 | 0.6 | 228
+| 1.0 | 0 | 0 | 0 | 0 | 0 | 236
+
 
 Todo
 ------

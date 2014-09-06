@@ -1,7 +1,7 @@
 #include "Board.h"
 #include "Move.h"
 #include "Random.h"
-#include "DijkstraHeuristic.h"
+#include "MoveHeuristic.h"
 
 std::ostream& operator<<(std::ostream& out, const Board& board)
 {
@@ -220,23 +220,17 @@ Board& Board::playMove(Move move)
 	return *this;
 }
 
-sint Board::heuristicStrength() const
-{
-	DijkstraHeuristic playerHeuristic(playerPieces(), free());
-	playerHeuristic.dijkstra();
-	DijkstraHeuristic opponentHeuristic(opponentPieces(), free());
-	opponentHeuristic.dijkstra();
-	return playerHeuristic.evalPosition() - opponentHeuristic.evalPosition();
-}
-
 vector<Move> Board::sortedMoves() const
 {
+	MoveHeuristic heuristic(*this);
+	
 	vector<Move> moves = validMoves();
-	vector<pair<sint, Move>> sorted;
+	vector<pair<float, Move>> sorted;
 	sorted.reserve(moves.size());
 	for(Move move: moves) {
-		// Calculate strength _after_ the move, so lower is better
-		sint strength = Board(*this).playMove(move).heuristicStrength();
+		// Estimate move strength
+		float strength = heuristic.evaluate(move);
+		
 		sorted.push_back(make_pair(strength, move));
 	}
 	sort(sorted.begin(), sorted.end());
