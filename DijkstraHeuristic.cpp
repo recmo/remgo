@@ -1,5 +1,24 @@
 #include "DijkstraHeuristic.h"
 
+/*
+
+The MST should be those board place (free or occupied) that need to be filled with player
+pieces such that all the players pieces form one unit.
+
+This means that anything but the leafs are included.
+
+The from location of a move can be either of two cases:
+* Removing MST piece.
+* Removing non-MST piece.
+
+The to location can be either of four cases:
+* Filling MST vacancy and blocking opponent MST vacancy.
+* Filling own MST vacancy.
+* Blocking opponent vacancy.
+* Placing as non-MST piece.
+
+*/
+
 std::ostream& operator<<(std::ostream& out, const DijkstraHeuristic& dh)
 {
 	// Print
@@ -7,13 +26,11 @@ std::ostream& operator<<(std::ostream& out, const DijkstraHeuristic& dh)
 		for(uint col = 0; col < 11; ++col) {
 			BoardPoint i(10 - row, col);
 			if(dh._distance[i.position()] == 0xff)
-				out << ".";
+				out << "#";
+			else if(dh._pieces.isSet(i))
+				out << char('A' + uint(dh._distance[i.position()]));
 			else
-				out << uint(dh._distance[i.position()]);
-			if(dh._pieces.isSet(i))
-				out << "] ";
-			else
-				out << "  ";
+				out << char('a' + uint(dh._distance[i.position()]));
 		}
 		out << endl;
 	}
@@ -68,7 +85,6 @@ void DijkstraHeuristic::dijkstra()
 				++piecesDiscovered;
 				pieces.clear(neighbor);
 				_total += path;
-				path = 0;
 				
 				// A shortest path has been found, add it to the MST
 			}
@@ -91,80 +107,6 @@ void DijkstraHeuristic::dijkstra()
 	
 	// Make sure we found all connected components
 	assert(piecesDiscovered == 30);
-}
-
-uint DijkstraHeuristic::evalMove(Move move)
-{
-	const bool playerMove = _pieces.isSet(move.from());
-	const bool fromMst = _minimalSpanningTree.isSet(move.from());
-	const bool toMst = _minimalSpanningTree.isSet(move.to());
-	assert(!_free.isSet(move.from()));
-	assert(_free.isSet(move.to()));
-	
-	if(playerMove) {
-		if(fromMst && !toMst)
-			return -1;
-		if(!fromMst && toMst)
-			return 1;
-	} else {
-		if(toMst) {
-			// Check for component split?
-			return -1;
-		}
-	}
-	return 0;
-}
-
-void DijkstraHeuristic::updateVertex(BoardPoint p)
-{
-	const uint weigth = 0xff;
-	if(_free.isSet(p))
-		weigth = 1;
-	else if(_pieces.isSet(p))
-		weigth = 0;
-	
-	// Update the vertex itself
-	
-	// Propagate the update to its neighbors
-}
-
-void DijkstraHeuristic::propagateDistance(BoardPoint p, uint distance)
-{
-	assert(frontierEmpty());
-	if(_distance[p.position()] == distance)
-		return;
-	
-	// Traversable places
-	const BoardMask traversable = _pieces | _free;
-	
-	// Set the distance and start the frontier
-	_distance[p.position()] = distance;
-	addVertex(p, distance);
-	
-	// Propagate in Dijkstra fashion
-	while(!frontierEmpty()) {
-		const BoardPoint front = bestVertex();
-		uint distance = _distance[front.position()];
-		
-		// For each direction
-		for(BoardPoint neighbor: front.neighbors() & traversable) {
-			if(_distance[neighbor.position()] != 0xff)
-				continue;
-			uint8 path = distance;
-			if(_free.isSet(neighbor))
-				++path;
-			else {
-				++piecesDiscovered;
-				pieces.clear(neighbor);
-				_total += path;
-				path = 0;
-			}
-			if(path < _distance[neighbor.position()]) {
-				_distance[neighbor.position()] = path;
-				addVertex(neighbor, path);
-			}
-		}
-	}
 }
 
 BoardPoint DijkstraHeuristic::bestVertex()

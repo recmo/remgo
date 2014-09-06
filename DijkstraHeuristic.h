@@ -11,7 +11,7 @@ public:
 	uint evalPosition() funk { return _total; }
 	sint evalMove(Move move) funk;
 	
-	BoardMask minimalSpanningTree() funk;
+	BoardMask minimalSpanningTree() funk { return _minimalSpanningTree; }
 	
 private:
 	friend std::ostream& operator<<(std::ostream& out, const DijkstraHeuristic& dh) funk;
@@ -24,8 +24,6 @@ private:
 	uint _frontierSize;
 	uint _total;
 	
-	void updateVertex(BoardPoint p) funk;
-	void propagateDistance(BoardPoint p, uint distance) funk;
 	bool frontierEmpty() funk { return _frontierSize == 0; }
 	BoardPoint bestVertex() funk;
 	void addVertex(BoardPoint p, uint distance) funk;
