@@ -10,6 +10,14 @@ import datetime
 import csv
 import numpy
 
+
+# scale = 1
+# variance = 30.0
+
+scale = 500.0
+variance = 0.00012
+
+
 result = re.compile(r'^\s+(\d+)\s+heuristic\s*$', re.MULTILINE)
 
 def function_to_minimize(x):
@@ -17,13 +25,13 @@ def function_to_minimize(x):
 	
 	# Write new config file
 	with open("MoveHeuristic.conf.h", mode='w') as f:
-		f.write("// Five dimensional tweak space, need to optimize with Yelps MOE\n")
-		f.write("const float MoveHeuristic::improveMSTScore = 1.0; // Fixed for scale\n")
-		f.write("const float MoveHeuristic::nonLeafPieceScore = " + str(x[0]) + ";\n")
-		f.write("const float MoveHeuristic::opponentHinderScore = " + str(x[1]) + ";\n")
-		f.write("const float MoveHeuristic::opponentBlockScore = " + str(x[2]) + ";\n")
-		f.write("const float MoveHeuristic::freeNeighborScore = " + str(x[3]) + ";\n")
-		f.write("const float MoveHeuristic::opponentNeighborScore = " + str(x[4]) + ";\n")
+		f.write("// Six dimensional tweak space, need to optimize with Yelps MOE\n")
+		f.write("const float MoveHeuristic::improveMSTScore = " + str(x[0]) + ";\n")
+		f.write("const float MoveHeuristic::nonLeafPieceScore = " + str(x[1]) + ";\n")
+		f.write("const float MoveHeuristic::opponentHinderScore = " + str(x[2]) + ";\n")
+		f.write("const float MoveHeuristic::opponentBlockScore = " + str(x[3]) + ";\n")
+		f.write("const float MoveHeuristic::freeNeighborScore = " + str(x[4]) + ";\n")
+		f.write("const float MoveHeuristic::opponentNeighborScore = " + str(x[5]) + ";\n")
 	
 	# Compile and compete
 	res = check_output("make competition 2>&1", shell=True)
@@ -42,20 +50,18 @@ def function_to_minimize(x):
 #	print values, numpy.mean(values), numpy.var(values)
 #	values.append(function_to_minimize([-0.5, 0.3, 0.7, -0.4, 0.6]))
 
-# 5D experiment, we build a tensor product domain
-exp = Experiment([[-5, 5], [-5, 5], [-5, 5], [-5, 5], [-5, 5]])
-
+# 6D experiment, we build a tensor product domain
+exp = Experiment([[-1, 1]] * 6)
 
 # Bootstrap with some known or already sampled point(s)
-variance = 30.0
 samplepoints = []
 with open('moveheuristic.csv', 'rb') as csvfile:
 	reader = csv.reader(csvfile)
 	for row in reader:
 		row = [float(x) for x in row]
-		x = row[:5]
+		x = row[:-1]
 		y = row[-1]
-		samplepoints.append(SamplePoint(x, y, variance))
+		samplepoints.append(SamplePoint(x, y / scale, variance))
 exp.historical_data.append_sample_points(samplepoints)
 
 def itterate():
@@ -75,7 +81,7 @@ def itterate():
 		csvfile.write(", ".join([str(k)for k in next_point_to_sample + [value_of_next_point]] ) +"\n")
 	
 	# Add the information about the point to the experiment historical data to inform the GP
-	exp.historical_data.append_sample_points([SamplePoint(next_point_to_sample, value_of_next_point, variance)])
+	exp.historical_data.append_sample_points([SamplePoint(next_point_to_sample, value_of_next_point  / scale, variance)])
 	# We can add some noise
 
 

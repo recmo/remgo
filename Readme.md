@@ -96,7 +96,7 @@ Using https://github.com/Yelp/MOE
 
 Coordinates improveMST, nonLeafPiece, opponentHinder, freeNeighbor, opponentNeighbor
 
-improveMST is fixed to 1.0 to set a scale. The rest is searched in the tensor product domain [-5,5]^5.
+Parameters are searched in the tensor product domain [-1,1]^6.
 
 Against: random player1 player2 d930825 d17a66e
 
@@ -115,17 +115,17 @@ Example ranking:
 Variance estimation:
 ~~~~~~~~~~~~~~~~~~~~
 
-point: [-4.36972170015, -3.85753717399, 3.77157840772, -4.12768346872, 2.35091234855]
+point: [1.0, -4.36972170015, -3.85753717399, 3.77157840772, -4.12768346872, 2.35091234855]
 results: [-206.0, -210.0, -206.0, -206.0, -210.0, -206.0, -208.0, -210.0, -210.0, -212.0]
 mean: -208.4
 variance: 4.64
 
-point: [0, 0, 0, 0, 0]
+point: [1.0, 0, 0, 0, 0, 0]
 results: [-196.0, -202.0, -206.0, -190.0, -208.0, -196.0, -194.0, -206.0, -198.0, -196.0, -196.0, -202.0]
 mean: -199.166666667
 variance: 28.3055555556
 
-point: [-0.5, 0.3, 0.7, -0.4, 0.6]
+point: [1.0, -0.5, 0.3, 0.7, -0.4, 0.6]
 results: [-188.0, -204.0, -196.0, -188.0, -196.0, -198.0, -196.0, -190.0, -192.0, -198.0, -202.0, -190.0]
 mean: -194.833333333
 variance: 25.6388888889
