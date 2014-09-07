@@ -7,12 +7,12 @@ from moe.optimal_learning.python.data_containers import SamplePoint
 from subprocess import check_output
 import re
 import datetime
-
+import csv
+import numpy
 
 result = re.compile(r'^\s+(\d+)\s+heuristic\s*$', re.MULTILINE)
 
 def function_to_minimize(x):
-	
 	print x
 	
 	# Write new config file
@@ -36,15 +36,27 @@ def function_to_minimize(x):
 	return -score
 
 
+# Variance estimator arround a point
+#values = []
+#while True:
+#	print values, numpy.mean(values), numpy.var(values)
+#	values.append(function_to_minimize([-0.5, 0.3, 0.7, -0.4, 0.6]))
+
 # 5D experiment, we build a tensor product domain
 exp = Experiment([[-5, 5], [-5, 5], [-5, 5], [-5, 5], [-5, 5]])
 
 
 # Bootstrap with some known or already sampled point(s)
-exp.historical_data.append_sample_points([
-	SamplePoint([-0.5, 0.3, 0.7, -0.4, 0.6], -224.0, 15.0),
-	SamplePoint([0, 0, 0, 0, 0], -236, 15.0),
-])
+variance = 30.0
+samplepoints = []
+with open('moveheuristic.csv', 'rb') as csvfile:
+	reader = csv.reader(csvfile)
+	for row in reader:
+		row = [float(x) for x in row]
+		x = row[:5]
+		y = row[-1]
+		samplepoints.append(SamplePoint(x, y, variance))
+exp.historical_data.append_sample_points(samplepoints)
 
 def itterate():
 	print str(datetime.datetime.now())
@@ -58,8 +70,12 @@ def itterate():
 	
 	print next_point_to_sample, value_of_next_point
 	
+	# Store the sample
+	with open('moveheuristic.csv', 'a') as csvfile:
+		csvfile.write(", ".join([str(k)for k in next_point_to_sample + [value_of_next_point]] ) +"\n")
+	
 	# Add the information about the point to the experiment historical data to inform the GP
-	exp.historical_data.append_sample_points([SamplePoint(next_point_to_sample, value_of_next_point, 15.0)])
+	exp.historical_data.append_sample_points([SamplePoint(next_point_to_sample, value_of_next_point, variance)])
 	# We can add some noise
 
 

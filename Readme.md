@@ -89,47 +89,54 @@ Dijsktra minimal spanning forest.
 | opponent - player |  64
 
 
-Heuristic bugfix
-------------------
-
-Before:
-
-399  d930825
-332  monolith
-321  d17a66e
-304  heuristic
-278  player2
-171  player3
-170  player1
-152  random
-
-After:
-
-402  d930825
-346  monolith
-329  d17a66e
-284  player2
-268  heuristic
-173  player3
-172  player1
-152  random
-
-
 MoveHeuristic superoptimization
 -------------------------------
 
-Against: d930825 d17a66e player2 player3 random player1
+Using https://github.com/Yelp/MOE
 
-Itteration time: 3m16s.
+Coordinates improveMST, nonLeafPiece, opponentHinder, freeNeighbor, opponentNeighbor
 
-| improveMST | nonLeafPiece | opponentHinder | freeNeighbor | opponentNeighbor | Score
-| 1.0 | -0.5 | 0.3 | 0.7 | -0.4 | 0.6 | 228
-| 1.0 | 0 | 0 | 0 | 0 | 0 | 236
+improveMST is fixed to 1.0 to set a scale. The rest is searched in the tensor product domain [-5,5]^5.
 
+Against: random player1 player2 d930825 d17a66e
+
+Iteration time: a little over 2 minutes.
+
+Example ranking:
+
+   292  d930825
+   244  d17a66e
+   231  player2
+   188  heuristic
+   126  player1
+   116  random
+
+
+Variance estimation:
+~~~~~~~~~~~~~~~~~~~~
+
+point: [-4.36972170015, -3.85753717399, 3.77157840772, -4.12768346872, 2.35091234855]
+results: [-206.0, -210.0, -206.0, -206.0, -210.0, -206.0, -208.0, -210.0, -210.0, -212.0]
+mean: -208.4
+variance: 4.64
+
+point: [0, 0, 0, 0, 0]
+results: [-196.0, -202.0, -206.0, -190.0, -208.0, -196.0, -194.0, -206.0, -198.0, -196.0, -196.0, -202.0]
+mean: -199.166666667
+variance: 28.3055555556
+
+point: [-0.5, 0.3, 0.7, -0.4, 0.6]
+results: [-188.0, -204.0, -196.0, -188.0, -196.0, -198.0, -196.0, -190.0, -192.0, -198.0, -202.0, -190.0]
+mean: -194.833333333
+variance: 25.6388888889
+
+Let's fix variance to 30 in moe.py
+
+Superoptimization
+~~~~~~~~~~~~~~~~~
 
 Todo
 ------
 
- * https://github.com/Yelp/MOE
  * https://jaberg.github.io/hyperopt/
 
