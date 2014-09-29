@@ -24,6 +24,7 @@ MoveHeuristic.conf.h
 MoveHeuristic.cpp
 DepthEstimator.cpp
 HeatMap.cpp
+TreeNode.conf.h
 TreeNode.cpp
 GameInputOutput.cpp
 main.cpp

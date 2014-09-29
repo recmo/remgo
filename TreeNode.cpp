@@ -2,6 +2,7 @@
 #include "Random.h"
 #include "DepthEstimator.h"
 #include "HeatMap.h"
+#include "TreeNode.conf.h"
 
 uint TreeNode::_numNodes = 0;
 

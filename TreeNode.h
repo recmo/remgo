@@ -7,7 +7,7 @@
 class TreeNode {
 public:
 	static constexpr float epsilon = 1e-6;
-	static constexpr float explorationParameter = sqrt(2.0);
+	static const float explorationParameter;
 	static uint numNodes() { return _numNodes; }
 	
 	TreeNode() funk;

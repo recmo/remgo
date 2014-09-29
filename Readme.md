@@ -139,6 +139,9 @@ Scale by 500 so target is in [-1, 1] range. Variance will then be 0.00012
 [0.790257842448, -0.827154010516, 0.755149924007, 0.620733077547, -0.615833535838, 0.308632890251] 232.0
 
 
+Superoptimization
+~~~~~~~~~~~~~~~~~
+
 Top five:
 
 A [0.4757581709, -0.9427917926, 0.9835744161, 0.8082476345, -0.6968700888, 0.1697805126] 242
@@ -167,12 +170,26 @@ G
 
 Winner:
 
+B [0.2585045229, -0.8168569930, 0.9809096927, 0.9944286241, -0.6304206655, 0.0525435460]
+
+
+Superoptimization of MCTS
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+TreeNode::explorationParameter = 0.35;
+
+
+
+New heuristic optimizer
+~~~~~~~~~~~~~~~~~~~~~~~
+
+1) Construct a large set of board positions
+2) Use many MCTS iterations to get accurate game theoretic values of the moves
+3) Compare the MCTS sort with the heuristic sort
 
 
 
 
-Superoptimization
-~~~~~~~~~~~~~~~~~
 
 Todo
 ------
