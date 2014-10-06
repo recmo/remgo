@@ -53,6 +53,45 @@ void benchmarkSelect()
 	cerr << "S/sec: " << (float(simulations)/(start - stop)) << endl;
 }
 
+void readFile(const string& filename)
+{
+	TreeNode* tree = new TreeNode;
+	
+	ifstream file(filename);
+	for(string line; getline(file, line);) {
+		istringstream game(line);
+		
+		TreeNode* board = tree;
+		
+		for(Move move; game.tellg() >= 0;) {
+			game >> move;
+			cerr << move << " ";
+			
+			board = board->child(move);
+			assert(board != nullptr);
+		}
+		assert(board->isLeaf());
+		assert(board->board().gameOver());
+		
+		board->rollOut(board->board());
+		
+		cerr << endl;
+		cerr << tree->numNodes() << endl;
+	}
+	for(;;) {
+		cerr << tree->bestMove() << endl;
+		cerr << tree->numNodes() << endl;
+		cerr << tree->backwardVisits() << endl;
+		cerr << tree->backwardValue() << endl;
+		
+		for(int i = 0; i < 1000; ++i) {
+			Board board;
+			tree->selectAction(board);
+		}
+	}
+	
+}
+
 int main(int argc, char* argv[])
 {
 	Timer::instance.start();
@@ -69,6 +108,8 @@ int main(int argc, char* argv[])
 	cerr << "sizeof(TreeNode) = " << sizeof(TreeNode) << endl;
 	srand(time(0));
 	BoardMask::initialize();
+	
+	// readFile("games.csv");
 	
 	GameInputOutput gio;
 	gio.run();

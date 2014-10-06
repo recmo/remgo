@@ -179,6 +179,15 @@ Superoptimization of MCTS
 TreeNode::explorationParameter = 0.35;
 
 
+Fat playouts
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Using randomMove() in rollOut(): 
+
+Using heuristicMove() in rollOut(): 
+
+
+
 
 New heuristic optimizer
 ~~~~~~~~~~~~~~~~~~~~~~~

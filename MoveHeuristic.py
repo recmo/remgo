@@ -15,7 +15,7 @@ import numpy
 #valmin = 0.0
 #valmax = 500.0
 valmin = 200.0
-valmax = 220.0
+valmax = 310.0
 #valmin = 180.0
 #valmax = 220.0
 argscale = 1.0  # Smaller argument range increases search space variance
@@ -23,9 +23,9 @@ argoffset = 1.0
 valrange = valmax - valmin
 scale = - 2 / valrange
 offset = 1.0 - valmin * scale
-variance = 100 / (valrange * valrange) # Empirical
+variance = 60 / (valrange * valrange) # Empirical
 
-result = re.compile(r'^\s+(\d+)\s+heuristic\s*$', re.MULTILINE)
+result = re.compile(r'^\s+(\d+)\s+monolith\s*$', re.MULTILINE)
 
 
 def function_to_minimize(x):
@@ -54,12 +54,12 @@ def function_to_minimize(x):
 
 
 # Variance estimator arround a point
-values = []
-x = [0.2585045229, -0.8168569930, 0.9809096927, 0.9944286241, -0.6304206655, 0.0525435460]
-while True:
-	print values, numpy.mean(values), numpy.var(values)
-	y = [n * argscale + argoffset for n in x]
-	values.append(function_to_minimize(y))
+#values = []
+#x = [0.2585045229, -0.8168569930, 0.9809096927, 0.9944286241, -0.6304206655, 0.0525435460]
+#while True:
+#	print values, numpy.mean(values), numpy.var(values)
+#	y = [n * argscale + argoffset for n in x]
+#	values.append(function_to_minimize(y))
 
 
 # 6D experiment, we build a tensor product domain

@@ -22,7 +22,7 @@ monolith.cpp: sources $(shell cat sources)
 
 
 competition: monolith heuristic
-	cd caia/ayu/bin; ./competition.sh d930825 d17a66e 2313bcc 2313bccheuristic  monolith5 monolith
+	cd caia/ayu/bin; ./competition.sh d930825 d17a66e 2313bcc 2313bccheuristic monolith5 monolith 390939f
 	#cd caia/ayu/bin; ./competition.sh random 2313bcc monolith
 	@if grep -R disqualified caia/ayu/refereelogs; \
 	then echo There where errors; \

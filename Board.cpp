@@ -245,7 +245,10 @@ vector<Move> Board::sortedMoves() const
 
 Move Board::heuristicMove() const
 {
-	return sortedMoves().front();
+	vector<Move> sorted = sortedMoves();
+	if(sorted.empty())
+		return Move();
+	return sorted.front();
 }
 
 
