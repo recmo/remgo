@@ -182,9 +182,9 @@ TreeNode::explorationParameter = 0.35;
 Fat playouts
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Using randomMove() in rollOut(): 
+Using randomMove() in rollOut(): 291
 
-Using heuristicMove() in rollOut(): 
+Using heuristicMove() in rollOut(): 179
 
 
 
