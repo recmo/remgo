@@ -15,6 +15,8 @@
 
 int main(int argc, char* argv[]) funk;
 
+uint64 hashBoard(const Board& board);
+
 void benchmarkRollout()
 {
 	// Benchmark
@@ -53,6 +55,16 @@ void benchmarkSelect()
 	cerr << "S/sec: " << (float(simulations)/(start - stop)) << endl;
 }
 
+void itterate(TreeNode* tree)
+{
+	for(int i = 0; i < 1000; ++i) {
+		Board board;
+		tree->selectAction(board);
+	}
+}
+
+#include <thread>
+
 void readFile(const string& filename)
 {
 	TreeNode* tree = new TreeNode;
@@ -73,6 +85,9 @@ void readFile(const string& filename)
 		assert(board->isLeaf());
 		assert(board->board().gameOver());
 		
+		uint64 hash = hashBoard(board->board());
+		cerr << endl<< hash << endl << endl;
+		
 		board->rollOut(board->board());
 		
 		cerr << endl;
@@ -84,12 +99,102 @@ void readFile(const string& filename)
 		cerr << tree->backwardVisits() << endl;
 		cerr << tree->backwardValue() << endl;
 		
-		for(int i = 0; i < 1000; ++i) {
-			Board board;
-			tree->selectAction(board);
-		}
+		itterate(tree);
+		
+		tree->write("games.tree");
 	}
 	
+}
+
+inline uint64 rotate_left(uint64 a, int p) { return (a << (p % 64)) | (a >> (64 - (p % 64))); }
+
+const uint64 wall = 0xf07e84658f112f0fUL;
+const uint64 empty = 0xd60d74b3eb29093dUL;
+const uint64 player = 0x9faa2a2dd3178d69UL;
+const uint64 opponent = 0xab76d777a0229067UL;
+
+uint64 hashRecursive(uint64 tl, uint64 tr, uint64 bl, uint64 br)
+{
+	// Multiply each cell by a unique 64 bit prime
+	tl *= 0xe4e5a4def3ae754fUL;
+	tr *= 0xf0d56d32e10c8243UL;
+	bl *= 0xfabfd7310ee77e0bUL;
+	br *= 0xcafaf37f45c82715UL;
+	
+	// Xor them together
+	tl ^= tr;
+	bl ^= br;
+	tl ^= bl;
+	
+	// Mix them some more
+	tl = rotate_left(tl, 31);
+	tl *= 0x4cf5ad432745937fUL;
+	tl ^= tl >> 33;
+	return tl;
+}
+
+uint64 hashRegion(const Board& board, int x, int y, uint s)
+{
+	assert(s > 0);
+	
+	// Single cell case
+	if(s == 1) {
+		if(x < 0 || y < 0 || x > 10 || y > 10)
+			return wall;
+		if(board.playerPieces().isSet(BoardPoint(x, y)))
+			return player;
+		if(board.opponentPieces().isSet(BoardPoint(x, y)))
+			return opponent;
+		return empty;
+	}
+	
+	// Go recursive
+	s /= 2;
+	return hashRecursive(
+		hashRegion(board, x, y, s),
+		hashRegion(board, x + s, y, s),
+		hashRegion(board, x, y + s, s),
+		hashRegion(board, x + s, y + s, s)
+	);
+}
+
+uint64 hashBoard(const Board& board)
+{
+	return hashRegion(board, -2, -2, 16);
+}
+
+// By sorting on the eightfold symmetry we can shrink the table by a factor 8 at each level
+
+// By doing multiple (9) splits we can cover all boundaries
+
+void split(const Board& board, int x, int y, uint s)
+{
+	s /= 2;
+	
+	if(s == 0) {
+		// Single cell case
+	}
+	
+	if(s >= 1) {
+		// Four corners
+		split(board, x    , y    , s);
+		split(board, x + s, y    , s);
+		split(board, x    , y + s, s);
+		split(board, x + s, y + s, s);
+	}
+	
+	if(s >= 2) {
+		uint z = s / 2;
+		
+		// Overlaps
+		split(board, x    , y + z, s);
+		split(board, x + s, y + z, s);
+		split(board, x + z, y    , s);
+		split(board, x + z, y + s, s);
+		
+		// Center
+		split(board, x + z, y + z, s);
+	}
 }
 
 int main(int argc, char* argv[])
@@ -97,8 +202,8 @@ int main(int argc, char* argv[])
 	Timer::instance.start();
 	cerr << "R " << argv[0]  << endl;
 	cerr << "RAND_MAX = " << RAND_MAX << endl;
-	cerr << "sizeof(float) = " << sizeof(float) << endl;
 	cerr << "sizeof(uint) = " << sizeof(uint) << endl;
+	cerr << "sizeof(uint64) = " << sizeof(uint64) << endl;
 	cerr << "sizeof(uint128) = " << sizeof(uint128) << endl;
 	cerr << "sizeof(void*) = " << sizeof(void*) << endl;
 	cerr << "sizeof(BoardPoint) = " << sizeof(BoardPoint) << endl;
@@ -109,7 +214,7 @@ int main(int argc, char* argv[])
 	srand(time(0));
 	BoardMask::initialize();
 	
-	// readFile("games.csv");
+	readFile("games.csv");
 	
 	GameInputOutput gio;
 	gio.run();

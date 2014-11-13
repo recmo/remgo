@@ -26,5 +26,6 @@ DepthEstimator.cpp
 HeatMap.cpp
 TreeNode.conf.h
 TreeNode.cpp
+TreeNode.io.cpp
 GameInputOutput.cpp
 main.cpp
