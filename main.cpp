@@ -12,6 +12,7 @@
 #include "Dijkstra.h"
 
 /// TODO: Can we combine MCTS with the cellular automata supperoptimization?
+/// Like hashlife—I think we can
 
 int main(int argc, char* argv[]) funk;
 
@@ -113,8 +114,36 @@ const uint64 empty = 0xd60d74b3eb29093dUL;
 const uint64 player = 0x9faa2a2dd3178d69UL;
 const uint64 opponent = 0xab76d777a0229067UL;
 
+bool oriented = false;
+
 uint64 hashRecursive(uint64 tl, uint64 tr, uint64 bl, uint64 br)
 {
+	if(oriented) {
+		// Orient the cell
+		// Enforce tl is min and tr < bl
+		uint64 min = tl;
+		if(tr < min)
+			min = tr;
+		if(bl < min)
+			min = bl;
+		if(br < min)
+			min = br;
+		while(tr != min) {
+			// Quarter rotation
+			uint64 temp = tl;
+			tl = tr;
+			tr = br;
+			br = bl;
+			bl = temp;
+		}
+		if(tr > bl) {
+			// Mirror in tl-br diagonal
+			uint64 temp = tr;
+			tr = bl;
+			bl = temp;
+		}
+	}
+	
 	// Multiply each cell by a unique 64 bit prime
 	tl *= 0xe4e5a4def3ae754fUL;
 	tr *= 0xf0d56d32e10c8243UL;
@@ -150,6 +179,7 @@ uint64 hashRegion(const Board& board, int x, int y, uint s)
 	
 	// Go recursive
 	s /= 2;
+	
 	return hashRecursive(
 		hashRegion(board, x, y, s),
 		hashRegion(board, x + s, y, s),
@@ -166,9 +196,14 @@ uint64 hashBoard(const Board& board)
 // By sorting on the eightfold symmetry we can shrink the table by a factor 8 at each level
 
 // By doing multiple (9) splits we can cover all boundaries
+#include <set>
+std::set<uint64> hashes;
 
-void split(const Board& board, int x, int y, uint s)
+void split(const Board& board, int x = -2, int y = -2, uint s = 16)
 {
+	uint64 hash = hashRegion(board, x, y, s);
+	hashes.insert(hash);
+	
 	s /= 2;
 	
 	if(s == 0) {
@@ -213,6 +248,32 @@ int main(int argc, char* argv[])
 	cerr << "sizeof(TreeNode) = " << sizeof(TreeNode) << endl;
 	srand(time(0));
 	BoardMask::initialize();
+	
+	uint64 count = 0;
+	uint64 tu = 0;
+	uint64 to = 0;
+	for(;;) {
+		Board b;
+		for(uint i = 0; i < 0; ++i)
+			b.playMove(b.randomMove());
+		oriented = false;
+		hashes.clear();
+		split(b);
+		uint unoriented = hashes.size();
+		oriented = true;
+		hashes.clear();
+		split(b);
+		uint oriented = hashes.size();
+		cout << unoriented << "\t" << oriented << "\t";
+		++count;
+		tu += unoriented;
+		to += oriented;
+		cout << (double(tu) / double(count)) << "\t";
+		cout << (double(to) / double(count)) << "\t";
+		cout << endl;
+	}
+	
+	return 0;
 	
 	readFile("games.csv");
 	

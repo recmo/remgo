@@ -199,6 +199,24 @@ New heuristic optimizer
 
 
 
+HashGo
+-------
+
+Starting position, nine-fold split visiting
+
+Un-oriented: 3736 nodes, 47 unique
+
+Oriented: 3736 nodes, 36 unique
+
+| Random moves | Un oriented regions | Oriented regions |
+|  0 |  47     | 36      |
+| 10 | 103.331 | 75.0983 |
+| 20 | 119.368 | 87.3449 |
+| 30 | 127.238 | 92.9821 |
+| 40 | 130.784 | 96.4891 |
+| 50 | 130.168 | 98.0147 |
+| 60 | 126.836 | 97.6558 |
+
 
 Todo
 ------
