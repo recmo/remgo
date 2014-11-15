@@ -6,6 +6,7 @@ public:
 	Move() funk: _from(), _to() { }
 	Move(BoardPoint from, BoardPoint to) funk: _from(from), _to(to) { }
 	
+	Move& operator=(const Move& other) funk { _from = other._from; _to = other._to; return *this; }
 	bool operator==(const Move& other) const funk { return _from == other._from && _to == other._to; }
 	bool operator!=(const Move& other) const funk { return !operator==(other); }
 	bool operator<(const Move& other) const funk;
@@ -16,6 +17,9 @@ public:
 	Move& to(BoardPoint value) funk { _to = value; return *this; }
 	
 	bool isValid() const funk { return _from.isValid() && _to.isValid(); }
+	
+	Move rotated(uint rotation) const funk { return Move(_from.rotated(rotation), _to.rotated(rotation)); }
+	Move& rotate(uint rotation) funk { return operator=(rotated(rotation)); }
 	
 protected:
 	BoardPoint _from;

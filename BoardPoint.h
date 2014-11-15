@@ -10,6 +10,7 @@ public:
 	BoardPoint(uint8 row, uint8 col) funk: _position(col * 11 + row) { }
 	~BoardPoint() funk { }
 	
+	BoardPoint& operator=(const BoardPoint& other) funk { _position = other._position; return *this; }
 	bool operator!=(const BoardPoint& other) const funk { return _position != other._position; }
 	bool operator==(const BoardPoint& other) const funk { return _position == other._position; }
 	bool operator<(const BoardPoint& other) const funk { return _position < other._position; }
@@ -26,6 +27,9 @@ public:
 	BoardPoint down() const funk { return col() < 10 ? BoardPoint(row(), col() + 1) : BoardPoint(); }
 	BoardMask mask() const funk;
 	BoardMask neighbors() const funk;
+	
+	BoardPoint rotated(uint rotation) const funk;
+	BoardPoint& rotate(uint rotation) funk { return operator=(rotated(rotation)); }
 	
 protected:
 	uint8 _position; /// [1...106] inclusive
