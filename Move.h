@@ -18,8 +18,8 @@ public:
 	
 	bool isValid() const funk { return _from.isValid() && _to.isValid(); }
 	
-	Move rotated(uint rotation) const funk { return Move(_from.rotated(rotation), _to.rotated(rotation)); }
-	Move& rotate(uint rotation) funk { return operator=(rotated(rotation)); }
+	Move rotated(Rotation rotation) const funk { return Move(_from.rotated(rotation), _to.rotated(rotation)); }
+	Move& rotate(Rotation rotation) funk { return operator=(rotated(rotation)); }
 	
 protected:
 	BoardPoint _from;
@@ -35,4 +35,9 @@ inline bool Move::operator<(const Move& other) const
 	if(_from != other._from)
 		return _from < other._from;
 	return _to < other._to;
+}
+
+template<> inline Move Rotation::operator()(const Move& value)
+{
+	return value.rotated(*this);
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "Utilities.h"
+#include "Rotation.h"
 
 class BoardPoint {
 public:
@@ -28,8 +29,8 @@ public:
 	BoardMask mask() const funk;
 	BoardMask neighbors() const funk;
 	
-	BoardPoint rotated(uint rotation) const funk;
-	BoardPoint& rotate(uint rotation) funk { return operator=(rotated(rotation)); }
+	BoardPoint rotated(Rotation rotation) const funk;
+	BoardPoint& rotate(Rotation rotation) funk { return operator=(rotated(rotation)); }
 	
 protected:
 	uint8 _position; /// [1...106] inclusive
@@ -38,3 +39,17 @@ protected:
 std::ostream& operator<<(std::ostream& out, const BoardPoint& position) funk;
 
 std::istream& operator>>(std::istream& in, BoardPoint& position) funk;
+
+
+inline BoardPoint BoardPoint::rotated(Rotation rotation) const
+{
+	uint r = row();
+	uint c = col();
+	rotation.transform(11, r, c);
+	return BoardPoint(r, c);
+}
+
+template<> inline BoardPoint Rotation::operator()(const BoardPoint& value)
+{
+	return value.rotated(*this);
+}

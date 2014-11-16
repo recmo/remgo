@@ -36,24 +36,3 @@ BoardMask BoardPoint::neighbors() const
 	result.clear(*this);
 	return result;
 }
-
-BoardPoint BoardPoint::rotated(uint rotation) const
-{
-	/// @todo Lookup table?
-	bool flipped = rotation >= 4;
-	rotation %= 4;
-	uint r = row();
-	uint c = col();
-	while(rotation--) {
-		uint t = 11 - c;
-		c = r;
-		r = t;
-	}
-	if(flipped) {
-		uint t = c;
-		c = r;
-		r = t;
-	}
-	return BoardPoint(r, c);
-}
-
