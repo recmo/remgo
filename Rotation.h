@@ -5,6 +5,8 @@
 // Implements symmetry group D₄ (symmetries of the square)
 class Rotation {
 public:
+	static void test();
+	
 	static constexpr uint groupSize = 8;
 	
 	// Clockwise rotations
@@ -26,6 +28,7 @@ public:
 	constexpr Rotation() funk : _index(0) { }
 	constexpr Rotation(uint8 index) funk : _index(index) { }
 	
+	bool operator==(const Rotation& other) funk { return _index == other._index; }
 	Rotation& operator=(const Rotation& other) funk { _index = other._index; return *this; }
 	Rotation operator*(const Rotation& other) const funk;
 	Rotation& operator*=(const Rotation& other) funk { return operator=(operator*(other)); }
@@ -63,22 +66,22 @@ inline void Rotation::transform(uint s, uint& row, uint& col) const
 		case 0:
 			return;
 		case 1:
-			row = s - c;
-			col = r;
+			row = c;
+			col = s - r;
 			return;
 		case 2:
 			row = s - r;
 			col = s - c;
 			return;
 		case 3:
-			row = c;
-			col = s - r;
+			row = s - c;
+			col = r;
 			return;
 		case 4:
-			col = s - c;
+			row = s - r;
 			return;
 		case 5:
-			row = s - r;
+			col = s - c;
 			return;
 		case 6:
 			row = c;

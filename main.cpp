@@ -78,6 +78,9 @@ int main(int argc, char* argv[])
 	BoardNode::initialize();
 	BoardMask::initialize();
 	
+	Rotation::test();
+	return 0;
+	
 	Board start;
 	cerr << BoardNode::fragmentCount() << endl;
 	
