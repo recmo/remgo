@@ -219,6 +219,13 @@ TreeNode* TreeNode::select(const Board& board)
 	return selected;
 }
 
+void TreeNode::itterate(uint loops)
+{
+	Board b = board();
+	while(--loops)
+		selectAction(b);
+}
+
 void TreeNode::selectAction(Board board)
 {
 	TreeNode* current = this;

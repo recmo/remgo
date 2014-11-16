@@ -217,6 +217,14 @@ Oriented: 3736 nodes, 36 unique
 | 50 | 130.168 | 98.0147 |
 | 60 | 126.836 | 97.6558 |
 
+All games: 1309097 vs 967344
+Symmeterized: 4445041  vs 3480153 
+
+Symmetrization gives about a 25% reduction.
+
+
+5465435
+
 
 Todo
 ------

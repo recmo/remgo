@@ -56,57 +56,6 @@ void benchmarkSelect()
 	cerr << "S/sec: " << (float(simulations)/(start - stop)) << endl;
 }
 
-void itterate(TreeNode* tree)
-{
-	for(int i = 0; i < 1000; ++i) {
-		Board board;
-		tree->selectAction(board);
-	}
-}
-
-#include <thread>
-
-void readFile(const string& filename)
-{
-	TreeNode* tree = new TreeNode;
-	
-	ifstream file(filename);
-	for(string line; getline(file, line);) {
-		istringstream game(line);
-		
-		TreeNode* board = tree;
-		
-		for(Move move; game.tellg() >= 0;) {
-			game >> move;
-			cerr << move << " ";
-			
-			board = board->child(move);
-			assert(board != nullptr);
-		}
-		assert(board->isLeaf());
-		assert(board->board().gameOver());
-		
-		uint64 hash = hashBoard(board->board());
-		cerr << endl<< hash << endl << endl;
-		
-		board->rollOut(board->board());
-		
-		cerr << endl;
-		cerr << tree->numNodes() << endl;
-	}
-	for(;;) {
-		cerr << tree->bestMove() << endl;
-		cerr << tree->numNodes() << endl;
-		cerr << tree->backwardVisits() << endl;
-		cerr << tree->backwardValue() << endl;
-		
-		itterate(tree);
-		
-		tree->write("games.tree");
-	}
-	
-}
-
 inline uint64 rotate_left(uint64 a, int p) { return (a << (p % 64)) | (a >> (64 - (p % 64))); }
 
 const uint64 wall = 0xf07e84658f112f0fUL;
@@ -114,7 +63,7 @@ const uint64 empty = 0xd60d74b3eb29093dUL;
 const uint64 player = 0x9faa2a2dd3178d69UL;
 const uint64 opponent = 0xab76d777a0229067UL;
 
-bool oriented = false;
+bool oriented = true;
 
 uint64 hashRecursive(uint64 tl, uint64 tr, uint64 bl, uint64 br)
 {
@@ -197,12 +146,11 @@ uint64 hashBoard(const Board& board)
 
 // By doing multiple (9) splits we can cover all boundaries
 #include <set>
-std::set<uint64> hashes;
+#include <unordered_map>
 
 void split(const Board& board, int x = -2, int y = -2, uint s = 16)
 {
 	uint64 hash = hashRegion(board, x, y, s);
-	hashes.insert(hash);
 	
 	s /= 2;
 	
@@ -232,6 +180,40 @@ void split(const Board& board, int x = -2, int y = -2, uint s = 16)
 	}
 }
 
+void split(TreeNode* node)
+{
+	cerr << "." << flush;
+	split(node->board());
+	for(TreeNode* c = node->firstChild(); c; c = c->sibling())
+		split(c);
+}
+
+class Piece {
+public:
+	
+	uint64 hash() const;
+	
+private:
+	Piece() { }
+	~Piece() { }
+	static std::unordered_map<uint64, Piece*> _pieces;
+	uint64 _hash;
+	uint _height;
+	uint _orientations[4];
+	Piece* _corners[4];
+};
+
+// std::hash implementation
+namespace std {
+	template<> struct hash<Piece> {
+		typedef Piece argument_type;
+		typedef std::size_t result_type;
+		result_type operator()(argument_type const& s) const {
+			return s.hash();
+		}
+	};
+}
+
 int main(int argc, char* argv[])
 {
 	Timer::instance.start();
@@ -241,6 +223,8 @@ int main(int argc, char* argv[])
 	cerr << "sizeof(uint64) = " << sizeof(uint64) << endl;
 	cerr << "sizeof(uint128) = " << sizeof(uint128) << endl;
 	cerr << "sizeof(void*) = " << sizeof(void*) << endl;
+	cerr << "sizeof(std::size_t) = " << sizeof(std::size_t) << endl;
+	cerr << "sizeof(Rotation) = " << sizeof(Rotation) << endl;
 	cerr << "sizeof(BoardPoint) = " << sizeof(BoardPoint) << endl;
 	cerr << "sizeof(Move) = " << sizeof(Move) << endl;
 	cerr << "sizeof(BoardMask) = " << sizeof(BoardMask) << endl;
@@ -249,33 +233,11 @@ int main(int argc, char* argv[])
 	srand(time(0));
 	BoardMask::initialize();
 	
-	uint64 count = 0;
-	uint64 tu = 0;
-	uint64 to = 0;
-	for(;;) {
-		Board b;
-		for(uint i = 0; i < 0; ++i)
-			b.playMove(b.randomMove());
-		oriented = false;
-		hashes.clear();
-		split(b);
-		uint unoriented = hashes.size();
-		oriented = true;
-		hashes.clear();
-		split(b);
-		uint oriented = hashes.size();
-		cout << unoriented << "\t" << oriented << "\t";
-		++count;
-		tu += unoriented;
-		to += oriented;
-		cout << (double(tu) / double(count)) << "\t";
-		cout << (double(to) / double(count)) << "\t";
-		cout << endl;
-	}
-	
+	TreeNode gameTree;
+	gameTree.read("games.bin", true);
+	gameTree.write("games.symmetric2.bin");
+		
 	return 0;
-	
-	readFile("games.csv");
 	
 	GameInputOutput gio;
 	gio.run();

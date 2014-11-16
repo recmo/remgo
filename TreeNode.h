@@ -31,12 +31,14 @@ public:
 	BoardMask visitedChildren() const funk;
 	TreeNode* top() const funk;
 	TreeNode* child(Move move) funk;
+	TreeNode* firstChild() const funk { return _child; }
+	TreeNode* sibling() const funk { return _sibling; }
 	
 	void vincent(TreeNode* child); ///< Favorite child, forget all other children
 	
 	void loadGames(const string& file) funk;
-	void read(const string& filename, uint rotation = 0) funk;
-	void read(istream& in, uint rotation = 0) funk;
+	void read(const string& filename, bool symmetrized = false) funk;
+	void read(istream& in, Rotation rotation) funk;
 	void write(const string& filename, uint treshold = 0) const funk;
 	void write(ostream& out, uint treshold = 0) const funk;
 	
@@ -49,6 +51,7 @@ public:
 	void forwardRecurse(const BoardMask& self, const BoardMask& other, float score) funk;
 	void forwardUpdate(float score) funk;
 	
+	void itterate(uint action = 1);
 	void selectAction(Board board) funk;
 	bool isLeaf() const funk { return !_child; }
 	void rollOut(const Board& board) funk;
