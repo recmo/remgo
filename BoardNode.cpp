@@ -82,7 +82,7 @@ BoardNode::OrientedBoardNode BoardNode::get(const BoardNode::OrientedBoardNode c
 	for(Rotation r: Rotation::all) {
 		BoardNode current(corners, r);
 		if(current.hash() < lowestHash) {
-			orientation = r;
+			orientation = r.inverted();
 			lowestHash = current.hash();
 			lowestNode = current;
 		}
@@ -298,7 +298,7 @@ void BoardNode::print(char* buffer, uint rowStride, Rotation rotation) const
 			row *= size() / 2;
 			col *= size() / 2;
 			uint offset = col + (row * rowStride);
-			_corners[i]->print(buffer + offset, rowStride, _orientations[i] * rotation);
+			_corners[i]->print(buffer + offset, rowStride, rotation * _orientations[i]);
 		}
 	}
 }
