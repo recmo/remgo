@@ -3,6 +3,7 @@ Uint128.sse.h
 ForwardDeclare.h
 Random.h
 Timer.h
+Rotation.h
 BoardPoint.h
 BoardMask.h
 Move.h
@@ -15,6 +16,7 @@ TreeNode.h
 GameInputOutput.h
 Random.cpp
 Timer.cpp
+Rotation.cpp
 BoardPoint.cpp
 BoardMask.cpp
 Move.cpp
