@@ -78,16 +78,8 @@ int main(int argc, char* argv[])
 	BoardNode::initialize();
 	BoardMask::initialize();
 	
-	Board start;
-	cerr << BoardNode::fragmentCount() << endl;
-	
-	BoardNode::dumpFragments();
-	
-	BoardNode::OrientedBoardNode obn = BoardNode::get(start);
-	
-	cerr << BoardNode::fragmentCount() << endl;
-	
-	BoardNode::dumpFragments();
+	Rotation::test();
+	BoardNode::test();
 	
 	return 0;
 	

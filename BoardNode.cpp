@@ -26,6 +26,25 @@ std::ostream& operator<<(std::ostream& out, const BoardNode& boardNode)
 	return out;
 }
 
+std::ostream& operator<<(std::ostream& out, const BoardNode::OrientedBoardNode& boardNode)
+{
+	out.width(16);
+	out.fill('0');
+	out << right << hex << boardNode.second->hash() << dec << " " << boardNode.second->height() << endl;
+	uint size = boardNode.second->size();
+	char buffer[size][size];
+	for(uint i = 0; i < size; ++i)
+	for(uint j = 0; j < size; ++j)
+		buffer[i][j] = '?';
+	boardNode.second->print(&buffer[0][0], size, boardNode.first);
+	for(uint r = 0; r < size; ++r) {
+		for(uint c = 0; c < size; ++c)
+			out << buffer[r][c];
+		out << endl;
+	}
+	return out;
+}
+
 void BoardNode::initialize()
 {
 	_fragments[_wall.hash()] = &_wall;
@@ -263,18 +282,20 @@ BoardNode::OrientedBoardNode BoardNode::piece(uint n)
 BoardNode::OrientedBoardNode BoardNode::subPiece(uint r, uint c)
 {
 	assert(_height > 0);
+	assert(r < 4);
+	assert(c < 4);
 	uint outerCorner = 2 * (r / 2) + (c / 2);
 	Rotation outerRotate = _orientations[outerCorner];
 	BoardNode* outerNode = _corners[outerCorner];
 	assert(outerNode != nullptr);
 	r %= 2;
-	c %= c;
-	outerRotate.transform(2, r, c);
-	uint innerCorner = 2 * (r / 2) + (c / 2);
+	c %= 2;
+	outerRotate.inverted().transform(2, r, c);
+	uint innerCorner = 2 * r + c;
 	Rotation innerRotate = outerNode->_orientations[innerCorner];
 	BoardNode* innerNode = outerNode->_corners[innerCorner];
 	assert(innerNode != nullptr);
-	return make_pair(innerRotate * outerRotate, innerNode);
+	return make_pair(outerRotate * innerRotate, innerNode);
 }
 
 void BoardNode::print(char* buffer, uint rowStride, Rotation rotation) const
@@ -302,3 +323,42 @@ void BoardNode::print(char* buffer, uint rowStride, Rotation rotation) const
 		}
 	}
 }
+
+void BoardNode::test()
+{
+	Board start;
+	cerr << BoardNode::fragmentCount() << endl;
+	
+	BoardNode::dumpFragments();
+	
+	BoardNode::OrientedBoardNode obn = BoardNode::get(start);
+	
+	cerr << BoardNode::fragmentCount() << endl;
+	BoardNode::dumpFragments();
+	
+	cerr << "Result: " << endl;
+	cerr << obn << endl;
+	
+	cerr << "Subpieces: " << endl;
+	for(uint i = 0; i < 4; ++i)
+	for(uint j = 0; j < 4; ++j) {
+		uint r = i;
+		uint c = j;
+		obn.first.transform(4, r, c);
+		cerr << i << " " << j << " " << r << " " << c << endl;
+		BoardNode::OrientedBoardNode piece = obn.second->subPiece(r, c);
+		piece.first = obn.first * piece.first;
+		cerr << piece << endl;
+	}
+	
+	cerr << "Pieces: " << endl;
+	for(uint i = 0; i < 9; ++i) {
+		BoardNode::OrientedBoardNode piece = obn.second->piece(i);
+		piece.first = obn.first * piece.first;
+		cerr << piece << endl;
+	}
+	
+	cerr << BoardNode::fragmentCount() << endl;
+	BoardNode::dumpFragments();
+}
+

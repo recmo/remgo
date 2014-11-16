@@ -5,6 +5,7 @@
 
 class BoardNode {
 public:
+	static void test() funk;
 	static void initialize() funk;
 	static void dumpFragments(std::ostream& out = std::cerr);
 	static uint fragmentCount() funk { return _fragments.size(); }
@@ -30,6 +31,7 @@ private:
 	static BoardNode _player;
 	static BoardNode _opponent;
 	friend std::ostream& operator<<(std::ostream& out, const BoardNode& boardNode) funk;
+	friend std::ostream& operator<<(std::ostream& out, const OrientedBoardNode& boardNode) funk;
 	
 	BoardNode() funk;
 	BoardNode(uint64 hash) funk;
@@ -46,6 +48,7 @@ private:
 };
 
 std::ostream& operator<<(std::ostream& out, const BoardNode& boardNode) funk;
+std::ostream& operator<<(std::ostream& out, const BoardNode::OrientedBoardNode& boardNode) funk;
 
 // std::hash implementation
 namespace std {
