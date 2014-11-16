@@ -72,6 +72,22 @@ inline uint trailingZeros(uint64 n)
 	return __builtin_ctzll(n);
 }
 
+inline uint64 rotate_left(uint64 a, int p)
+{
+	return (a << (p % 64)) | (a >> (64 - (p % 64)));
+}
+
+template<typename T>
+T min(const T& a, const T& b, const T& c)
+{
+	return min(min(a, b), c);
+}
+
+template<typename T>
+T min(const T& a, const T& b, const T& c, const T& d)
+{
+	return min(min(a, b), min(c, d));
+}
 
 template<class T>
 std::ostream& operator<<(std::ostream& out, const vector<T>& vec)
