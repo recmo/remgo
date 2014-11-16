@@ -1,5 +1,6 @@
 #pragma once
 #include "Rotation.h"
+#include "SymmetryGroup.h"
 #include "Board.h"
 #include <unordered_map>
 
@@ -21,8 +22,10 @@ public:
 	uint height() const funk { return _height; }
 	uint size() const funk { return 1 << _height; }
 	
-	OrientedBoardNode piece(uint n);
-	OrientedBoardNode subPiece(uint r, uint c);
+	Rotation normalize(Rotation rotation) const funk { return _symmetries.normalize(rotation); }
+	
+	OrientedBoardNode piece(uint n) funk;
+	OrientedBoardNode subPiece(uint r, uint c) funk;
 	
 private:
 	static std::unordered_map<uint64, BoardNode*> _fragments;
@@ -40,6 +43,7 @@ private:
 	
 	uint64 _hash;
 	uint8 _height;
+	SymmetryGroup _symmetries;
 	Rotation _orientations[4];
 	BoardNode* _corners[4];
 	

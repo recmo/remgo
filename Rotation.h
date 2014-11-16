@@ -2,7 +2,9 @@
 #include "Utilities.h"
 #include <array>
 
-// Implements symmetry group D₄ (symmetries of the square)
+/// TODO: Player-Opponent symmetry
+
+// Implements symmetry group D₄ (symmetries of the square) together with player-opponent turns
 class Rotation {
 public:
 	static void test();
@@ -22,6 +24,9 @@ public:
 	// Main diagonal and anti-diagonal mirror
 	static constexpr Rotation dM() { return Rotation(6); }
 	static constexpr Rotation dA() { return Rotation(7); }
+	
+	// Game turn Player-opponent symmetry
+	static constexpr Rotation po() { return Rotation(8); }
 	
 	static const std::array<Rotation, 8> all;
 	

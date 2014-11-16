@@ -57,11 +57,22 @@ void benchmarkSelect()
 	cerr << "S/sec: " << (float(simulations)/(start - stop)) << endl;
 }
 
+void recurse(const BoardNode::OrientedBoardNode& node)
+{
+	if(node.second->height() > 0)
+		for(uint i = 0; i < 4; ++i)
+			recurse(node.second->piece(i));
+	if(node.second->height() > 1)
+		for(uint i = 4; i < 9; ++i)
+			recurse(node.second->piece(i));
+}
+
 int main(int argc, char* argv[])
 {
 	Timer::instance.start();
 	cerr << "R " << argv[0]  << endl;
 	cerr << "RAND_MAX = " << RAND_MAX << endl;
+	cerr << "sizeof(bool) = " << sizeof(bool) << endl;
 	cerr << "sizeof(uint) = " << sizeof(uint) << endl;
 	cerr << "sizeof(uint64) = " << sizeof(uint64) << endl;
 	cerr << "sizeof(uint128) = " << sizeof(uint128) << endl;
@@ -78,8 +89,18 @@ int main(int argc, char* argv[])
 	BoardNode::initialize();
 	BoardMask::initialize();
 	
-	Rotation::test();
-	BoardNode::test();
+	
+	for(uint k = 0; k < 10000; ++k) {
+		Board start;
+		for(uint i = 0; i < 50; ++i)
+			start.playMove(start.randomMove());
+		BoardNode::OrientedBoardNode obn = BoardNode::get(start);
+		recurse(obn);
+	}
+	
+	cerr << BoardNode::fragmentCount() << endl;
+	
+	// BoardNode::dumpFragments();
 	
 	return 0;
 	

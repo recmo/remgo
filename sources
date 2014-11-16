@@ -4,6 +4,7 @@ ForwardDeclare.h
 Random.h
 Timer.h
 Rotation.h
+SymmetryGroup.h
 BoardPoint.h
 BoardMask.h
 Move.h

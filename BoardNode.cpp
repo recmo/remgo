@@ -6,7 +6,6 @@ BoardNode BoardNode::_empty(0xd60d74b3eb29093dUL);
 BoardNode BoardNode::_player(0x9faa2a2dd3178d69UL);
 BoardNode BoardNode::_opponent(0xab76d777a0229067UL);
 
-
 std::ostream& operator<<(std::ostream& out, const BoardNode& boardNode)
 {
 	out.width(16);
@@ -95,6 +94,9 @@ BoardNode::OrientedBoardNode BoardNode::get(const BoardNode::OrientedBoardNode c
 	// Find the normalized orientation for the requested piece
 	// Try all orientations and use the one with the lowest hash
 	/// TODO: Better way?
+	
+	// TODO: this would also be a good place to divide out board symmetries, instead of in the 'normalize' function
+	
 	Rotation orientation;
 	uint64 lowestHash = std::numeric_limits<uint64>::max();
 	BoardNode lowestNode;
@@ -107,10 +109,25 @@ BoardNode::OrientedBoardNode BoardNode::get(const BoardNode::OrientedBoardNode c
 		}
 	}
 	
+	/*
+	/// TODO
+	uint s = 0;
+	for(Rotation r: Rotation::all) {
+		BoardNode current(corners, r);
+		if(current.hash() == lowestHash)
+			++s;
+	}
+	if(s > 1) {
+		for(Rotation r: Rotation::all) {
+			BoardNode current(corners, r);
+			if(current.hash() == lowestHash)
+				cerr << orientation * r << " ";
+		}
+		cerr << endl;
+	}
+	*/
+	
 	// Now deduplicate that node
-	cerr.width(16);
-	cerr.fill('0');
-	cerr << right << hex << lowestHash << endl;
 	BoardNode* node = _fragments[lowestHash];
 	if(node == nullptr) {
 		// Does not exist yet, create a new one
@@ -119,7 +136,7 @@ BoardNode::OrientedBoardNode BoardNode::get(const BoardNode::OrientedBoardNode c
 	}
 	assert(node->hash() == lowestHash);
 	
-	return make_pair(orientation, node);
+	return make_pair(node->normalize(orientation), node);
 }
 
 BoardNode::OrientedBoardNode BoardNode::get(const BoardNode::OrientedBoardNode& tl, const BoardNode::OrientedBoardNode& tr, const BoardNode::OrientedBoardNode& bl, const BoardNode::OrientedBoardNode& br)
@@ -131,6 +148,7 @@ BoardNode::OrientedBoardNode BoardNode::get(const BoardNode::OrientedBoardNode& 
 BoardNode::BoardNode()
 : _hash(0)
 , _height(0)
+, _symmetries()
 , _orientations{Rotation(), Rotation(), Rotation(), Rotation()}
 , _corners{nullptr, nullptr, nullptr, nullptr}
 {
@@ -139,6 +157,7 @@ BoardNode::BoardNode()
 BoardNode::BoardNode(uint64 hash)
 : _hash(0)
 , _height(0)
+, _symmetries(SymmetryGroup::all())
 , _orientations{Rotation(), Rotation(), Rotation(), Rotation()}
 , _corners{nullptr, nullptr, nullptr, nullptr}
 {
@@ -148,19 +167,22 @@ BoardNode::BoardNode(uint64 hash)
 BoardNode::BoardNode(const BoardNode::OrientedBoardNode corners[4], Rotation rotation)
 : _hash(0)
 , _height(0)
+, _symmetries()
 , _orientations{Rotation(), Rotation(), Rotation(), Rotation()}
 , _corners{nullptr, nullptr, nullptr, nullptr}
 {
 	for(uint i = 0; i < 4; ++i) {
 		assert(corners[i].second != nullptr);
-		_orientations[i] = rotation * corners[i].first;
 		_corners[i] = corners[i].second;
+		_orientations[i] = _corners[i]->normalize(rotation * corners[i].first);
 	}
 	_height = corners[0].second->_height + 1;
 	
 	// Rotate corners macro scale
 	rotation.permuteCorners(_orientations[0], _orientations[1], _orientations[2], _orientations[3]);
 	rotation.permuteCorners(_corners[0], _corners[1], _corners[2], _corners[3]);
+	
+	// Determine symmetry group
 	
 	// Update hash
 	_hash = generateHash();
