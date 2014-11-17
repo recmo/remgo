@@ -4,7 +4,6 @@ std::unordered_map<uint64, BoardNode*> BoardNode::_fragments;
 BoardNode BoardNode::_wall(0xf07e84658f112f0fUL);
 BoardNode BoardNode::_empty(0xd60d74b3eb29093dUL);
 BoardNode BoardNode::_player(0x9faa2a2dd3178d69UL);
-BoardNode BoardNode::_opponent(0xab76d777a0229067UL);
 
 std::ostream& operator<<(std::ostream& out, const BoardNode& boardNode)
 {
@@ -49,7 +48,7 @@ void BoardNode::initialize()
 	_fragments[_wall.hash()] = &_wall;
 	_fragments[_empty.hash()] = &_empty;
 	_fragments[_player.hash()] = &_player;
-	_fragments[_opponent.hash()] = &_opponent;
+	_player._symmetries = SymmetryGroup::space();
 }
 
 void BoardNode::dumpFragments(ostream& out)
@@ -75,7 +74,7 @@ BoardNode::OrientedBoardNode BoardNode::get(const Board& board, int x, int y, ui
 		if(board.playerPieces().isSet(BoardPoint(x, y)))
 			return make_pair(Rotation(), &_player);
 		if(board.opponentPieces().isSet(BoardPoint(x, y)))
-			return make_pair(Rotation(), &_opponent);
+			return make_pair(Rotation::pC(), &_player);
 		return make_pair(Rotation(), &_empty);
 	}
 	
@@ -183,6 +182,7 @@ BoardNode::BoardNode(const BoardNode::OrientedBoardNode corners[4], Rotation rot
 	rotation.permuteCorners(_corners[0], _corners[1], _corners[2], _corners[3]);
 	
 	// Determine symmetry group
+	
 	
 	// Update hash
 	_hash = generateHash();
@@ -330,9 +330,7 @@ void BoardNode::print(char* buffer, uint rowStride, Rotation rotation) const
 		else if(this == &_empty)
 			buffer[0] = '.';
 		else if(this == &_player)
-			buffer[0] = 'X';
-		else if(this == &_opponent)
-			buffer[0] = 'O';
+			buffer[0] = rotation.colourFlipped() ? 'O' : 'X';
 	} else {
 		for(uint i = 0; i < 4; ++i) {
 			uint col = i % 2;

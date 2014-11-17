@@ -8,7 +8,8 @@ public:
 	constexpr SymmetryGroup() : _index(0) { }
 	
 	static constexpr SymmetryGroup trivial() { return SymmetryGroup(0); }
-	static constexpr SymmetryGroup all() { return SymmetryGroup(10); }
+	static constexpr SymmetryGroup space() { return SymmetryGroup(10); }
+	static constexpr SymmetryGroup all() { return SymmetryGroup(20); }
 	
 	Rotation normalize(Rotation r) const funk;
 	bool equals(Rotation a, Rotation b) const funk;
@@ -24,8 +25,15 @@ inline Rotation SymmetryGroup::normalize(Rotation r) const
 		case 0:
 			return r;
 		/// TODO
-		case 10:
+		case 10: {
+			if(r.colourFlipped())
+				return Rotation::pC();
+			else
+				return Rotation();
+		}
+		case 20: {
 			return Rotation();
+		}
 	};
 	assert(false);
 }

@@ -225,6 +225,10 @@ Symmetrization gives about a 25% reduction.
 
 5465435
 
+10000 games simulated for 50 random moves, then recursively scanned on all sub pieces: 255638
+
+With colour-symmetry: 249341
+
 
 Todo
 ------
