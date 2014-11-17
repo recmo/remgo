@@ -9,7 +9,7 @@ class Rotation {
 public:
 	static void test();
 	
-	static constexpr uint groupSize = 8;
+	static constexpr uint groupSize = 16;
 	
 	// Clockwise rotations
 	static constexpr Rotation r0() { return Rotation(0); }
@@ -25,10 +25,10 @@ public:
 	static constexpr Rotation dM() { return Rotation(6); }
 	static constexpr Rotation dA() { return Rotation(7); }
 	
-	// Game turn Player-opponent symmetry
-	static constexpr Rotation po() { return Rotation(8); }
+	// Change piece color
+	static constexpr Rotation pC() { return Rotation(8); }
 	
-	static const std::array<Rotation, 8> all;
+	static const std::array<Rotation, Rotation::groupSize> all;
 	
 	constexpr Rotation() funk : _index(0) { }
 	constexpr Rotation(uint8 index) funk : _index(index) { }
@@ -44,7 +44,8 @@ public:
 	Rotation& invert() funk { return operator=(inverted()); }
 	Rotation inverted() const funk { return Rotation(_inverse[_index]); }
 	
-	constexpr bool flipped() const funk { return _index >= 4; }
+	constexpr bool parityFlipped() const funk { return (_index & _d4) >= 4; }
+	constexpr bool colourFlipped() const funk { return (_index & _colour); }
 	
 	void transform(uint size, uint& row, uint& col) const funk;
 	template<class T> void permuteCorners(T& tl, T& tr, T& bl, T& br) const funk;
@@ -54,6 +55,8 @@ public:
 private:
 	friend std::ostream& operator<<(std::ostream& out, const Rotation& rotation) funk;
 	
+	static constexpr uint8 _d4 = 0x7;
+	static constexpr uint8 _colour = 0x8;
 	static const uint8 _inverse[groupSize];
 	static const uint8 _multiplicationTable[groupSize][groupSize];
 	static const uint64 _zobrist[groupSize];
@@ -67,7 +70,7 @@ inline void Rotation::transform(uint s, uint& row, uint& col) const
 	--s;
 	uint r = row;
 	uint c = col;
-	switch(_index) {
+	switch(_index & _d4) {
 		case 0:
 			return;
 		case 1:
@@ -101,7 +104,7 @@ inline void Rotation::transform(uint s, uint& row, uint& col) const
 
 template<class T> inline void Rotation::permuteCorners(T& tl, T& tr, T& bl, T& br) const
 {
-	switch(_index) {
+	switch(_index & _d4) {
 		case 0:
 			return;
 		case 1:
@@ -137,7 +140,9 @@ template<class T> inline void Rotation::permuteCorners(T& tl, T& tr, T& bl, T& b
 
 inline Rotation Rotation::operator*(const Rotation& other) const
 {
-	return Rotation(_multiplicationTable[_index][other._index]);
+	uint8 rotation = _multiplicationTable[_index & _d4][other._index & _d4];
+	uint8 colour = (_index & _colour) ^ (other._index & _colour);
+	return Rotation(rotation | colour);
 }
 
 template<> inline Rotation Rotation::operator()(const Rotation& value)

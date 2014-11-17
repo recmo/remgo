@@ -1,13 +1,16 @@
 #include "Rotation.h"
 
 
-const std::array<Rotation, 8> Rotation::all =  std::array<Rotation, 8>{{
+const std::array<Rotation, Rotation::groupSize> Rotation::all =  std::array<Rotation, Rotation::groupSize>{{
 	Rotation(0), Rotation(1), Rotation(2), Rotation(3),
-	Rotation(4), Rotation(5), Rotation(6), Rotation(7)
+	Rotation(4), Rotation(5), Rotation(6), Rotation(7),
+	Rotation(8), Rotation(9), Rotation(10), Rotation(11),
+	Rotation(12), Rotation(13), Rotation(14), Rotation(15),
 }};
 
 const uint8 Rotation::_inverse[Rotation::groupSize] = {
-	0, 3, 2, 1, 4, 5, 6, 7
+	0, 3, 2, 1, 4, 5, 6, 7,
+	8, 11, 10, 9, 12, 13, 14, 15
 };
 
 //  r0 r1 r2 r3 mH mV dM dA
@@ -30,14 +33,22 @@ const uint64 Rotation::_zobrist[Rotation::groupSize] = {
 	0x91a56459cea34abf,
 	0xe7c509ccded1f5a9,
 	0xef9bcac560202a29,
-	0xedf1b11585d2d773
+	0xedf1b11585d2d773,
+	0xc3419fce45e0f60d,
+	0xa5a30ac342a3ca8b,
+	0xa68cc54abff07291,
+	0xbac5a330f432a163,
+	0xc49b0708c1768cbb,
+	0x8b2bdd9f8da3f489,
+	0x91d9da056ed6dc85,
+	0xee96a1fa54e4745f
 };
 
 std::ostream& operator<<(std::ostream& out, const Rotation& point)
 {
-	const char* strings[8] = {
-		"R0", "R1", "R2", "R3", "MH", "MV", "DM", "DA"
-//		"id", "r1", "r2", "r3", "fh", "fv", "fd", "fc"
+	const char* strings[Rotation::groupSize] = {
+		"R0N", "R1N", "R2N", "R3N", "MHN", "MVN", "DMN", "DAN",
+		"R0C", "R1C", "R2C", "R3C", "MHC", "MVC", "DMC", "DAC"
 	};
 	out << strings[point._index];
 	return out;
@@ -46,6 +57,7 @@ std::ostream& operator<<(std::ostream& out, const Rotation& point)
 void Rotation::test()
 {
 	for(Rotation r: Rotation::all) {
+		
 		// Identity element
 		assert(r * Rotation::r0() == r);
 		assert(Rotation::r0() * r == r);
