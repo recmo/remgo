@@ -230,6 +230,18 @@ Symmetrization gives about a 25% reduction.
 With colour-symmetry: 249341
 
 
+Test symmetry finding:
+~~~~~~~~~~~~~~~~~~~~~~
+
+Dataset: games.csv, 2031 games
+
+9084e6a: 1279838 fragments
+
+without unique optimization: 1190328 fragments
+with colour symmetry detection: 1116401 fragments
+with full symmetry reduction: 762933 fragments
+
+
 Todo
 ------
 

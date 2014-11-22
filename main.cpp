@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
 	BoardMask::initialize();
 	assert(BoardNode::fragmentCount() == 37);
 	cerr << "Initialized" << endl;
-	
+		
 	TreeNode gameTree;
 	gameTree.loadGames("games.csv");
 	cerr << "Got " << BoardNode::fragmentCount() << " fragments" << endl;

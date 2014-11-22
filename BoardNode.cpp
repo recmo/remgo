@@ -265,66 +265,12 @@ void BoardNode::rotate(Rotation rotation)
 /// Rotates the board into it's unique canonical orientation
 Rotation BoardNode::cannonicalOrientate()
 {
-	// If every corner is unique, we can orient efficiently
-	bool unique = true; /// TODO
-	unique &= _corners[0] != _corners[1];
-	unique &= _corners[0] != _corners[2];
-	unique &= _corners[0] != _corners[3];
-	unique &= _corners[1] != _corners[2];
-	unique &= _corners[1] != _corners[3];
-	unique &= _corners[2] != _corners[3];
-	
-	if(unique) {
-		
-		// Rotate the lowest hash in the TL position
-		Rotation orientation = Rotation::r0();
-		uint64 tlIndex = 0;
-		uint64 trIndex = 1;
-		uint64 blIndex = 2;
-		uint64 lowestHash = _corners[0]->hash();
-		if(_corners[1]->hash() < lowestHash) {
-			orientation = Rotation::r3();
-			tlIndex = 1;
-			trIndex = 3;
-			blIndex = 0;
-			lowestHash = _corners[1]->hash();
-		}
-		if(_corners[2]->hash() < lowestHash) {
-			orientation = Rotation::r1();
-			tlIndex = 2;
-			trIndex = 0;
-			blIndex = 3;
-			lowestHash = _corners[2]->hash();
-		}
-		if(_corners[3]->hash() < lowestHash) {
-			orientation = Rotation::r2();
-			tlIndex = 3;
-			trIndex = 2;
-			blIndex = 1;
-			lowestHash = _corners[3]->hash();
-		}
-		
-		// Apply dM to make TR the second lowest hash
-		if(_corners[blIndex]->hash() < _corners[trIndex]->hash())
-			orientation *= Rotation::dM();
-		
-		// Flip colours to follow TL
-		/// TODO: What if TL is invariant?
-		if(_orientations[tlIndex].colourFlipped())
-			orientation *= Rotation::pC();
-		
-		// Apply the rotation
-		rotate(orientation);
-		return orientation;
-	}
-	
 	// Fall back to taking the lowest hash
 	/// TODO: Something more efficient?
 	Rotation current = Rotation::r0();
 	Rotation lowest;
 	uint64 lowestHash = std::numeric_limits<uint64>::max();
 	for(Rotation r: Rotation::all) {
-		// rotate(current.inverted());
 		rotate(r / current);
 		current = r;
 		updateHash();
@@ -335,7 +281,6 @@ Rotation BoardNode::cannonicalOrientate()
 	}
 	
 	// Rotate to the lowest setting
-	// rotate(current.inverted());
 	rotate(lowest / current);
 	updateHash();
 	assert(hash() == lowestHash);
@@ -344,7 +289,17 @@ Rotation BoardNode::cannonicalOrientate()
 
 void BoardNode::findSymmetryGroup()
 {
-	_symmetries = SymmetryGroup::trivial();
+	uint16 symmetries = 0x0000;
+	uint16 mask = 1;
+	for(Rotation a: Rotation::all) {
+		BoardNode copy(*this);
+		copy.rotate(a);
+		copy.updateHash();
+		if(hash() == copy.hash())
+			symmetries |= mask;
+		mask <<= 1;
+	}
+	_symmetries = SymmetryGroup(symmetries);
 }
 
 void BoardNode::updateHash()
