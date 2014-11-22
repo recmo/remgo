@@ -5,7 +5,6 @@
 class SymmetryGroup
 {
 public:
-	static void initialize();
 	constexpr SymmetryGroup() : _index(0) { }
 	explicit SymmetryGroup(uint16 mask);
 	
@@ -19,7 +18,7 @@ public:
 private:
 	static constexpr uint _numGroups = 27;
 	static const uint16 _masks[_numGroups];
-	static uint8 _normalized[_numGroups][Rotation::groupSize];
+	static const uint8 _normalized[_numGroups][Rotation::groupSize];
 	uint8 _index;
 	
 	Rotation normalizeCalculate(Rotation r) const funk;

@@ -94,7 +94,6 @@ int main(int argc, char* argv[])
 	cerr << "sizeof(BoardNode) = " << sizeof(BoardNode) << endl;
 	cerr << "sizeof(TreeNode) = " << sizeof(TreeNode) << endl;
 	srand(time(0));
-	SymmetryGroup::initialize();
 	BoardNode::initialize();
 	BoardMask::initialize();
 	assert(BoardNode::fragmentCount() == 37);
