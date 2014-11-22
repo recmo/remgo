@@ -37,7 +37,7 @@ public:
 	Rotation& operator=(const Rotation& other) funk { _index = other._index; return *this; }
 	Rotation operator*(const Rotation& other) const funk;
 	Rotation& operator*=(const Rotation& other) funk { return operator=(operator*(other)); }
-	Rotation operator/(const Rotation& other) const funk;
+	Rotation operator/(const Rotation& other) const funk { return operator*(other.inverted());  }
 	Rotation& operator/=(const Rotation& other) funk { return operator=(operator*(other.inverted())); }
 	template<class T> T operator()(const T& value) funk;
 	
