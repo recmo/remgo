@@ -15,11 +15,11 @@ public:
 	TreeNode(TreeNode* parent, Move move) funk;
 	~TreeNode() funk;
 	
-	Board board() const funk { return _board; }
+	Board board() const funk { return _boardNode->board(_orientation, _moveCount); }
 	
 	Move move() const funk { return _move; }
-	uint32 backwardVisits() const funk { return _boardNode.second->visits(); }
-	sint32 backwardValue() const funk { return _boardNode.first.colourFlipped() ? -_boardNode.second->score() : _boardNode.second->score(); }
+	uint32 backwardVisits() const funk { return _boardNode->visits(); }
+	sint32 backwardValue() const funk { return _orientation.colourFlipped()? -_boardNode->score() : _boardNode->score(); }
 	double backwardScore(double logParentVisits) const funk;
 	uint depth() const funk;
 	uint numVisitedChildren() const funk;
@@ -53,12 +53,13 @@ protected:
 	friend ostream& operator<<(ostream& out, const TreeNode& treeNode) funk;
 	static uint _numNodes;
 	
-	Board _board aligned;
-	vector<Move> _moves;
 	TreeNode* _parent;
 	TreeNode* _child;
 	TreeNode* _sibling;
-	BoardNode::OrientedBoardNode _boardNode;
 	Move _move;
+	Rotation _orientation;
+	uint _moveCount;
+	BoardNode* _boardNode;
+	
 	TreeNode* select(const Board& board) funk;
 };

@@ -130,10 +130,9 @@ void TreeNode::loadGames(const string& filename)
 		}
 		
 		/// @todo Commit score
-		float value = (board.winner() == board.player()) ? 1.0 : 0.0;
-		// value = 1.0 - value;
-		for(uint i = 0; i < 10; ++i)
-			gameState->backwardRecurse(board, value);
+		sint value = (board.winner() == board.player()) ? 1 : -1;
+		gameState->backwardRecurse(board, value);
+		cerr << "." << flush;
 	}
 	cerr << " " << numGames << " games loaded." << endl;
 }

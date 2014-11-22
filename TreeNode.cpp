@@ -7,31 +7,35 @@
 uint TreeNode::_numNodes = 0;
 
 TreeNode::TreeNode()
-: _board()
-, _move(Move())
-, _moves()
+: _move(Move())
 , _parent(nullptr)
 , _child(nullptr)
 , _sibling(nullptr)
-, _boardNode(BoardNode::get(_board))
+, _orientation()
+, _moveCount(0)
+, _boardNode(nullptr)
 {
-	_moves = _board.sortedMoves();
+	Board start;
+	BoardNode::OrientedBoardNode obn = BoardNode::get(start);
+	_orientation = obn.first;
+	_boardNode = obn.second;
 	_numNodes++;
 }
 
 TreeNode::TreeNode(TreeNode* parent, Move move)
-: _board(parent->_board)
-, _move(move)
-, _moves()
+: _move(move)
 , _parent(parent)
 , _child(nullptr)
 , _sibling(nullptr)
-, _boardNode()
+, _boardNode(nullptr)
+, _orientation()
+, _moveCount(_parent->_moveCount + 1)
 {
-	_board.playMove(move);
-	_boardNode = BoardNode::get(_board);
-	
-	_moves = _board.sortedMoves();
+	Board board = _parent->board();
+	board.playMove(move);
+	BoardNode::OrientedBoardNode obn = BoardNode::get(board);
+	_orientation = obn.first;
+	_boardNode = obn.second;
 	_numNodes++;
 }
 
@@ -131,20 +135,13 @@ void TreeNode::backwardRecurse(const Board& endGame, sint score)
 
 void TreeNode::backwardUpdate(sint score)
 {
-	_boardNode.second->addRecursive(1, _boardNode.first.colourFlipped() ? -score : score);
+	_boardNode->addRecursive(1, _orientation.colourFlipped() ? -score : score);
 }
 
 TreeNode* TreeNode::select(const Board& board)
 {
 	// Explore unexplored nodes first first
-	if(!_moves.empty()) {
-		// Find the most suitable move
-		Move m = _moves.front();
-		_moves.erase(_moves.begin());
-		
-		// Create a new child
-		return child(m);
-	}
+	/// TODO
 	
 	// No moves to explore, check for children
 	if(!_child)
