@@ -15,6 +15,7 @@ public:
 	Board(BoardMask white, BoardMask black, uint moveCount) funk;
 	~Board() funk { }
 	bool operator==(const Board& other) const funk { return _moveCount == other._moveCount && _white == other._white && _black == other._black; }
+	bool operator!=(const Board& other) const funk { return !operator==(other); }
 	
 	bool gameOver() const funk { return validMoves().empty(); }
 	Board& playMove(Move move) funk;

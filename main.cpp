@@ -67,6 +67,14 @@ void recurse(const BoardNode::OrientedBoardNode& node)
 			recurse(node.second->piece(i));
 }
 
+void recurse(TreeNode* tree)
+{
+	cerr << BoardNode::fragmentCount() << endl;
+	recurse(BoardNode::get(tree->board()));
+	for(TreeNode* child = tree->firstChild(); child; child = child->sibling())
+		recurse(child);
+}
+
 int main(int argc, char* argv[])
 {
 	Timer::instance.start();
@@ -88,27 +96,24 @@ int main(int argc, char* argv[])
 	srand(time(0));
 	BoardNode::initialize();
 	BoardMask::initialize();
+	assert(BoardNode::fragmentCount() == 37);
+	cerr << "Initialized" << endl;
 	
-	
-	for(uint k = 0; k < 10000; ++k) {
-		Board start;
-		for(uint i = 0; i < 50; ++i)
-			start.playMove(start.randomMove());
-		BoardNode::OrientedBoardNode obn = BoardNode::get(start);
-		recurse(obn);
-	}
-	
-	cerr << BoardNode::fragmentCount() << endl;
-	
-	// BoardNode::dumpFragments();
+	BoardNode::test();
 	
 	return 0;
 	
-	
 	TreeNode gameTree;
-	gameTree.read("games.bin", true);
-	gameTree.write("games.symmetric2.bin");
-		
+	gameTree.loadGames("games.csv");
+	cerr << "Got " << BoardNode::fragmentCount() << " fragments" << endl;
+	
+	gameTree.itterate(10000);
+	cerr << "Got " << BoardNode::fragmentCount() << " fragments" << endl;
+	
+	// recurse(&gameTree);
+	
+	BoardNode::dumpStats();
+	
 	return 0;
 	
 	GameInputOutput gio;

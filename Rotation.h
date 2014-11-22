@@ -33,7 +33,8 @@ public:
 	constexpr Rotation() funk : _index(0) { }
 	constexpr Rotation(uint8 index) funk : _index(index) { }
 	
-	bool operator==(const Rotation& other) funk { return _index == other._index; }
+	bool operator==(const Rotation& other) const funk { return _index == other._index; }
+	bool operator!=(const Rotation& other) const funk { return !operator==(other); }
 	Rotation& operator=(const Rotation& other) funk { _index = other._index; return *this; }
 	Rotation operator*(const Rotation& other) const funk;
 	Rotation& operator*=(const Rotation& other) funk { return operator=(operator*(other)); }

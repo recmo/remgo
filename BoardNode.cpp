@@ -121,9 +121,9 @@ BoardNode::OrientedBoardNode BoardNode::get(const Board& board, int x, int y, ui
 	if(s == 1) {
 		if(x < 0 || y < 0 || x > 10 || y > 10)
 			return make_pair(Rotation(), &_wall);
-		if(board.playerPieces().isSet(BoardPoint(x, y)))
+		if(board.playerPieces().isSet(BoardPoint(y, x)))
 			return make_pair(Rotation(), &_player);
-		if(board.opponentPieces().isSet(BoardPoint(x, y)))
+		if(board.opponentPieces().isSet(BoardPoint(y, x)))
 			return make_pair(Rotation::pC(), &_player);
 		return make_pair(Rotation(), &_empty);
 	}
@@ -547,6 +547,17 @@ void BoardNode::test()
 	
 	cerr << BoardNode::fragmentCount() << endl;
 	BoardNode::dumpFragments();
+	
+	// Test for some random boards
+	cerr << "Testing random boards" << endl;
+	for(uint i = 0; i < 10000; ++i) {
+		Board board;
+		for(uint j = 0; j < 50; ++j) {
+			board.playMove(board.randomMove());
+			BoardNode::test(board);
+		}
+	}
+	cerr << BoardNode::fragmentCount() << endl;
 }
 
 
@@ -554,6 +565,11 @@ void BoardNode::test(const Board& board)
 {
 	BoardNode::OrientedBoardNode obn = BoardNode::get(board);
 	Board recovered = obn.second->board(obn.first, board.moveCount());
+	if(board != recovered) {
+		cerr << board << endl;
+		cerr << obn << endl;
+		cerr << recovered << endl;
+	}
 	assert(board == recovered);
 }
 
