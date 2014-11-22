@@ -19,6 +19,7 @@ GameInputOutput.h
 Random.cpp
 Timer.cpp
 Rotation.cpp
+SymmetryGroup.cpp
 BoardPoint.cpp
 BoardMask.cpp
 Move.cpp

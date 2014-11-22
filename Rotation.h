@@ -1,8 +1,7 @@
 #pragma once
 #include "Utilities.h"
 #include <array>
-
-/// TODO: Player-Opponent symmetry
+class SymmetryGroup;
 
 // Implements symmetry group D₄ (symmetries of the square) together with player-opponent turns
 class Rotation {
@@ -35,6 +34,7 @@ public:
 	
 	bool operator==(const Rotation& other) const funk { return _index == other._index; }
 	bool operator!=(const Rotation& other) const funk { return !operator==(other); }
+	bool operator<(const Rotation& other) const funk { return _index < other._index; }
 	Rotation& operator=(const Rotation& other) funk { _index = other._index; return *this; }
 	Rotation operator*(const Rotation& other) const funk;
 	Rotation& operator*=(const Rotation& other) funk { return operator=(operator*(other)); }
@@ -55,6 +55,7 @@ public:
 	
 private:
 	friend std::ostream& operator<<(std::ostream& out, const Rotation& rotation) funk;
+	friend class SymmetryGroup;
 	
 	static constexpr uint8 _d4 = 0x7;
 	static constexpr uint8 _colour = 0x8;
