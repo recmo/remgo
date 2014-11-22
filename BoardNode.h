@@ -23,6 +23,7 @@ public:
 	uint size() const funk { return 1 << _height; }
 	uint visits() const funk { return _visits; }
 	sint score() const funk { return _score; }
+	double averageScore() const funk { return static_cast<double>(_score) / static_cast<double>(_visits); }
 	void addRecursive(uint visits, sint score) funk;
 	
 	Board board(Rotation rotation, uint moveCount) const funk;

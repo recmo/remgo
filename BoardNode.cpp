@@ -98,13 +98,26 @@ void BoardNode::dumpStats(ostream& out)
 		BoardNode* node = i.second;
 		if(node->height() == 0)
 			continue;
+		if(node->height() != 1)
+			continue;
+		out << *node << endl;
 		out << node->height() << ", ";
-		out << double(node->score()) / double(node->visits()) << ", ";
+		double score = node->averageScore();
+		out << score << ", ";
 		
-		out << double(node->piece(0).second->score()) / double(node->piece(0).second->visits()) << ", ";
-		out << double(node->piece(1).second->score()) / double(node->piece(1).second->visits()) << ", ";
-		out << double(node->piece(2).second->score()) / double(node->piece(2).second->visits()) << ", ";
-		out << double(node->piece(3).second->score()) / double(node->piece(3).second->visits()) << endl;
+		for(uint i = 0; i < 9; ++i) {
+			if(node->height() > 1 || i < 4) {
+				BoardNode::OrientedBoardNode obn = node->piece(i);
+				double score = obn.first.colourFlipped() ? -obn.second->averageScore() : obn.second->averageScore();
+				out << score;
+			} else {
+				out << "0";
+			}
+			if(i < 8)
+				out << ", ";
+			else
+				out << endl;
+		}
 	}
 }
 
@@ -324,8 +337,8 @@ Rotation BoardNode::cannonicalOrientate()
 	// Rotate to the lowest setting
 	// rotate(current.inverted());
 	rotate(lowest / current);
-	//updateHash();
-	//assert(hash() == lowestHash);
+	updateHash();
+	assert(hash() == lowestHash);
 	return lowest;
 }
 
@@ -468,6 +481,7 @@ BoardNode::OrientedBoardNode BoardNode::subPiece(uint r, uint c)
 
 void BoardNode::addRecursive(uint visits, sint score)
 {
+	assert(abs(score) <= visits);
 	if(_visits > (1UL << 30)) {
 		_visits >>= 1;
 		_score >>= 1;
@@ -484,7 +498,7 @@ void BoardNode::addRecursive(uint visits, sint score)
 
 void BoardNode::addRecursive(const BoardNode::OrientedBoardNode piece, uint visits, sint score)
 {
-	piece.second->addRecursive(visits, piece.first.colourFlipped() ? 1-score : score);
+	piece.second->addRecursive(visits, piece.first.colourFlipped() ? -score : score);
 }
 
 void BoardNode::print(char* buffer, uint rowStride, Rotation rotation) const
