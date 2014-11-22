@@ -121,6 +121,7 @@ void TreeNode::loadGames(const string& filename)
 			ss >> move;
 			assert(move.isValid());
 			board.playMove(move);
+			BoardNode::test(board);
 			gameState = gameState->child(move);
 			assert(gameState);
 		}

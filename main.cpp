@@ -99,20 +99,9 @@ int main(int argc, char* argv[])
 	assert(BoardNode::fragmentCount() == 37);
 	cerr << "Initialized" << endl;
 	
-	BoardNode::test();
-	
-	return 0;
-	
 	TreeNode gameTree;
 	gameTree.loadGames("games.csv");
 	cerr << "Got " << BoardNode::fragmentCount() << " fragments" << endl;
-	
-	gameTree.itterate(10000);
-	cerr << "Got " << BoardNode::fragmentCount() << " fragments" << endl;
-	
-	// recurse(&gameTree);
-	
-	BoardNode::dumpStats();
 	
 	return 0;
 	
