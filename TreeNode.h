@@ -3,11 +3,12 @@
 #include "BoardMask.h"
 #include "Move.h"
 #include "Board.h"
+#include "BoardNode.h"
 
 class TreeNode {
 public:
-	static constexpr float epsilon = 1e-6;
-	static const float explorationParameter;
+	static constexpr double epsilon = 1e-6;
+	static const double explorationParameter;
 	static uint numNodes() { return _numNodes; }
 	
 	TreeNode() funk;
@@ -17,15 +18,9 @@ public:
 	Board board() const funk { return _board; }
 	
 	Move move() const funk { return _move; }
-	uint backwardVisits() const funk { return _backwardVisits; }
-	uint backwardValue() const funk { return _backwardValue; }
-	uint forwardVisits() const funk { return _forwardVisits; }
-	uint forwardValue() const funk { return _forwardValue; }
-	float backwardScore(float logParentVisits) const funk;
-	float forwardScore(float logParentVisits) const funk;
-	float alphaAmafScore(float logParentVisits, float alpha) const funk;
-	float raveAlpha() const funk;
-	float raveScore(float logParentVisits) const funk;
+	uint32 backwardVisits() const funk { return _boardNode.second->visits(); }
+	sint32 backwardValue() const funk { return _boardNode.first.colourFlipped() ? -_boardNode.second->score() : _boardNode.second->score(); }
+	double backwardScore(double logParentVisits) const funk;
 	uint depth() const funk;
 	uint numVisitedChildren() const funk;
 	BoardMask visitedChildren() const funk;
@@ -44,14 +39,10 @@ public:
 	
 	void writeOut(ostream& out, uint depth) const funk;
 	
-	void scaleStatistics(uint factor) funk;
+	void backwardRecurse(const Board& endGame, sint value) funk;
+	void backwardUpdate(sint value) funk;
 	
-	void backwardRecurse(const Board& endGame, float value) funk;
-	void backwardUpdate(float value) funk;
-	void forwardRecurse(const BoardMask& self, const BoardMask& other, float score) funk;
-	void forwardUpdate(float score) funk;
-	
-	void itterate(uint action = 1);
+	void itterate(uint loops = 1);
 	void selectAction(Board board) funk;
 	bool isLeaf() const funk { return !_child; }
 	void rollOut(const Board& board) funk;
@@ -67,10 +58,7 @@ protected:
 	TreeNode* _parent;
 	TreeNode* _child;
 	TreeNode* _sibling;
-	uint _backwardVisits;
-	float _backwardValue;
-	uint _forwardVisits;
-	float _forwardValue;
+	BoardNode::OrientedBoardNode _boardNode;
 	Move _move;
 	TreeNode* select(const Board& board) funk;
 };

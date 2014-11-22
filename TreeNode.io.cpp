@@ -42,8 +42,6 @@ void TreeNode::write(ostream& out, uint treshold) const
 	}
 	out.write(reinterpret_cast<const char*>(&_backwardVisits), sizeof(_backwardVisits));
 	out.write(reinterpret_cast<const char*>(&_backwardValue), sizeof(_backwardValue));
-	out.write(reinterpret_cast<const char*>(&_forwardVisits), sizeof(_forwardVisits));
-	out.write(reinterpret_cast<const char*>(&_forwardValue), sizeof(_forwardValue));
 	out.put(numTresholdChildren);
 	
 	// Write out child nodes
@@ -81,10 +79,6 @@ void TreeNode::read(istream& in, Rotation rotation)
 	// Read this node
 	uint visits;
 	float value;
-	in.read(reinterpret_cast<char*>(&visits), sizeof(visits));
-	in.read(reinterpret_cast<char*>(&value), sizeof(value));
-	_forwardVisits += visits;
-	_forwardValue += value;
 	in.read(reinterpret_cast<char*>(&visits), sizeof(visits));
 	in.read(reinterpret_cast<char*>(&value), sizeof(value));
 	_backwardVisits += visits;

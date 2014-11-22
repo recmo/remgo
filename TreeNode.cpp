@@ -10,13 +10,10 @@ TreeNode::TreeNode()
 : _board()
 , _move(Move())
 , _moves()
-, _backwardVisits(0)
-, _backwardValue(0.0)
-, _forwardVisits(0)
-, _forwardValue(0.0)
 , _parent(nullptr)
 , _child(nullptr)
 , _sibling(nullptr)
+, _boardNode(BoardNode::get(_board))
 {
 	_moves = _board.sortedMoves();
 	_numNodes++;
@@ -26,15 +23,14 @@ TreeNode::TreeNode(TreeNode* parent, Move move)
 : _board(parent->_board)
 , _move(move)
 , _moves()
-, _backwardVisits(0)
-, _backwardValue(0.0)
-, _forwardVisits(0)
-, _forwardValue(0.0)
 , _parent(parent)
 , _child(nullptr)
 , _sibling(nullptr)
+, _boardNode()
 {
 	_board.playMove(move);
+	_boardNode = BoardNode::get(_board);
+	
 	_moves = _board.sortedMoves();
 	_numNodes++;
 }
@@ -51,40 +47,17 @@ TreeNode::~TreeNode()
 std::ostream& operator<<(std::ostream& out, const TreeNode& treeNode)
 {
 	out << treeNode.backwardVisits() << " " << treeNode.backwardValue() << " ";
-	out << treeNode.forwardVisits() << " " << treeNode.forwardValue() << " ";
 	out << treeNode.depth();
 	for(const TreeNode* p = &treeNode; p; p = p->_parent)
 		out << " " << p->_move;
 	return out;
 }
 
-float TreeNode::backwardScore(float logParentVisits) const
+double TreeNode::backwardScore(double logParentVisits) const
 {
-	return backwardValue() / (backwardVisits() + epsilon) + explorationParameter * sqrt(logParentVisits / (backwardVisits() + epsilon));
+	return double((backwardVisits() / 2) + backwardValue()) / (backwardVisits() + epsilon) + explorationParameter * sqrt(logParentVisits / (backwardVisits() + epsilon));
 }
 
-float TreeNode::forwardScore(float logParentVisits) const
-{
-	return forwardValue() / (forwardVisits() + epsilon) + explorationParameter * sqrt(logParentVisits / (forwardVisits() + epsilon));
-}
-
-float TreeNode::alphaAmafScore(float logParentVisits, float alpha) const
-{
-	return ((1.0 - alpha) * backwardScore(logParentVisits)) + (alpha * forwardScore(logParentVisits));
-}
-
-float TreeNode::raveAlpha() const
-{
-	const float parameterValue = 50000;
-	if(backwardVisits() > parameterValue)
-		return 0.0;
-	return (backwardVisits() - parameterValue) / parameterValue;
-}
-
-float TreeNode::raveScore(float logParentVisits) const
-{
-	return alphaAmafScore(logParentVisits, raveAlpha());
-}
 
 TreeNode* TreeNode::child(Move move)
 {
@@ -149,43 +122,16 @@ void TreeNode::vincent(TreeNode* child)
 	_child->_sibling = nullptr;
 }
 
-void TreeNode::backwardRecurse(const Board& endGame, float score)
+void TreeNode::backwardRecurse(const Board& endGame, sint score)
 {
 	backwardUpdate(score);
 	if(_parent)
-		_parent->backwardRecurse(endGame, 1.0 - score);
-	//else
-	//	forwardRecurse(endGame.white(), endGame.black(), score);
+		_parent->backwardRecurse(endGame, -score);
 }
 
-void TreeNode::backwardUpdate(float score)
+void TreeNode::backwardUpdate(sint score)
 {
-	++_backwardVisits;
-	_backwardValue += score;
-}
-
-void TreeNode::forwardRecurse(const BoardMask& self, const BoardMask& other, float score)
-{
-	// Regular moves
-	if(_move.isValid()) {
-		if(!self.isSet(_move.to()))
-			return;
-		forwardUpdate(score);
-		score = 1.0 - score;
-		for(TreeNode* c = _child; c; c = c->_sibling)
-			c->forwardRecurse(other, self, score);
-		
-	// Root node
-	} else {
-		for(TreeNode* c = _child; c; c = c->_sibling)
-			c->forwardRecurse(self, other, score);
-	}
-}
-
-void TreeNode::forwardUpdate(float score)
-{
-	++_forwardVisits;
-	_forwardValue += score;
+	_boardNode.second->addRecursive(1, _boardNode.first.colourFlipped() ? -score : score);
 }
 
 TreeNode* TreeNode::select(const Board& board)
@@ -233,6 +179,7 @@ void TreeNode::selectAction(Board board)
 	// Select an existing leaf
 	while(!current->isLeaf()) {
 		current = current->select(board);
+		assert(current != nullptr);
 		board.playMove(current->_move);
 	}
 	
@@ -288,15 +235,5 @@ void TreeNode::rollOut(const Board& board)
 	assert(winner == Board::Black || winner == Board::White);
 	
 	// Update scores
-	backwardRecurse(fillOut, (winner == board.player()) ? 0.0 : 1.0);
-}
-
-void TreeNode::scaleStatistics(uint factor)
-{
-	_backwardVisits /= factor;
-	_backwardValue /= factor;
-	_forwardVisits /= factor;
-	_forwardValue /= factor;
-	for(TreeNode* c = _child; c; c = c->_sibling)
-		c->scaleStatistics(factor);
+	backwardRecurse(fillOut, (winner == board.player()) ? 0 : 1);
 }
