@@ -1,6 +1,8 @@
 #include "BoardNode.h"
 
+bool BoardNode::_initialized = false;
 std::unordered_map<uint64, BoardNode*> BoardNode::_fragments;
+BoardNode::OrientedBoardNode BoardNode::_smallCache[4][4][4][4];
 BoardNode BoardNode::_wall(0xf07e84658f112f0fUL);
 BoardNode BoardNode::_empty(0xd60d74b3eb29093dUL);
 BoardNode BoardNode::_player(0x9faa2a2dd3178d69UL);
@@ -9,7 +11,7 @@ std::ostream& operator<<(std::ostream& out, const BoardNode& boardNode)
 {
 	out.width(16);
 	out.fill('0');
-	out << right << hex << boardNode.hash() << dec << " " << boardNode.height() << endl;
+	out << right << hex << boardNode.hash() << dec << " " << boardNode.height() << " " << boardNode.visits() << " " << boardNode.score() << endl;
 	uint size = boardNode.size();
 	char buffer[size][size];
 	for(uint i = 0; i < size; ++i)
@@ -45,10 +47,43 @@ std::ostream& operator<<(std::ostream& out, const BoardNode::OrientedBoardNode& 
 
 void BoardNode::initialize()
 {
+	assert(!_initialized);
+	
+	// Initialize one by one pieces
 	_fragments[_wall.hash()] = &_wall;
 	_fragments[_empty.hash()] = &_empty;
 	_fragments[_player.hash()] = &_player;
 	_player._symmetries = SymmetryGroup::space();
+	
+	// Initialize two by two pieces cache
+	std::array<OrientedBoardNode, 4> cells = {
+		make_pair(Rotation(), &_empty),
+		make_pair(Rotation(), &_wall),
+		make_pair(Rotation(), &_player),
+		make_pair(Rotation::pC(), &_player)
+	};
+	for(uint tl = 0; tl < 4; ++tl)
+	for(uint tr = 0; tr < 4; ++tr)
+	for(uint bl = 0; bl < 4; ++bl)
+	for(uint br = 0; br < 4; ++br)
+		_smallCache[tl][tr][bl][br] = get(cells[tl], cells[tr], cells[bl], cells[br]);
+	
+	// Flag initialized
+	_initialized = true;
+}
+
+uint BoardNode::cellIndex(const BoardNode::OrientedBoardNode& node)
+{
+	if(node.second == &_empty)
+		return 0;
+	if(node.second == &_wall)
+		return 1;
+	if(node.second == &_player)
+		if(!node.first.colourFlipped())
+			return 2;
+		else
+			return 3;
+	assert(false);
 }
 
 void BoardNode::dumpFragments(ostream& out)
@@ -57,6 +92,21 @@ void BoardNode::dumpFragments(ostream& out)
 		out << *(i.second) << endl;
 }
 
+void BoardNode::dumpStats(ostream& out)
+{
+	for(auto i: _fragments) {
+		BoardNode* node = i.second;
+		if(node->height() == 0)
+			continue;
+		out << node->height() << ", ";
+		out << double(node->score()) / double(node->visits()) << ", ";
+		
+		out << double(node->piece(0).second->score()) / double(node->piece(0).second->visits()) << ", ";
+		out << double(node->piece(1).second->score()) / double(node->piece(1).second->visits()) << ", ";
+		out << double(node->piece(2).second->score()) / double(node->piece(2).second->visits()) << ", ";
+		out << double(node->piece(3).second->score()) / double(node->piece(3).second->visits()) << endl;
+	}
+}
 
 BoardNode::OrientedBoardNode BoardNode::get(const Board& board)
 {
@@ -88,60 +138,27 @@ BoardNode::OrientedBoardNode BoardNode::get(const Board& board, int x, int y, ui
 	);
 }
 
-BoardNode::OrientedBoardNode BoardNode::get(const BoardNode::OrientedBoardNode corners[4])
-{
-	// Find the normalized orientation for the requested piece
-	// Try all orientations and use the one with the lowest hash
-	/// TODO: Better way?
-	
-	// TODO: this would also be a good place to divide out board symmetries, instead of in the 'normalize' function
-	
-	Rotation orientation;
-	uint64 lowestHash = std::numeric_limits<uint64>::max();
-	BoardNode lowestNode;
-	for(Rotation r: Rotation::all) {
-		BoardNode current(corners, r);
-		if(current.hash() < lowestHash) {
-			orientation = r.inverted();
-			lowestHash = current.hash();
-			lowestNode = current;
-		}
-	}
-	
-	/*
-	/// TODO
-	uint s = 0;
-	for(Rotation r: Rotation::all) {
-		BoardNode current(corners, r);
-		if(current.hash() == lowestHash)
-			++s;
-	}
-	if(s > 1) {
-		for(Rotation r: Rotation::all) {
-			BoardNode current(corners, r);
-			if(current.hash() == lowestHash)
-				cerr << orientation * r << " ";
-		}
-		cerr << endl;
-	}
-	*/
-	
-	// Now deduplicate that node
-	BoardNode* node = _fragments[lowestHash];
-	if(node == nullptr) {
-		// Does not exist yet, create a new one
-		node = new BoardNode(lowestNode);
-		_fragments[node->hash()] = node;
-	}
-	assert(node->hash() == lowestHash);
-	
-	return make_pair(node->normalize(orientation), node);
-}
-
 BoardNode::OrientedBoardNode BoardNode::get(const BoardNode::OrientedBoardNode& tl, const BoardNode::OrientedBoardNode& tr, const BoardNode::OrientedBoardNode& bl, const BoardNode::OrientedBoardNode& br)
 {
-	BoardNode::OrientedBoardNode corners[4] = {tl, tr, bl, br};
-	return get(corners);
+	// Use cache for 2x2 pieces
+	if(_initialized && tl.second->height() == 0)
+		return _smallCache[cellIndex(tl)][cellIndex(tr)][cellIndex(bl)][cellIndex(br)];
+	
+	// Find the cannonical orientation
+	BoardNode orientable(tl, tr, bl, br);
+	Rotation orientation = orientable.cannonicalOrientate();
+	orientable.updateHash();
+	
+	// Now deduplicate the node
+	BoardNode* node = _fragments[orientable.hash()];
+	if(node == nullptr) {
+		// Does not exist yet, create a new one
+		node = new BoardNode(orientable);
+		node->findSymmetryGroup();
+		_fragments[node->hash()] = node;
+	}
+	
+	return make_pair(node->symmetryReduce(orientation.inverted()), node);
 }
 
 BoardNode::BoardNode()
@@ -163,32 +180,161 @@ BoardNode::BoardNode(uint64 hash)
 	_hash = hash;
 }
 
-BoardNode::BoardNode(const BoardNode::OrientedBoardNode corners[4], Rotation rotation)
+BoardNode::BoardNode(const OrientedBoardNode& tl, const OrientedBoardNode& tr, const OrientedBoardNode& bl, const OrientedBoardNode& br)
 : _hash(0)
-, _height(0)
+, _height(tl.second->_height + 1)
 , _symmetries()
-, _orientations{Rotation(), Rotation(), Rotation(), Rotation()}
-, _corners{nullptr, nullptr, nullptr, nullptr}
+, _orientations{tl.first, tr.first, bl.first, br.first}
+, _corners{tl.second, tr.second, bl.second, br.second}
 {
-	for(uint i = 0; i < 4; ++i) {
-		assert(corners[i].second != nullptr);
-		_corners[i] = corners[i].second;
-		_orientations[i] = _corners[i]->normalize(rotation * corners[i].first);
-	}
-	_height = corners[0].second->_height + 1;
-	
-	// Rotate corners macro scale
-	rotation.permuteCorners(_orientations[0], _orientations[1], _orientations[2], _orientations[3]);
-	rotation.permuteCorners(_corners[0], _corners[1], _corners[2], _corners[3]);
-	
-	// Determine symmetry group
-	
-	
-	// Update hash
-	_hash = generateHash();
 }
 
-uint64 BoardNode::generateHash() const
+BoardNode::BoardNode(const BoardNode& copy)
+: _hash(copy._hash)
+, _height(copy._height)
+, _symmetries(copy._symmetries)
+, _orientations{copy._orientations[0], copy._orientations[1], copy._orientations[2], copy._orientations[3]}
+, _corners{copy._corners[0], copy._corners[1], copy._corners[2], copy._corners[3]}
+{
+}
+
+Board BoardNode::board(Rotation rotation, uint moveCount) const
+{
+	assert(_height == 4);
+	BoardMask player;
+	BoardMask opponent;
+	
+	pieces(player, opponent, rotation, -2, -2);
+	
+	if(moveCount & 1)
+		return Board(opponent, player, moveCount);
+	else
+		return Board(player, opponent, moveCount);
+}
+
+void BoardNode::pieces(BoardMask& player, BoardMask& opponent, Rotation rotation, int row, int col) const
+{
+	if(_height == 0) {
+		if(this != &_player)
+			return;
+		assert(row >= 0 && row < 11);
+		assert(col >= 0 && col < 11);
+		if(!rotation.colourFlipped())
+			player.set(BoardPoint(row, col));
+		else
+			opponent.set(BoardPoint(row, col));
+		return;
+	}
+	
+	// Recurse
+	for(uint i = 0; i < 4; ++i) {
+		uint scol = i % 2;
+		uint srow = i / 2;
+		rotation.transform(2, srow, scol);
+		srow *= size() / 2;
+		scol *= size() / 2;
+		_corners[i]->pieces(player, opponent, rotation * _orientations[i], row + srow, col + scol);
+	}
+}
+
+
+void BoardNode::rotate(Rotation rotation)
+{
+	rotation.permuteCorners(_corners[0], _corners[1], _corners[2], _corners[3]);
+	rotation.permuteCorners(_orientations[0], _orientations[1], _orientations[2], _orientations[3]);
+	_orientations[0] = _corners[0]->symmetryReduce(rotation * _orientations[0]);
+	_orientations[1] = _corners[1]->symmetryReduce(rotation * _orientations[1]);
+	_orientations[2] = _corners[2]->symmetryReduce(rotation * _orientations[2]);
+	_orientations[3] = _corners[3]->symmetryReduce(rotation * _orientations[3]);
+	_hash = 0;
+}
+
+/// Rotates the board into it's unique canonical orientation
+Rotation BoardNode::cannonicalOrientate()
+{
+	// If every corner is unique, we can orient efficiently
+	bool unique = true; /// TODO
+	unique &= _corners[0] != _corners[1];
+	unique &= _corners[0] != _corners[2];
+	unique &= _corners[0] != _corners[3];
+	unique &= _corners[1] != _corners[2];
+	unique &= _corners[1] != _corners[3];
+	unique &= _corners[2] != _corners[3];
+	
+	if(unique) {
+		
+		// Rotate the lowest hash in the TL position
+		Rotation orientation = Rotation::r0();
+		uint64 tlIndex = 0;
+		uint64 trIndex = 1;
+		uint64 blIndex = 2;
+		uint64 lowestHash = _corners[0]->hash();
+		if(_corners[1]->hash() < lowestHash) {
+			orientation = Rotation::r3();
+			tlIndex = 1;
+			trIndex = 3;
+			blIndex = 0;
+			lowestHash = _corners[1]->hash();
+		}
+		if(_corners[2]->hash() < lowestHash) {
+			orientation = Rotation::r1();
+			tlIndex = 2;
+			trIndex = 0;
+			blIndex = 3;
+			lowestHash = _corners[2]->hash();
+		}
+		if(_corners[3]->hash() < lowestHash) {
+			orientation = Rotation::r2();
+			tlIndex = 3;
+			trIndex = 2;
+			blIndex = 1;
+			lowestHash = _corners[3]->hash();
+		}
+		
+		// Apply dM to make TR the second lowest hash
+		if(_corners[blIndex]->hash() < _corners[trIndex]->hash())
+			orientation *= Rotation::dM();
+		
+		// Flip colours to follow TL
+		/// TODO: What if TL is invariant?
+		if(_orientations[tlIndex].colourFlipped())
+			orientation *= Rotation::pC();
+		
+		// Apply the rotation
+		rotate(orientation);
+		return orientation;
+	}
+	
+	// Fall back to taking the lowest hash
+	/// TODO: Something more efficient?
+	Rotation current = Rotation::r0();
+	Rotation lowest;
+	uint64 lowestHash = std::numeric_limits<uint64>::max();
+	for(Rotation r: Rotation::all) {
+		// rotate(current.inverted());
+		rotate(r / current);
+		current = r;
+		updateHash();
+		if(hash() < lowestHash) {
+			lowest = r;
+			lowestHash = hash();
+		}
+	}
+	
+	// Rotate to the lowest setting
+	// rotate(current.inverted());
+	rotate(lowest / current);
+	//updateHash();
+	//assert(hash() == lowestHash);
+	return lowest;
+}
+
+void BoardNode::findSymmetryGroup()
+{
+	_symmetries = SymmetryGroup::trivial();
+}
+
+void BoardNode::updateHash()
 {
 	// Hash each cell
 	uint64 tl = _corners[0]->hash() ^ _orientations[0].hash();
@@ -211,7 +357,7 @@ uint64 BoardNode::generateHash() const
 	tl = rotate_left(tl, 31);
 	tl *= 0x4cf5ad432745937fUL;
 	tl ^= tl >> 33;
-	return tl;
+	_hash = tl;
 }
 
 BoardNode::OrientedBoardNode BoardNode::piece(uint n)
@@ -320,6 +466,27 @@ BoardNode::OrientedBoardNode BoardNode::subPiece(uint r, uint c)
 	return make_pair(outerRotate * innerRotate, innerNode);
 }
 
+void BoardNode::addRecursive(uint visits, sint score)
+{
+	if(_visits > (1UL << 30)) {
+		_visits >>= 1;
+		_score >>= 1;
+	}
+	_visits += visits;
+	_score += score;
+	if(_height > 0)
+		for(uint i = 0; i < 4; ++i)
+			addRecursive(piece(i), visits, score);
+	if(_height > 1)
+		for(uint i = 4; i < 9; ++i)
+			addRecursive(piece(i), visits, score);
+}
+
+void BoardNode::addRecursive(const BoardNode::OrientedBoardNode piece, uint visits, sint score)
+{
+	piece.second->addRecursive(visits, piece.first.colourFlipped() ? 1-score : score);
+}
+
 void BoardNode::print(char* buffer, uint rowStride, Rotation rotation) const
 {
 	if(rowStride == 0)
@@ -380,5 +547,13 @@ void BoardNode::test()
 	
 	cerr << BoardNode::fragmentCount() << endl;
 	BoardNode::dumpFragments();
+}
+
+
+void BoardNode::test(const Board& board)
+{
+	BoardNode::OrientedBoardNode obn = BoardNode::get(board);
+	Board recovered = obn.second->board(obn.first, board.moveCount());
+	assert(board == recovered);
 }
 
