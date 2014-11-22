@@ -239,8 +239,37 @@ Dataset: games.csv, 2031 games
 
 without unique optimization: 1190328 fragments
 with colour symmetry detection: 1116401 fragments
-with full symmetry reduction: 762933 fragments
+with full symmetry reduction: 762933 fragments (29.519s)
 
+27 symmetries:
+
+0001
+0005
+0011
+0021
+0035
+0041
+0081
+00c5
+00ff
+0101
+0401
+1001
+1111
+1421
+2001
+2121
+2411
+3005
+3ac5
+4001
+4141
+4481
+8001
+8181
+8441
+c5c5
+ffff
 
 Todo
 ------

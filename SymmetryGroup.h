@@ -5,17 +5,22 @@
 class SymmetryGroup
 {
 public:
-	constexpr SymmetryGroup() : _mask(0) { }
-	constexpr SymmetryGroup(Rotation r) : _mask(1UL << r._index) { }
-	constexpr SymmetryGroup(uint16 mask) : _mask(mask) { }
+	static void initialize();
+	constexpr SymmetryGroup() : _index(0) { }
+	explicit SymmetryGroup(uint16 mask);
 	
-	static constexpr SymmetryGroup trivial() { return SymmetryGroup(); }
-	static constexpr SymmetryGroup colour() { return SymmetryGroup(Rotation::pC()); }
-	static constexpr SymmetryGroup space() { return SymmetryGroup(0xff); }
-	static constexpr SymmetryGroup all() { return SymmetryGroup(0xffff); }
+	static SymmetryGroup trivial() { return SymmetryGroup(0x0001); }
+	static SymmetryGroup colour() { return SymmetryGroup(0x0101); }
+	static SymmetryGroup space() { return SymmetryGroup(0x00ff); }
+	static SymmetryGroup all() { return SymmetryGroup(0xffff); }
 	
-	Rotation normalize(Rotation r) const funk;
+	Rotation normalize(Rotation r) const funk { return Rotation(_normalized[_index][r._index]); }
 	
-	uint16 _mask;
 private:
+	static constexpr uint _numGroups = 27;
+	static const uint16 _masks[_numGroups];
+	static uint8 _normalized[_numGroups][Rotation::groupSize];
+	uint8 _index;
+	
+	Rotation normalizeCalculate(Rotation r) const funk;
 };

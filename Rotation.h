@@ -36,11 +36,13 @@ public:
 	bool operator!=(const Rotation& other) const funk { return !operator==(other); }
 	bool operator<(const Rotation& other) const funk { return _index < other._index; }
 	Rotation& operator=(const Rotation& other) funk { _index = other._index; return *this; }
-	Rotation operator*(const Rotation& other) const funk;
+	Rotation operator*(const Rotation& other) const funk { return Rotation(_multiplicationTable[_index][other._index]); }
 	Rotation& operator*=(const Rotation& other) funk { return operator=(operator*(other)); }
 	Rotation operator/(const Rotation& other) const funk { return operator*(other.inverted());  }
 	Rotation& operator/=(const Rotation& other) funk { return operator=(operator*(other.inverted())); }
 	template<class T> T operator()(const T& value) funk;
+	
+	uint index() const { return _index; }
 	
 	Rotation& invert() funk { return operator=(inverted()); }
 	Rotation inverted() const funk { return Rotation(_inverse[_index]); }
@@ -138,13 +140,6 @@ template<class T> inline void Rotation::permuteCorners(T& tl, T& tr, T& bl, T& b
 			swap(tl, br);
 			return;
 	}
-}
-
-inline Rotation Rotation::operator*(const Rotation& other) const
-{
-	uint8 rotation = _multiplicationTable[_index & _d4][other._index & _d4];
-	uint8 colour = (_index & _colour) ^ (other._index & _colour);
-	return Rotation(rotation | colour);
 }
 
 template<> inline Rotation Rotation::operator()(const Rotation& value)

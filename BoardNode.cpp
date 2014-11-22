@@ -519,7 +519,7 @@ void BoardNode::test()
 	
 	// Test for some random boards
 	cerr << "Testing random boards" << endl;
-	for(uint i = 0; i < 10000; ++i) {
+	for(uint i = 0; i < 100000; ++i) {
 		Board board;
 		for(uint j = 0; j < 50; ++j) {
 			board.playMove(board.randomMove());
