@@ -79,8 +79,8 @@ void TreeNode::read(istream& in, Rotation rotation)
 	// Read this node
 	uint visits;
 	float value;
-	in.read(reinterpret_cast<char*>(&visits), sizeof(visits));
-	in.read(reinterpret_cast<char*>(&value), sizeof(value));
+	//in.read(reinterpret_cast<char*>(&visits), sizeof(visits));
+	//in.read(reinterpret_cast<char*>(&value), sizeof(value));
 	//_backwardVisits += visits;
 	//_backwardValue += value;
 	
@@ -129,6 +129,7 @@ void TreeNode::loadGames(const string& filename)
 			cerr << "!!! Not entire game!" << endl;
 			continue;
 		}
+		cerr << board << endl;
 		
 		/// @todo Commit score
 		sint value = (board.winner() == board.player()) ? 1 : -1;

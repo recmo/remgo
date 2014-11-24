@@ -12,6 +12,7 @@ public:
 	static void initialize() funk;
 	static void dumpFragments(std::ostream& out = std::cerr);
 	static void dumpStats(std::ostream& out = std::cerr);
+	static void dumpHisto(std::ostream& out = std::cerr);
 	static uint fragmentCount() funk { return _fragments.size(); }
 	static OrientedBoardNode get(const Board& board) funk;
 	static OrientedBoardNode get(const Board& board, int x, int y, uint s) funk;

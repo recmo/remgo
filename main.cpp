@@ -87,23 +87,19 @@ int main(int argc, char* argv[])
 	cerr << "sizeof(void*) = " << sizeof(void*) << endl;
 	cerr << "sizeof(std::size_t) = " << sizeof(std::size_t) << endl;
 	cerr << "sizeof(Rotation) = " << sizeof(Rotation) << endl;
+	cerr << "sizeof(SymmetryGroup) = " << sizeof(SymmetryGroup) << endl;
 	cerr << "sizeof(BoardPoint) = " << sizeof(BoardPoint) << endl;
 	cerr << "sizeof(Move) = " << sizeof(Move) << endl;
 	cerr << "sizeof(BoardMask) = " << sizeof(BoardMask) << endl;
 	cerr << "sizeof(Board) = " << sizeof(Board) << endl;
 	cerr << "sizeof(BoardNode) = " << sizeof(BoardNode) << endl;
+	cerr << "sizeof(BoardNode::OrientedBoardNode) = " << sizeof(BoardNode::OrientedBoardNode) << endl;
 	cerr << "sizeof(TreeNode) = " << sizeof(TreeNode) << endl;
 	srand(time(0));
 	BoardNode::initialize();
 	BoardMask::initialize();
 	assert(BoardNode::fragmentCount() == 37);
 	cerr << "Initialized" << endl;
-	
-	TreeNode gameTree;
-	gameTree.loadGames("games.csv");
-	cerr << "Got " << BoardNode::fragmentCount() << " fragments" << endl;
-	
-	return 0;
 	
 	GameInputOutput gio;
 	gio.run();

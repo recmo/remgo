@@ -92,15 +92,27 @@ void BoardNode::dumpFragments(ostream& out)
 		out << *(i.second) << endl;
 }
 
+void BoardNode::dumpHisto(ostream& out)
+{
+	uint histo[5] = {0,0,0,0};
+	for(auto i: _fragments)
+		histo[i.second->height()] += 1;
+	out << "H1: " << histo[0] << endl;
+	out << "H2: " << histo[1] << endl;
+	out << "H3: " << histo[2] << endl;
+	out << "H4: " << histo[3] << endl;
+	out << "H5: " << histo[4] << endl;
+}
+
+
 void BoardNode::dumpStats(ostream& out)
 {
 	for(auto i: _fragments) {
 		BoardNode* node = i.second;
 		if(node->height() == 0)
 			continue;
-		if(node->height() != 1)
+		if(node->visits() < 1000)
 			continue;
-		out << *node << endl;
 		out << node->height() << ", ";
 		double score = node->averageScore();
 		out << score << ", ";
@@ -267,21 +279,20 @@ Rotation BoardNode::cannonicalOrientate()
 {
 	// Fall back to taking the lowest hash
 	/// TODO: Something more efficient?
-	Rotation current = Rotation::r0();
 	Rotation lowest;
 	uint64 lowestHash = std::numeric_limits<uint64>::max();
 	for(Rotation r: Rotation::all) {
-		rotate(r / current);
-		current = r;
-		updateHash();
-		if(hash() < lowestHash) {
+		BoardNode copy(*this);
+		copy.rotate(r);
+		copy.updateHash();
+		if(copy.hash() < lowestHash) {
 			lowest = r;
-			lowestHash = hash();
+			lowestHash = copy.hash();
 		}
 	}
 	
 	// Rotate to the lowest setting
-	rotate(lowest / current);
+	rotate(lowest);
 	updateHash();
 	assert(hash() == lowestHash);
 	return lowest;

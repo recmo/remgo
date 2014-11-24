@@ -44,7 +44,7 @@ public:
 	
 	Iterator begin() const funk;
 	Iterator end() const funk;
-	explicit BoardMask(uint128 mask) funk: _mask(mask) { }
+	BoardMask(uint128 mask) funk: _mask(mask) { }
 
 protected:
 	uint128 _mask aligned;

@@ -237,39 +237,15 @@ Dataset: games.csv, 2031 games
 
 9084e6a: 1279838 fragments
 
-without unique optimization: 1190328 fragments
+without unique optimization:    1190328 fragments
 with colour symmetry detection: 1116401 fragments
-with full symmetry reduction: 762933 fragments (29.519s)
+with full symmetry reduction:    762933 fragments (29.519s)
+optimized full reduction:        762933 fragments (17.382s)
 
-27 symmetries:
+After rotated re-imports:       1642178 fragments
 
-0001
-0005
-0011
-0021
-0035
-0041
-0081
-00c5
-00ff
-0101
-0401
-1001
-1111
-1421
-2001
-2121
-2411
-3005
-3ac5
-4001
-4141
-4481
-8001
-8181
-8441
-c5c5
-ffff
+The increase with the rotated re-imports are due to the board being off-center in the raster.
+
 
 Todo
 ------
