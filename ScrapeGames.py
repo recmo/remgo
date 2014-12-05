@@ -31,8 +31,8 @@ def scrapeGame(game):
 			moves.append(white)
 	return ', '.join(moves)
 
-games = [g for r in [range(305, 482+1), range(713,1202+1), range(1365,1946+1),range(2173,2962+1), ] for g in r]
-with open("games.csv", mode='w') as f:
+games = [g for r in [range(305, 482+1), range(713,1202+1), range(1365,1946+1),range(2173,2962+1), range(3084,3979+1)] for g in r]
+with open("games.txt", mode='w') as f:
 	for game in games:
 		try:
 			f.write(scrapeGame(game) + "\n")

@@ -17,8 +17,6 @@
 
 int main(int argc, char* argv[]) funk;
 
-uint64 hashBoard(const Board& board);
-
 void benchmarkRollout()
 {
 	// Benchmark
@@ -57,22 +55,16 @@ void benchmarkSelect()
 	cerr << "S/sec: " << (float(simulations)/(start - stop)) << endl;
 }
 
-void recurse(const BoardNode::OrientedBoardNode& node)
+std::vector<TreeNode*> allNodes(TreeNode* root)
 {
-	if(node.second->height() > 0)
-		for(uint i = 0; i < 4; ++i)
-			recurse(node.second->piece(i));
-	if(node.second->height() > 1)
-		for(uint i = 4; i < 9; ++i)
-			recurse(node.second->piece(i));
-}
-
-void recurse(TreeNode* tree)
-{
-	cerr << BoardNode::fragmentCount() << endl;
-	recurse(BoardNode::get(tree->board()));
-	for(TreeNode* child = tree->firstChild(); child; child = child->sibling())
-		recurse(child);
+	std::vector<TreeNode*> result;
+	std::function<void(TreeNode*)> recurse = [&](TreeNode* tree) {
+		result.push_back(tree);
+		for(TreeNode* child = tree->firstChild(); child; child = child->sibling())
+			recurse(child);
+	};
+	recurse(root);
+	return result;
 }
 
 int main(int argc, char* argv[])
@@ -100,6 +92,12 @@ int main(int argc, char* argv[])
 	BoardMask::initialize();
 	assert(BoardNode::fragmentCount() == 37);
 	cerr << "Initialized" << endl;
+	
+	TreeNode root;
+	root.loadGames("games.txt");
+	auto n = allNodes(&root);
+	cerr << n.size() << endl;
+	
 	
 	GameInputOutput gio;
 	gio.run();

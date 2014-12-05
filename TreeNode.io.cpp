@@ -129,7 +129,6 @@ void TreeNode::loadGames(const string& filename)
 			cerr << "!!! Not entire game!" << endl;
 			continue;
 		}
-		cerr << board << endl;
 		
 		/// @todo Commit score
 		sint value = (board.winner() == board.player()) ? 1 : -1;
