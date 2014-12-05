@@ -197,7 +197,7 @@ void TreeNode::selectAction(Board board)
 Move TreeNode::bestMove() const
 {
 	#ifdef HEURISTIC
-		return _board.heuristicMove();
+		return board().heuristicMove();
 	#else
 		assert(!isLeaf());
 		
