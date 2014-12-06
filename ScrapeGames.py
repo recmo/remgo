@@ -29,7 +29,7 @@ def scrapeGame(game):
 			moves.append(black)
 		else:
 			moves.append(white)
-	return ', '.join(moves)
+	return ' '.join(moves)
 
 games = [g for r in [range(305, 482+1), range(713,1202+1), range(1365,1946+1),range(2173,2962+1), range(3084,3979+1)] for g in r]
 with open("games.txt", mode='w') as f:
