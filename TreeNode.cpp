@@ -50,18 +50,19 @@ TreeNode::~TreeNode()
 
 std::ostream& operator<<(std::ostream& out, const TreeNode& treeNode)
 {
-	out << treeNode.backwardVisits() << " " << treeNode.backwardValue() << " ";
+	out << treeNode.visits() << " " << treeNode.score() << " ";
 	out << treeNode.depth();
 	for(const TreeNode* p = &treeNode; p; p = p->_parent)
 		out << " " << p->_move;
 	return out;
 }
 
-double TreeNode::backwardScore(double logParentVisits) const
+double TreeNode::uctScore(double logParentVisits) const
 {
-	return double((backwardVisits() / 2) + backwardValue()) / (backwardVisits() + epsilon) + explorationParameter * sqrt(logParentVisits / (backwardVisits() + epsilon));
+	const double v = visits() + epsilon;
+	const double s = score();
+	return (0.5 * + s) / v + explorationParameter * sqrt(logParentVisits / v);
 }
-
 
 TreeNode* TreeNode::child(Move move)
 {
@@ -126,74 +127,6 @@ void TreeNode::vincent(TreeNode* child)
 	_child->_sibling = nullptr;
 }
 
-void TreeNode::backwardRecurse(const Board& endGame, sint score)
-{
-	backwardUpdate(score);
-	if(_parent)
-		_parent->backwardRecurse(endGame, -score);
-}
-
-void TreeNode::backwardUpdate(sint score)
-{
-	_boardNode->addRecursive(1, _orientation.colourFlipped() ? -score : score);
-}
-
-TreeNode* TreeNode::select(const Board& board)
-{
-	// Explore unexplored nodes first first
-	/// TODO
-	
-	// No moves to explore, check for children
-	if(!_child)
-		return nullptr;
-	
-	// UCT select node
-	const float logParentVisits = log(this->backwardVisits() + 1);
-	float bestValue = 0.0;
-	TreeNode* selected = nullptr;
-	for(TreeNode* c = _child; c; c = c->_sibling) {
-		Move childMove = c->_move;
-		const float value = c->backwardScore(logParentVisits);
-		if(value > bestValue || (value == bestValue && entropy(1))) {
-			bestValue = value;
-			selected = c;
-		}
-	}
-	return selected;
-}
-
-void TreeNode::itterate(uint loops)
-{
-	Board b = board();
-	while(--loops)
-		selectAction(b);
-}
-
-void TreeNode::selectAction(Board board)
-{
-	TreeNode* current = this;
-	
-	// Select an existing leaf
-	while(!current->isLeaf()) {
-		current = current->select(board);
-		assert(current != nullptr);
-		board.playMove(current->_move);
-	}
-	
-	// Expand one more
-	{
-		TreeNode* newNode = current->select(board);
-		if(!newNode)
-			return;
-		current = newNode;
-		board.playMove(current->_move);
-	}
-	
-	// Roll out randomly
-	current->rollOut(board);
-	assert(!isLeaf());
-}
-
 Move TreeNode::bestMove() const
 {
 	#ifdef HEURISTIC
@@ -204,20 +137,87 @@ Move TreeNode::bestMove() const
 		// Find node with highest playout count
 		TreeNode* best = nullptr;
 		for(TreeNode* c = _child; c; c = c->_sibling)
-			if(!best || c->backwardVisits() > best->backwardVisits())
+			if(!best || c->visits() > best->visits())
 				best = c;
-		assert(best);
+			assert(best);
 		return best->_move;
 	#endif
 }
 
-void TreeNode::rollOut(const Board& board)
+void TreeNode::mcts()
 {
-	Board fillOut(board);
+	const bool fatPlayout = true;
+	TreeNode* node = select();
+	assert(node != nullptr);
+	node = node->expand();
+	int score = node->playOut(fatPlayout);
+	node->updateScore(score);
+}
+
+TreeNode* TreeNode::select()
+{
+	return isLeaf() ? this : uctSelectChild()->select();
+}
+
+TreeNode* TreeNode::uctSelectChild()
+{
+	assert(!isLeaf());
+	const float logParentVisits = log(visits() + 1);
+	float bestValue = 0.0;
+	TreeNode* selected = nullptr;
+	for(TreeNode* c = _child; c; c = c->_sibling) {
+		const float value = c->uctScore(logParentVisits);
+		if(value > bestValue || (value == bestValue && entropy(1))) {
+			bestValue = value;
+			selected = c;
+		}
+	}
+	return selected;
+}
+
+TreeNode* TreeNode::expand()
+{
+	assert(isLeaf());
+	const Board b = board();
+	for(Move move: b.validMoves()) {
+		TreeNode* child = new TreeNode(this, move);
+		child->_sibling = _child;
+		_child = child;
+	}
+	return _child;
+}
+
+void TreeNode::selectAction()
+{
+	TreeNode* current = this;
+	
+	// Select an existing leaf
+	while(!current->isLeaf()) {
+		current = current->select();
+		assert(current != nullptr);
+	}
+	
+	// Expand one more
+	{
+		TreeNode* newNode = current->select();
+		if(!newNode)
+			return;
+		current = newNode;
+	}
+	
+	// Roll out randomly
+	current->playOut();
+	assert(!isLeaf());
+}
+
+int TreeNode::playOut(bool fat)
+{
+	Board fillOut = board();
+	Board::Player player = fillOut.player();
 	
 	// Play till there is a winner
 	for(;;) {
-		Move move = fillOut.randomMove();
+		Move move = fat ? fillOut.heuristicMove() : fillOut.randomMove();
 		if(!move.isValid())
 			break;
 		fillOut.playMove(move);
@@ -231,6 +231,12 @@ void TreeNode::rollOut(const Board& board)
 	Board::Player winner = fillOut.winner();
 	assert(winner == Board::Black || winner == Board::White);
 	
-	// Update scores
-	backwardRecurse(fillOut, (winner == board.player()) ? 0 : 1);
+	return winner == player ? 1 : -1;
+}
+
+void TreeNode::updateScore(sint score)
+{
+	_boardNode->addRecursive(1, _orientation.colourFlipped() ? -score : score);
+	if(_parent)
+		_parent->updateScore(score);
 }

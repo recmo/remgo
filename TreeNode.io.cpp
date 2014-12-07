@@ -2,7 +2,7 @@
 
 void TreeNode::writeOut(ostream& out, uint treshold) const
 {
-	if(backwardVisits() < treshold)
+	if(visits() < treshold)
 		return;
 	out << *this << endl;
 	for(TreeNode* c = _child; c; c = c->_sibling)
@@ -21,13 +21,13 @@ void TreeNode::write(ostream& out, uint treshold) const
 	assert(out.good());
 	
 	// Skip if the number of visits is insufficient
-	if(backwardVisits() < treshold)
+	if(visits() < treshold)
 		return;
 	
 	// Count number of children that pass the threshold
 	uint numTresholdChildren = 0;
 	for(TreeNode* c = _child; c; c = c->_sibling)
-		if(c->backwardVisits() >= treshold)
+		if(c->visits() >= treshold)
 			++numTresholdChildren;
 	assert(numTresholdChildren <= 255);
 	
@@ -46,7 +46,7 @@ void TreeNode::write(ostream& out, uint treshold) const
 	
 	// Write out child nodes
 	for(TreeNode* c = _child; c; c = c->_sibling)
-		if(c->backwardVisits() >= treshold)
+		if(c->visits() >= treshold)
 			c->write(out, treshold);
 }
 
@@ -130,9 +130,8 @@ void TreeNode::loadGames(const string& filename)
 			continue;
 		}
 		
-		/// @todo Commit score
 		sint value = (board.winner() == board.player()) ? 1 : -1;
-		gameState->backwardRecurse(board, value);
+		gameState->updateScore(value);
 		cerr << "." << flush;
 	}
 	cerr << " " << numGames << " games loaded." << endl;

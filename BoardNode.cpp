@@ -104,31 +104,50 @@ void BoardNode::dumpHisto(ostream& out)
 	out << "H5: " << histo[4] << endl;
 }
 
-
 void BoardNode::dumpStats(ostream& out)
 {
 	for(auto i: _fragments) {
 		BoardNode* node = i.second;
-		if(node->height() == 0)
+		if(node->visits() == 0)
 			continue;
-		if(node->visits() < 1000)
-			continue;
-		out << node->height() << ", ";
-		double score = node->averageScore();
-		out << score << ", ";
 		
+		out << node->height() << ", ";
+		out << node->visits() << ", ";
+		out << node->score() << ", ";
+		
+		uint pieces = 0;
+		if(node->height() > 0)
+			pieces = 4;
+		if(node->height() > 1)
+			pieces = 9;
+		
+		// Subtract this node's influence from the stats
+		for(uint i = 0; i < pieces; ++i) {
+			BoardNode::OrientedBoardNode obn = node->piece(i);
+			obn.second->_visits -= node->visits();
+			obn.second->_score -= (obn.first.colourFlipped() ? -1 : 1) * node->score();
+		}
+		
+		// Print the stats
 		for(uint i = 0; i < 9; ++i) {
-			if(node->height() > 1 || i < 4) {
+			if(i < pieces) {
 				BoardNode::OrientedBoardNode obn = node->piece(i);
-				double score = obn.first.colourFlipped() ? -obn.second->averageScore() : obn.second->averageScore();
-				out << score;
+				out << obn.second->visits() << ", ";
+				out << (obn.first.colourFlipped() ? -1 : 1) * obn.second->score();
 			} else {
-				out << "0";
+				out << "0, 0";
 			}
 			if(i < 8)
 				out << ", ";
 			else
 				out << endl;
+		}
+		
+		// Add this node again
+		for(uint i = 0; i < pieces; ++i) {
+			BoardNode::OrientedBoardNode obn = node->piece(i);
+			obn.second->_visits += node->visits();
+			obn.second->_score += (obn.first.colourFlipped() ? -1 : 1) * node->score();
 		}
 	}
 }
@@ -192,6 +211,8 @@ BoardNode::BoardNode()
 , _symmetries()
 , _orientations{Rotation(), Rotation(), Rotation(), Rotation()}
 , _corners{nullptr, nullptr, nullptr, nullptr}
+, _visits(0)
+, _score(0)
 {
 }
 
@@ -201,6 +222,8 @@ BoardNode::BoardNode(uint64 hash)
 , _symmetries(SymmetryGroup::all())
 , _orientations{Rotation(), Rotation(), Rotation(), Rotation()}
 , _corners{nullptr, nullptr, nullptr, nullptr}
+, _visits(0)
+, _score(0)
 {
 	_hash = hash;
 }
@@ -211,6 +234,8 @@ BoardNode::BoardNode(const OrientedBoardNode& tl, const OrientedBoardNode& tr, c
 , _symmetries()
 , _orientations{tl.first, tr.first, bl.first, br.first}
 , _corners{tl.second, tr.second, bl.second, br.second}
+, _visits(0)
+, _score(0)
 {
 }
 
@@ -220,6 +245,8 @@ BoardNode::BoardNode(const BoardNode& copy)
 , _symmetries(copy._symmetries)
 , _orientations{copy._orientations[0], copy._orientations[1], copy._orientations[2], copy._orientations[3]}
 , _corners{copy._corners[0], copy._corners[1], copy._corners[2], copy._corners[3]}
+, _visits(0)
+, _score(0)
 {
 }
 
@@ -447,13 +474,26 @@ BoardNode::OrientedBoardNode BoardNode::subPiece(uint r, uint c)
 
 void BoardNode::addRecursive(uint visits, sint score)
 {
+	assert(visits > 0);
 	assert(abs(score) <= visits);
+	if(!(abs(_score) <= _visits))
+		cerr << _score << " " << _visits << endl;
+	assert(abs(_score) <= _visits);
+	
+	// Scale values if we overflow
 	if(_visits > (1UL << 30)) {
 		_visits >>= 1;
 		_score >>= 1;
 	}
+	assert(abs(_score) <= _visits);
+	
+	// Update this node
 	_visits += visits;
 	_score += score;
+	assert(abs(_score) <= _visits);
+	
+	// Recurse on all the subpieces
+	/// @todo Use a stack to prevent revisits of the same node
 	if(_height > 0)
 		for(uint i = 0; i < 4; ++i)
 			addRecursive(piece(i), visits, score);
@@ -552,4 +592,3 @@ void BoardNode::test(const Board& board)
 	}
 	assert(board == recovered);
 }
-

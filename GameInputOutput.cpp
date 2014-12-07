@@ -60,7 +60,7 @@ void GameInputOutput::run()
 Move GameInputOutput::generateMove()
 {
 	cerr << "Thinking from ";
-	cerr << TreeNode::numNodes()  << " nodes (" << _current->backwardVisits() << " visits)" << " (";
+	cerr << TreeNode::numNodes()  << " nodes (" << _current->visits() << " visits)" << " (";
 	cerr << (TreeNode::numNodes() * sizeof(TreeNode) / (1024*1024))  << " MB)" << endl;
 	assert(_current);
 	
@@ -76,7 +76,7 @@ Move GameInputOutput::generateMove()
 		// Iterate MCTS a couple of times
 		Timer::instance.nextRound();
 		while(Timer::instance.ponder()) {
-			_current->selectAction(_board);
+			_current->mcts();
 		}
 	#endif
 	
@@ -88,7 +88,7 @@ Move GameInputOutput::generateMove()
 	cerr << "Time remaining " << Timer::instance.remaining() << endl;
 	
 	cerr << "Thought to ";
-	cerr << TreeNode::numNodes()  << " nodes (" << _current->backwardVisits() << " visits)" << " (";
+	cerr << TreeNode::numNodes()  << " nodes (" << _current->visits() << " visits)" << " (";
 	cerr << (TreeNode::numNodes() * sizeof(TreeNode) / (1024*1024))  << " MB)" << endl;
 	return _current->bestMove();
 }
@@ -101,6 +101,6 @@ void GameInputOutput::playMove(Move move)
 	_current = vincent;
 	assert(_board == _current->board());
 	cerr << "Playing " << move << " ";
-	cerr << TreeNode::numNodes()  << " nodes (" << _current->backwardVisits() << " visits)" << " (";
+	cerr << TreeNode::numNodes()  << " nodes (" << _current->visits() << " visits)" << " (";
 	cerr << (TreeNode::numNodes() * sizeof(TreeNode) / (1024*1024))  << " MB)" << endl;
 }

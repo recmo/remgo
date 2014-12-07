@@ -26,7 +26,7 @@ void benchmarkRollout()
 	Timer::instance.update();
 	float start = Timer::instance.remaining();
 	while(Timer::instance.remaining() > 20.0) {
-		root.rollOut(startingBoard);
+		root.playOut();
 		++simulations;
 		Timer::instance.update();
 	}
@@ -45,7 +45,7 @@ void benchmarkSelect()
 	Timer::instance.update();
 	float start = Timer::instance.remaining();
 	while(Timer::instance.remaining() > 20.0) {
-		root.selectAction(startingBoard);
+		root.selectAction();
 		++simulations;
 		Timer::instance.update();
 	}
@@ -94,10 +94,25 @@ int main(int argc, char* argv[])
 	cerr << "Initialized" << endl;
 	
 	TreeNode root;
-	root.loadGames("games.txt");
-	auto n = allNodes(&root);
-	cerr << n.size() << endl;
+	TreeNode* node = &root;
+	//root.loadGames("games.txt");
 	
+	for(uint i = 0; i < 50; ++i) {
+		for(uint j = 0; j < 1000; ++j)
+			node->mcts();
+		Move bestMove = node->bestMove();
+		node = node->child(bestMove);
+		assert(node != nullptr);
+	}
+	cerr << "Treenodes: " << TreeNode::numNodes() << endl;
+	BoardNode::dumpHisto();
+	
+	
+	ofstream stats("stats.csv");
+	BoardNode::dumpStats(stats);
+	
+	
+	return 0;
 	
 	GameInputOutput gio;
 	gio.run();
