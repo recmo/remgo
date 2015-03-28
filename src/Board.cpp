@@ -28,6 +28,7 @@ std::ostream& operator<<(std::ostream& out, const Board& board)
 		}
 		out << endl;
 	}
+	out << "   A B C D E F G H J K L M N O P Q R S T" << endl;
 	if(board.player() == Board::White)
 		out << "White to play" << endl;
 	else

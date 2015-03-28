@@ -19,7 +19,7 @@ wostream& operator<<(wostream& out, const BoardMask& mask)
 	const int last = BoardPoint::size - 1;
 	for(int row = last; row >= first; --row) {
 		const int rowbox = (row == first) ? 2 : ((row == last) ? 0 : 1);
-		out << dec << setw(2) << setfill(L' ') << (row + 1);
+		out << dec << setw(2) << setfill(L' ') << (row + 1) << " ";
 		for(int col = first; col <= last; ++col) {
 			const int colbox = (col == first) ? 0 : ((col == last) ? 2 : 1);
 			if(mask.isSet(BoardPoint(row, col)))
@@ -31,7 +31,7 @@ wostream& operator<<(wostream& out, const BoardMask& mask)
 		}
 		out << endl;
 	}
-	out << "  A B C D E F G H I J K L M N O P Q R S" << endl;
+	out << "   A B C D E F G H J K L M N O P Q R S T" << endl;
 	return out;
 }
 
