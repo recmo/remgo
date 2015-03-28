@@ -1,20 +1,13 @@
 #pragma once
 #include <iostream>
+#include <string>
+#include <sstream>
 #include <iomanip>
 #include <vector>
 #include <array>
-#include <string>
-#include <fstream>
-#include <inttypes.h>
+#include <map>
 #include <cassert>
-#include <cstdlib>
-#include <sstream>
-#include <cmath>
-#include <sys/types.h>
-#include <cstdint>
 #include <algorithm>
-#include <stdlib.h>
-#include <malloc.h>
 typedef signed char sint8;
 typedef unsigned int uint;
 typedef unsigned char uint8;
@@ -29,6 +22,9 @@ typedef signed int sint;
 using std::wstring;
 using std::wostream;
 using std::wistream;
+using std::wistringstream;
+using std::wostringstream;
+using std::getline;
 using std::wcout;
 using std::wcerr;
 using std::wcin;
@@ -39,6 +35,7 @@ using std::setw;
 using std::setfill;
 using std::vector;
 using std::array;
+using std::map;
 using std::swap;
 
 /*
