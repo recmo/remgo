@@ -9,4 +9,4 @@ remgo: $(patsubst %.cpp,%.o,$(SOURCES))
 	$(CPP) -c $< -o $@
 
 clean:
-	rm $(patsubst %.cpp,%.o,$(SOURCES))
+	rm -f $(patsubst %.cpp,%.o,$(SOURCES))
