@@ -37,6 +37,9 @@ GoTextProtocol::GoTextProtocol(Engine* engine, wistream& in, wostream& out)
 	// Core play commands (required)
 	registerCommand(play);
 	registerCommand(genmove);
+	
+	
+	registerCommand(list_stones);
 }
 
 void GoTextProtocol::run()
@@ -152,6 +155,24 @@ void GoTextProtocol::genmove()
 		out << move;
 		writeResponse(out.str());
 	}
+}
+
+void GoTextProtocol::list_stones()
+{
+	numArguments(1);
+	BoardMask stones;
+	if(_arguments[0][0] == L'w') {
+		stones = _engine->white();
+	} else if(_arguments[0][0] == L'b') {
+		stones = _engine->black();
+	} else {
+		writeError(L"illegal argument");
+		return;
+	}
+	wostringstream out;
+	for(BoardPoint p: stones)
+		out << p << " ";
+	writeResponse(out.str());
 }
 
 

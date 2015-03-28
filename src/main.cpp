@@ -21,6 +21,8 @@ public:
 	virtual void reset() override final;
 	virtual void receiveMove(BoardPoint move) override final;
 	virtual BoardPoint generateMove() override final;
+	virtual BoardMask white() override final { return _board.white(); }
+	virtual BoardMask black() override final { return _board.black(); }
 	
 private:
 	Board _board;
@@ -34,14 +36,14 @@ void BoardEngine::reset()
 void BoardEngine::receiveMove(BoardPoint move)
 {
 	_board.play(move);
-	// wcerr << _board << endl;
+	wcerr << _board << endl;
 }
 
 BoardPoint BoardEngine::generateMove()
 {
 	const BoardPoint move = _board.validMoves().firstPoint();
 	_board.play(move);
-	// wcerr << _board << endl;
+	wcerr << _board << endl;
 	return move;
 }
 

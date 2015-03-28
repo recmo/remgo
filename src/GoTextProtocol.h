@@ -1,6 +1,7 @@
 #pragma once
 #include "utilities.h"
 #include "BoardPoint.h"
+#include "BoardMask.h"
 
 class GoTextProtocol {
 public:
@@ -36,6 +37,8 @@ private:
 	void play();
 	void genmove();
 	
+	void list_stones();
+	
 	// Readers/writers
 	bool readCommand();
 	void writeResponse(const wstring& result = L"");
@@ -49,4 +52,6 @@ public:
 	virtual void reset() = 0;
 	virtual void receiveMove(BoardPoint move) = 0;
 	virtual BoardPoint generateMove() = 0;
+	virtual BoardMask white() = 0;
+	virtual BoardMask black() = 0;
 };
