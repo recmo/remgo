@@ -1,6 +1,5 @@
 #include "Rotation.h"
 
-
 const std::array<Rotation, Rotation::groupSize> Rotation::all =  std::array<Rotation, Rotation::groupSize>{{
 	Rotation(0), Rotation(1), Rotation(2), Rotation(3),
 	Rotation(4), Rotation(5), Rotation(6), Rotation(7),
@@ -50,7 +49,7 @@ const uint64 Rotation::_zobrist[Rotation::groupSize] = {
 	0xee96a1fa54e4745f
 };
 
-std::ostream& operator<<(std::ostream& out, const Rotation& point)
+wostream& operator<<(wostream& out, const Rotation& point)
 {
 	const char* strings[Rotation::groupSize] = {
 		"R0N", "R1N", "R2N", "R3N", "MHN", "MVN", "DMN", "DAN",
@@ -79,34 +78,34 @@ void Rotation::test()
 		assert(a * (b * c) == (a * b) * c);
 	}
 	
-	cerr << "    ";
+	wcerr << "    ";
 	for(Rotation r: Rotation::all)
-		cerr << r << "  ";
-	cerr << endl;
+		wcerr << r << "  ";
+	wcerr << endl;
 	for(Rotation r1: Rotation::all) {
-		cerr << r1 << "  ";
+		wcerr << r1 << "  ";
 		for(Rotation r2: Rotation::all) {
-			cerr << (r1 * r2) << "  ";
+			wcerr << (r1 * r2) << "  ";
 		}
-		cerr << endl;
+		wcerr << endl;
 	}
 	
 	for(Rotation r: Rotation::all) {
 		uint corners[4] = {1,2,3,4};
 		r.permuteCorners(corners[0], corners[1], corners[2], corners[3]);
-		cerr << r << endl;
-		cerr << "  " << corners[0];
-		cerr << " " << corners[1] << endl;
-		cerr << "  " << corners[2];
-		cerr << " " << corners[3] << endl;
+		wcerr << r << endl;
+		wcerr << "  " << corners[0];
+		wcerr << " "  << corners[1] << endl;
+		wcerr << "  " << corners[2];
+		wcerr << " "  << corners[3] << endl;
 		
 		for(uint i = 0; i < 2; ++i) {
 			for(uint j = 0; j < 2; ++j) {
-				cerr << "  (" << i << ", " << j << ") |-> (";
+				wcerr << "  (" << i << ", " << j << ") |-> (";
 				uint k = i;
 				uint l = j;
 				r.transform(2, k, l);
-				cerr << k << ", " << l << ")" << endl;
+				wcerr << k << ", " << l << ")" << endl;
 			}
 		}
 	}

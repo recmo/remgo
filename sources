@@ -1,0 +1,9 @@
+src/utilities.h
+src/Rotation.h
+src/BoardPoint.h
+src/BoardMask.h
+src/utilities.cpp
+src/Rotation.cpp
+src/BoardPoint.cpp
+src/BoardMask.cpp
+src/main.cpp

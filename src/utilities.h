@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
+#include <iomanip>
 #include <vector>
+#include <array>
 #include <string>
 #include <fstream>
 #include <inttypes.h>
@@ -13,17 +15,33 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <malloc.h>
-using namespace std;
 typedef signed char sint8;
 typedef unsigned int uint;
 typedef unsigned char uint8;
 typedef unsigned short uint16;
 typedef uint32_t uint32;
 typedef uint64_t uint64;
+typedef __uint128_t uint128;
 typedef int32_t sint32;
 typedef signed int sint;
 #define aligned __attribute__((aligned(16)))
 
+using std::wstring;
+using std::wostream;
+using std::wistream;
+using std::wcout;
+using std::wcerr;
+using std::wcin;
+using std::endl;
+using std::dec;
+using std::hex;
+using std::setw;
+using std::setfill;
+using std::vector;
+using std::array;
+using std::swap;
+
+/*
 // Aligned allocations
 inline void* operator new(std::size_t sz)
 {
@@ -34,6 +52,7 @@ inline void operator delete(void* ptr) noexcept
 {
 	free(ptr);
 }
+*/
 
 class CallTracer {
 public:
@@ -89,8 +108,10 @@ T min(const T& a, const T& b, const T& c, const T& d)
 	return min(min(a, b), min(c, d));
 }
 
+wostream& operator<<(wostream& out, uint128 v);
+
 template<class T>
-std::ostream& operator<<(std::ostream& out, const vector<T>& vec)
+wostream& operator<<(wostream& out, const vector<T>& vec)
 {
 	out << "[";
 	bool first = true;
@@ -103,6 +124,4 @@ std::ostream& operator<<(std::ostream& out, const vector<T>& vec)
 	out << "]";
 	return out;
 }
-
-#include "ForwardDeclare.h"
 

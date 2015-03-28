@@ -1,5 +1,5 @@
 #pragma once
-#include "Utilities.h"
+#include "utilities.h"
 #include <array>
 class SymmetryGroup;
 
@@ -56,7 +56,7 @@ public:
 	uint64 hash() const { return _zobrist[_index]; }
 	
 private:
-	friend std::ostream& operator<<(std::ostream& out, const Rotation& rotation);
+	friend wostream& operator<<(wostream& out, const Rotation& rotation);
 	friend class SymmetryGroup;
 	
 	static constexpr uint8 _d4 = 0x7;
@@ -67,7 +67,7 @@ private:
 	uint8 _index;
 };
 
-std::ostream& operator<<(std::ostream& out, const Rotation& rotation);
+wostream& operator<<(wostream& out, const Rotation& rotation);
 
 inline void Rotation::transform(uint s, uint& row, uint& col) const
 {

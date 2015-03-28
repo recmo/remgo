@@ -1,6 +1,7 @@
 #pragma once
-#include "Utilities.h"
+#include "utilities.h"
 #include "Rotation.h"
+class BoardMask;
 
 class BoardPoint {
 public:
@@ -24,9 +25,9 @@ public:
 	BoardPoint& row(uint16 r) { _position = col() * size + r; return *this; }
 	BoardPoint& col(uint16 c) { _position = c * size + row(); return *this; }
 	BoardPoint left() const { return row() > 0 ? BoardPoint(row() - 1, col()) : BoardPoint(); }
-	BoardPoint right() const { return row() < 10 ? BoardPoint(row() + 1, col()) : BoardPoint(); }
+	BoardPoint right() const { return row() < (size - 1) ? BoardPoint(row() + 1, col()) : BoardPoint(); }
 	BoardPoint up() const { return col() > 0 ? BoardPoint(row(), col() - 1) : BoardPoint(); }
-	BoardPoint down() const { return col() < 10 ? BoardPoint(row(), col() + 1) : BoardPoint(); }
+	BoardPoint down() const { return col() < (size - 1) ? BoardPoint(row(), col() + 1) : BoardPoint(); }
 	BoardMask mask() const;
 	BoardMask neighbors() const;
 	
@@ -37,9 +38,9 @@ protected:
 	uint16 _position; /// [0...numPositions] inclusive
 };
 
-std::ostream& operator<<(std::ostream& out, const BoardPoint& position);
+wostream& operator<<(wostream& out, const BoardPoint& position);
 
-std::istream& operator>>(std::istream& in, BoardPoint& position);
+wistream& operator>>(wistream& in, BoardPoint& position);
 
 
 inline BoardPoint BoardPoint::rotated(Rotation rotation) const

@@ -1,22 +1,22 @@
 #include "BoardPoint.h"
 #include "BoardMask.h"
 
-std::ostream& operator<<(std::ostream& out, const BoardPoint& point)
+wostream& operator<<(wostream& out, const BoardPoint& point)
 {
 	if(!point.isValid()) {
-		out << "00";
+		out << "000";
 		return out;
 	}
 	out << static_cast<char>('A' + point.col());
-	out << point.row() + 1;
+	out << dec << setw(2) << setfill(L'0') << (point.row() + 1);
 	return out;
 }
 
-std::istream& operator>>(std::istream& in, BoardPoint& point)
+wistream& operator>>(wistream& in, BoardPoint& point)
 {
-	char c;
+	wchar_t c;
 	in >> c;
-	point.col(c - 'A');
+	point.col(c - L'A');
 	uint r;
 	in >> r;
 	point.row(r - 1);

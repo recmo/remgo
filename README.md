@@ -72,6 +72,14 @@ game is a draw.
 [GTP — Go Text Protocol version 2](http://www.lysator.liu.se/~gunnar/gtp/gtp2-spec-draft2/gtp2-spec.html)
 
 
+## Testing
+
+Using the `twogtp.py` script:
+
+> ./twogtp.py --white 'gnugo --mode gtp' --black 'gnugo --mode gtp' --verbose 2
+
+
+
 ## Online competitions
 
 * http://cgos.boardspace.net/
