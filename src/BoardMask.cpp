@@ -56,11 +56,31 @@ BoardMask::Iterator BoardMask::itterator() const
 	return Iterator(*this);
 }
 
+BoardMask BoardMask::expanded() const
+{
+	BoardMask result = *this;
+	for(BoardPoint p: *this) {
+		if(p.left().isValid())
+			result.set(p.left());
+		if(p.right().isValid())
+			result.set(p.right());
+		if(p.up().isValid())
+			result.set(p.up());
+		if(p.down().isValid())
+			result.set(p.down());
+	}
+	return result;
+}
+
 BoardMask BoardMask::connected(const BoardMask& seed) const
 {
-	wcerr << "Unimplemented!" << endl;
-	assert(false);
-	return BoardMask();
+	BoardMask cur = seed;
+	BoardMask next;
+	do {
+		next = cur.expanded() & *this;
+		swap(cur, next);
+	} while(cur != next);
+	return cur;
 }
 
 vector<BoardMask> BoardMask::groups() const

@@ -8,12 +8,12 @@ wostream& operator<<(wostream& out, const Board& board)
 	// └─┴─┘  2514 2500 2534 2500 2518
 	// ┌─W─┐
 	// B─╬─┤  256C
-	// └─┴─┘
+	// └─┴─▒
 	const wchar_t space = 0x2500;
 	const wchar_t hoshi = 0x256C;
-	const wchar_t white = L'W';
-	const wchar_t black = L'B';
-	const wchar_t error = L'E';
+	const wchar_t white = L'O'; // L' '; // L'W';
+	const wchar_t black = L'X'; //L'B';
+	const wchar_t error = L'?';
 	const wchar_t box[3][3] = {
 		{0x250C, 0x252C, 0x2510},
 		{0x251C, 0x253C, 0x2524},
@@ -83,14 +83,16 @@ Board& Board::play(BoardPoint position)
 	assert(position.isValid());
 	assert(free().isSet(position));
 	
-	// Placement move
+	// Placement move. Capture stones.
 	if(player() == White) {
 		_white.set(position);
+		_black = _black.connected(free().expanded());
+		_white = _white.connected(free().expanded());
 	} else {
 		_black.set(position);
+		_white = _white.connected(free().expanded());
+		_black = _black.connected(free().expanded());
 	}
-	
-	// TODO: Capture stones
 	
 	// Increase move counter
 	++_turn;

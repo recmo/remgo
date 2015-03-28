@@ -142,8 +142,7 @@ bool BoardMask::isEmpty() const
 
 bool BoardMask::isSet(BoardPoint point) const
 {
-	// wcerr << point << endl;
-	// Leave 1 guard bit after each row
+	assert(point.isValid());
 	const uint index = point.position();
 	const uint mask = index / 128;
 	const uint pos = index % 128;
@@ -153,6 +152,7 @@ bool BoardMask::isSet(BoardPoint point) const
 
 BoardMask& BoardMask::set(BoardPoint point)
 {
+	assert(point.isValid());
 	const uint index = point.position();
 	const uint mask = index / 128;
 	const uint pos = index % 128;
@@ -163,6 +163,7 @@ BoardMask& BoardMask::set(BoardPoint point)
 
 BoardMask& BoardMask::clear(BoardPoint point)
 {
+	assert(point.isValid());
 	const uint index = point.position();
 	const uint mask = index / 128;
 	const uint pos = index % 128;
@@ -192,10 +193,3 @@ private:
 inline BoardMask::Iterator BoardMask::begin() const { return Iterator(*this); }
 
 inline BoardMask::Iterator BoardMask::end() const { return Iterator(BoardMask()); }
-
-inline BoardMask BoardMask::expanded() const
-{
-	wcerr << "Unimplemented!!" << endl;
-	assert(false);
-	return BoardMask();
-}
