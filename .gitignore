@@ -1,0 +1,12 @@
+callgrind.*
+caia*
+*.pdf
+*.o
+.*
+*.kdev4
+*.pyc
+moe
+entry
+monolith.cpp
+monolith
+heuristic
