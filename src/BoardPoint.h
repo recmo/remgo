@@ -4,11 +4,12 @@
 
 class BoardPoint {
 public:
-	static constexpr uint16 numPositions = 19 * 19;
+	static constexpr uint16 size = 19;
+	static constexpr uint16 numPositions = size * size;
 	
 	BoardPoint(): _position(numPositions) { }
-	BoardPoint(uint8 position): _position(position) { }
-	BoardPoint(uint8 row, uint8 col): _position(col * 11 + row) { }
+	BoardPoint(uint16 position): _position(position) { }
+	BoardPoint(uint16 row, uint16 col): _position(col * size + row) { }
 	~BoardPoint() { }
 	
 	BoardPoint& operator=(const BoardPoint& other) { _position = other._position; return *this; }
@@ -16,12 +17,12 @@ public:
 	bool operator==(const BoardPoint& other) const { return _position == other._position; }
 	bool operator<(const BoardPoint& other) const { return _position < other._position; }
 	bool isValid() const { return _position < numPositions; }
-	uint8 row() const { return _position % 11; }
-	uint8 col() const { return _position / 11; }
-	uint8 position() const { return _position; }
-	BoardPoint& position(uint8 value) { _position = value; return *this; }
-	BoardPoint& row(uint8 r) { _position = col() * 11 + r; return *this; }
-	BoardPoint& col(uint8 c) { _position = c * 11 + row(); return *this; }
+	uint16 row() const { return _position % size; }
+	uint16 col() const { return _position / size; }
+	uint16 position() const { return _position; }
+	BoardPoint& position(uint16 value) { _position = value; return *this; }
+	BoardPoint& row(uint16 r) { _position = col() * size + r; return *this; }
+	BoardPoint& col(uint16 c) { _position = c * size + row(); return *this; }
 	BoardPoint left() const { return row() > 0 ? BoardPoint(row() - 1, col()) : BoardPoint(); }
 	BoardPoint right() const { return row() < 10 ? BoardPoint(row() + 1, col()) : BoardPoint(); }
 	BoardPoint up() const { return col() > 0 ? BoardPoint(row(), col() - 1) : BoardPoint(); }
@@ -33,7 +34,7 @@ public:
 	BoardPoint& rotate(Rotation rotation) { return operator=(rotated(rotation)); }
 	
 protected:
-	uint16 _position; /// [1...361] inclusive
+	uint16 _position; /// [0...numPositions] inclusive
 };
 
 std::ostream& operator<<(std::ostream& out, const BoardPoint& position);
@@ -45,7 +46,7 @@ inline BoardPoint BoardPoint::rotated(Rotation rotation) const
 {
 	uint r = row();
 	uint c = col();
-	rotation.transform(11, r, c);
+	rotation.transform(size, r, c);
 	return BoardPoint(r, c);
 }
 
