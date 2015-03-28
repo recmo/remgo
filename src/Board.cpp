@@ -3,28 +3,49 @@
 #include "Random.h"
 #include "MoveHeuristic.h"
 
-std::ostream& operator<<(std::ostream& out, const Board& board)
+wostream& operator<<(wostream& out, const Board& board)
 {
 	// Unicode box drawing:
 	// ┌─┬─┐  250C 2500 252C 2500 2510
 	// ├─┼─┤  251C 2500 253C 2500 2524
 	// └─┴─┘  2514 2500 2534 2500 2518
 	// ┌─W─┐
-	// B─┼─┤
+	// B─╬─┤  256C
 	// └─┴─┘
-	for(uint row = 0; row < 11; ++row) {
-		for(uint col = 0; col < 11; ++col) {
-			BoardPoint i(10 - row, col);
-			bool white = board.white().isSet(i);
-			bool black = board.black().isSet(i);
-			if(!white && !black)
-				out << ".";
-			if(white && !black)
-				out << "W";
-			if(!white && black)
-				out << "B";
-			if(white && black)
-				out << "!";
+	const wchar_t space = 0x2500;
+	const wchar_t hoshi = 0x256C;
+	const wchar_t white = L'W';
+	const wchar_t black = L'B';
+	const wchar_t error = L'E';
+	const wchar_t box[3][3] = {
+		{0x250C, 0x252C, 0x2510},
+		{0x251C, 0x253C, 0x2524},
+		{0x2514, 0x2534, 0x2518}
+	};
+	const int first = 0;
+	const int last = BoardPoint::size - 1;
+	for(int row = last; row >= first; --row) {
+		const int rowbox = (row == first) ? 2 : ((row == last) ? 0 : 1);
+		const bool rowhoshi = (row == 3 || row == 9 || row == 15);
+		out << dec << setw(2) << setfill(L' ') << (row + 1) << " ";
+		for(int col = first; col <= last; ++col) {
+			const int colbox = (col == first) ? 0 : ((col == last) ? 2 : 1);
+			const bool colhoshi = (col == 3 || col == 9 || col == 15);
+			const BoardPoint pos(row, col);
+			const bool isWhite = board.white().isSet(pos);
+			const bool isBlack = board.black().isSet(pos);
+			if(isWhite  && !isBlack)
+				out << white;
+			else if(!isWhite  && isBlack)
+				out << black;
+			else if(isWhite  && isBlack)
+				out << error;
+			else if (rowhoshi && colhoshi)
+				out << hoshi;
+			else
+				out << box[rowbox][colbox];
+			if(col < last)
+				out << space;
 		}
 		out << endl;
 	}
