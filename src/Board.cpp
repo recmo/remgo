@@ -5,6 +5,13 @@
 
 std::ostream& operator<<(std::ostream& out, const Board& board)
 {
+	// Unicode box drawing:
+	// ┌─┬─┐  250C 2500 252C 2500 2510
+	// ├─┼─┤  251C 2500 253C 2500 2524
+	// └─┴─┘  2514 2500 2534 2500 2518
+	// ┌─W─┐
+	// B─┼─┤
+	// └─┴─┘
 	for(uint row = 0; row < 11; ++row) {
 		for(uint col = 0; col < 11; ++col) {
 			BoardPoint i(10 - row, col);

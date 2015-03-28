@@ -13,7 +13,7 @@ public:
 	static SymmetryGroup space() { return SymmetryGroup(0x00ff); }
 	static SymmetryGroup all() { return SymmetryGroup(0xffff); }
 	
-	Rotation normalize(Rotation r) const funk { return Rotation(_normalized[_index][r._index]); }
+	Rotation normalize(Rotation r) const { return Rotation(_normalized[_index][r._index]); }
 	
 private:
 	static constexpr uint _numGroups = 27;
@@ -21,5 +21,5 @@ private:
 	static const uint8 _normalized[_numGroups][Rotation::groupSize];
 	uint8 _index;
 	
-	Rotation normalizeCalculate(Rotation r) const funk;
+	Rotation normalizeCalculate(Rotation r) const;
 };

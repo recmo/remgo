@@ -15,7 +15,7 @@
 /// TODO: Can we combine MCTS with the cellular automata supperoptimization?
 /// Like hashlife—I think we can
 
-int main(int argc, char* argv[]) funk;
+int main(int argc, char* argv[]);
 
 void benchmarkRollout()
 {

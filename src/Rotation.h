@@ -29,34 +29,34 @@ public:
 	
 	static const std::array<Rotation, Rotation::groupSize> all;
 	
-	constexpr Rotation() funk : _index(0) { }
-	constexpr Rotation(uint8 index) funk : _index(index) { }
+	constexpr Rotation() : _index(0) { }
+	constexpr Rotation(uint8 index) : _index(index) { }
 	
-	bool operator==(const Rotation& other) const funk { return _index == other._index; }
-	bool operator!=(const Rotation& other) const funk { return !operator==(other); }
-	bool operator<(const Rotation& other) const funk { return _index < other._index; }
-	Rotation& operator=(const Rotation& other) funk { _index = other._index; return *this; }
-	Rotation operator*(const Rotation& other) const funk { return Rotation(_multiplicationTable[_index][other._index]); }
-	Rotation& operator*=(const Rotation& other) funk { return operator=(operator*(other)); }
-	Rotation operator/(const Rotation& other) const funk { return operator*(other.inverted());  }
-	Rotation& operator/=(const Rotation& other) funk { return operator=(operator*(other.inverted())); }
-	template<class T> T operator()(const T& value) funk;
+	bool operator==(const Rotation& other) const { return _index == other._index; }
+	bool operator!=(const Rotation& other) const { return !operator==(other); }
+	bool operator<(const Rotation& other) const { return _index < other._index; }
+	Rotation& operator=(const Rotation& other) { _index = other._index; return *this; }
+	Rotation operator*(const Rotation& other) const { return Rotation(_multiplicationTable[_index][other._index]); }
+	Rotation& operator*=(const Rotation& other) { return operator=(operator*(other)); }
+	Rotation operator/(const Rotation& other) const { return operator*(other.inverted());  }
+	Rotation& operator/=(const Rotation& other) { return operator=(operator*(other.inverted())); }
+	template<class T> T operator()(const T& value);
 	
 	uint index() const { return _index; }
 	
-	Rotation& invert() funk { return operator=(inverted()); }
-	Rotation inverted() const funk { return Rotation(_inverse[_index]); }
+	Rotation& invert() { return operator=(inverted()); }
+	Rotation inverted() const { return Rotation(_inverse[_index]); }
 	
-	constexpr bool parityFlipped() const funk { return (_index & _d4) >= 4; }
-	constexpr bool colourFlipped() const funk { return (_index & _colour); }
+	constexpr bool parityFlipped() const { return (_index & _d4) >= 4; }
+	constexpr bool colourFlipped() const { return (_index & _colour); }
 	
-	void transform(uint size, uint& row, uint& col) const funk;
-	template<class T> void permuteCorners(T& tl, T& tr, T& bl, T& br) const funk;
+	void transform(uint size, uint& row, uint& col) const;
+	template<class T> void permuteCorners(T& tl, T& tr, T& bl, T& br) const;
 	
-	uint64 hash() const funk { return _zobrist[_index]; }
+	uint64 hash() const { return _zobrist[_index]; }
 	
 private:
-	friend std::ostream& operator<<(std::ostream& out, const Rotation& rotation) funk;
+	friend std::ostream& operator<<(std::ostream& out, const Rotation& rotation);
 	friend class SymmetryGroup;
 	
 	static constexpr uint8 _d4 = 0x7;
@@ -67,7 +67,7 @@ private:
 	uint8 _index;
 };
 
-std::ostream& operator<<(std::ostream& out, const Rotation& rotation) funk;
+std::ostream& operator<<(std::ostream& out, const Rotation& rotation);
 
 inline void Rotation::transform(uint s, uint& row, uint& col) const
 {

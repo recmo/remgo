@@ -7,32 +7,32 @@
 class BoardNode {
 public:
 	typedef std::pair<Rotation, BoardNode*> OrientedBoardNode;
-	static void test() funk;
-	static void test(const Board& board) funk;
-	static void initialize() funk;
+	static void test();
+	static void test(const Board& board);
+	static void initialize();
 	static void dumpFragments(std::ostream& out = std::cerr);
 	static void dumpStats(std::ostream& out = std::cerr);
 	static void dumpHisto(std::ostream& out = std::cerr);
-	static uint fragmentCount() funk { return _fragments.size(); }
-	static OrientedBoardNode get(const Board& board) funk;
-	static OrientedBoardNode get(const Board& board, int x, int y, uint s) funk;
-	static OrientedBoardNode get(const OrientedBoardNode corners[4]) funk;
-	static OrientedBoardNode get(const OrientedBoardNode& tl, const OrientedBoardNode& tr, const OrientedBoardNode& bl, const OrientedBoardNode& br) funk;
+	static uint fragmentCount() { return _fragments.size(); }
+	static OrientedBoardNode get(const Board& board);
+	static OrientedBoardNode get(const Board& board, int x, int y, uint s);
+	static OrientedBoardNode get(const OrientedBoardNode corners[4]);
+	static OrientedBoardNode get(const OrientedBoardNode& tl, const OrientedBoardNode& tr, const OrientedBoardNode& bl, const OrientedBoardNode& br);
 	
-	uint64 hash() const funk { return _hash; }
-	uint height() const funk { return _height; }
-	uint size() const funk { return 1 << _height; }
-	uint visits() const funk { return _visits; }
-	sint score() const funk { return _score; }
-	double averageScore() const funk { return static_cast<double>(_score) / static_cast<double>(_visits); }
-	void addRecursive(uint visits, sint score) funk;
-	void subRecursive() funk;
-	void unsubRecursive() funk;
+	uint64 hash() const { return _hash; }
+	uint height() const { return _height; }
+	uint size() const { return 1 << _height; }
+	uint visits() const { return _visits; }
+	sint score() const { return _score; }
+	double averageScore() const { return static_cast<double>(_score) / static_cast<double>(_visits); }
+	void addRecursive(uint visits, sint score);
+	void subRecursive();
+	void unsubRecursive();
 	
-	Board board(Rotation rotation, uint moveCount) const funk;
+	Board board(Rotation rotation, uint moveCount) const;
 	
-	OrientedBoardNode piece(uint n) funk;
-	OrientedBoardNode subPiece(uint r, uint c) funk;
+	OrientedBoardNode piece(uint n);
+	OrientedBoardNode subPiece(uint r, uint c);
 	
 private:
 	static uint cellIndex(const OrientedBoardNode& node);
@@ -43,14 +43,14 @@ private:
 	static BoardNode _empty;
 	static BoardNode _player;
 	static BoardNode _opponent;
-	friend std::ostream& operator<<(std::ostream& out, const BoardNode& boardNode) funk;
-	friend std::ostream& operator<<(std::ostream& out, const OrientedBoardNode& boardNode) funk;
+	friend std::ostream& operator<<(std::ostream& out, const BoardNode& boardNode);
+	friend std::ostream& operator<<(std::ostream& out, const OrientedBoardNode& boardNode);
 	
-	BoardNode() funk;
-	BoardNode(uint64 hash) funk;
-	BoardNode(const OrientedBoardNode& tl, const OrientedBoardNode& tr, const OrientedBoardNode& bl, const OrientedBoardNode& br) funk;
-	BoardNode(const BoardNode& copy) funk;
-	~BoardNode() funk { }
+	BoardNode();
+	BoardNode(uint64 hash);
+	BoardNode(const OrientedBoardNode& tl, const OrientedBoardNode& tr, const OrientedBoardNode& bl, const OrientedBoardNode& br);
+	BoardNode(const BoardNode& copy);
+	~BoardNode() { }
 	
 	uint64 _hash;
 	uint8 _height;
@@ -60,19 +60,19 @@ private:
 	uint32 _visits;
 	sint32 _score;
 	
-	void rotate(Rotation rotation) funk;
-	Rotation cannonicalOrientate() funk;
-	Rotation symmetryReduce(Rotation rotation) const funk { return _symmetries.normalize(rotation); }
-	void updateHash() funk;
-	void findSymmetryGroup() funk;
-	void addRecursive(const OrientedBoardNode piece, uint visits, sint score) funk;
+	void rotate(Rotation rotation);
+	Rotation cannonicalOrientate();
+	Rotation symmetryReduce(Rotation rotation) const { return _symmetries.normalize(rotation); }
+	void updateHash();
+	void findSymmetryGroup();
+	void addRecursive(const OrientedBoardNode piece, uint visits, sint score);
 	
-	void pieces(BoardMask& player, BoardMask& opponent, Rotation rotation, int x, int y) const funk;
-	void print(char* buffer, uint rowStride = 0, Rotation rotation = Rotation::r0()) const funk;
+	void pieces(BoardMask& player, BoardMask& opponent, Rotation rotation, int x, int y) const;
+	void print(char* buffer, uint rowStride = 0, Rotation rotation = Rotation::r0()) const;
 };
 
-std::ostream& operator<<(std::ostream& out, const BoardNode& boardNode) funk;
-std::ostream& operator<<(std::ostream& out, const BoardNode::OrientedBoardNode& boardNode) funk;
+std::ostream& operator<<(std::ostream& out, const BoardNode& boardNode);
+std::ostream& operator<<(std::ostream& out, const BoardNode::OrientedBoardNode& boardNode);
 
 // std::hash implementation
 namespace std {

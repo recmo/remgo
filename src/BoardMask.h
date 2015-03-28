@@ -3,67 +3,67 @@
 
 class BoardMask {
 public:
-	static void initialize() funk;
+	static void initialize();
 	static BoardMask masks[BoardPoint::numPositions + 1] aligned;
 	
 	class Iterator; 
 	const static BoardMask fullBoard;
 	
-	BoardMask() funk: _mask() { }
-	BoardMask(const BoardMask& other) funk: _mask(other._mask) { }
-	explicit BoardMask(BoardPoint point) funk;
-	~BoardMask() funk { }
-	operator bool() const funk { return !isEmpty(); }
-	BoardMask& operator=(const BoardMask& other) funk { _mask = other._mask; return *this; }
-	bool operator==(const BoardMask& other) const funk { return _mask == other._mask; }
-	bool operator!=(const BoardMask& other) const funk { return !operator==(other); }
-	BoardMask& operator&=(const BoardMask& other) funk { return operator=(operator&(other)); }
-	BoardMask& operator|=(const BoardMask& other) funk { return operator=(operator|(other)); }
-	BoardMask& operator-=(const BoardMask& other) funk { return operator=(operator-(other)); }
-	BoardMask operator&(const BoardMask& other) const funk { return BoardMask(_mask & other._mask); }
-	BoardMask operator|(const BoardMask& other) const funk { return BoardMask(_mask | other._mask); }
-	BoardMask operator-(const BoardMask& other) const funk { return BoardMask(_mask - other._mask); }
-	BoardMask operator~() const funk { return fullBoard - *this; }
-	BoardMask expanded() const funk;
-	BoardMask connected(BoardPoint seed) const funk { return connected(BoardMask::masks[seed.position()]); }
-	BoardMask connected(const BoardMask& seed) const funk;
-	vector<BoardMask> groups() const funk;
-	BoardMask& invert() funk { return operator=(operator~()); }
-	BoardMask& expand() funk { return operator=(expanded()); }
-	BoardMask& clear() funk { _mask.clear(); return *this; }
-	uint popcount() const funk { return ::popcount(_mask); }
-	bool isSet(BoardPoint point) const funk { return !(*this & BoardMask::masks[point.position()]).isEmpty(); }
-	BoardMask& set(BoardPoint point) funk { return operator=(*this | BoardMask::masks[point.position()]); }
-	BoardMask& clear(BoardPoint point) funk { return operator=(*this - BoardMask::masks[point.position()]); }
-	bool isEmpty() const funk { return mask().isZero(); }
-	bool isValid() const funk { return operator==(*this & fullBoard); }
-	BoardPoint firstPoint() const funk;
-	BoardPoint randomPoint() const funk;
-	Iterator itterator() const funk;
-	uint128 mask() const funk { return _mask; }
+	BoardMask(): _mask() { }
+	BoardMask(const BoardMask& other): _mask(other._mask) { }
+	explicit BoardMask(BoardPoint point);
+	~BoardMask() { }
+	operator bool() const { return !isEmpty(); }
+	BoardMask& operator=(const BoardMask& other) { _mask = other._mask; return *this; }
+	bool operator==(const BoardMask& other) const { return _mask == other._mask; }
+	bool operator!=(const BoardMask& other) const { return !operator==(other); }
+	BoardMask& operator&=(const BoardMask& other) { return operator=(operator&(other)); }
+	BoardMask& operator|=(const BoardMask& other) { return operator=(operator|(other)); }
+	BoardMask& operator-=(const BoardMask& other) { return operator=(operator-(other)); }
+	BoardMask operator&(const BoardMask& other) const { return BoardMask(_mask & other._mask); }
+	BoardMask operator|(const BoardMask& other) const { return BoardMask(_mask | other._mask); }
+	BoardMask operator-(const BoardMask& other) const { return BoardMask(_mask - other._mask); }
+	BoardMask operator~() const { return fullBoard - *this; }
+	BoardMask expanded() const;
+	BoardMask connected(BoardPoint seed) const { return connected(BoardMask::masks[seed.position()]); }
+	BoardMask connected(const BoardMask& seed) const;
+	vector<BoardMask> groups() const;
+	BoardMask& invert() { return operator=(operator~()); }
+	BoardMask& expand() { return operator=(expanded()); }
+	BoardMask& clear() { _mask.clear(); return *this; }
+	uint popcount() const { return ::popcount(_mask); }
+	bool isSet(BoardPoint point) const { return !(*this & BoardMask::masks[point.position()]).isEmpty(); }
+	BoardMask& set(BoardPoint point) { return operator=(*this | BoardMask::masks[point.position()]); }
+	BoardMask& clear(BoardPoint point) { return operator=(*this - BoardMask::masks[point.position()]); }
+	bool isEmpty() const { return mask().isZero(); }
+	bool isValid() const { return operator==(*this & fullBoard); }
+	BoardPoint firstPoint() const;
+	BoardPoint randomPoint() const;
+	Iterator itterator() const;
+	uint128 mask() const { return _mask; }
 	
-	Iterator begin() const funk;
-	Iterator end() const funk;
-	BoardMask(uint128 mask) funk: _mask(mask) { }
+	Iterator begin() const;
+	Iterator end() const;
+	BoardMask(uint128 mask): _mask(mask) { }
 
 protected:
 	uint128 _mask aligned;
-	BoardMask& setFullBoard() funk;
+	BoardMask& setFullBoard();
 };
 
 std::ostream& operator<<(std::ostream& out, const BoardMask& mask);
 
 class BoardMask::Iterator {
 public:
-	Iterator(const BoardMask& mask) funk: _mask(mask), _point(_mask.firstPoint()) { }
-	~Iterator() funk { }
-	operator bool() const funk { return _mask; }
-	Iterator& operator++() funk { _mask.clear(_point); _point = _mask.firstPoint(); return *this; }
-	Iterator operator++(int) funk { Iterator tmp(*this); operator++(); return tmp; }
-	const BoardPoint& operator*() const funk { return _point; }
-	const BoardPoint* operator->() const funk { return &_point; }
-	bool operator!= (const Iterator& other) const funk { return _mask != other._mask; }
-	bool operator== (const Iterator& other) const funk { return _mask == other._mask; }
+	Iterator(const BoardMask& mask): _mask(mask), _point(_mask.firstPoint()) { }
+	~Iterator() { }
+	operator bool() const { return _mask; }
+	Iterator& operator++() { _mask.clear(_point); _point = _mask.firstPoint(); return *this; }
+	Iterator operator++(int) { Iterator tmp(*this); operator++(); return tmp; }
+	const BoardPoint& operator*() const { return _point; }
+	const BoardPoint* operator->() const { return &_point; }
+	bool operator!= (const Iterator& other) const { return _mask != other._mask; }
+	bool operator== (const Iterator& other) const { return _mask == other._mask; }
 	
 private:
 	BoardMask _mask;

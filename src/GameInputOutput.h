@@ -3,11 +3,11 @@
 
 class GameInputOutput {
 public:
-	GameInputOutput() funk;
-	~GameInputOutput() funk;
-	void run() funk;
-	void playMove(Move move) funk;
-	Move generateMove() funk;
+	GameInputOutput();
+	~GameInputOutput();
+	void run();
+	void playMove(Move move);
+	Move generateMove();
 	
 	TreeNode* tree() { return _tree; }
 	

@@ -2,7 +2,7 @@
 #include <inttypes.h>
 #pragma GCC target ("sse4.1")
 #pragma GCC optimize ("O3")
-#define funk __attribute__ ((__target__ ("sse4.1"), optimize("O3")))
+#define __attribute__ ((__target__ ("sse4.1"), optimize("O3")))
 #define __MMX__
 #define __SSE__
 #define __SSE2__
@@ -25,7 +25,7 @@ typedef __m128i m128;
 // or
 // xor
 
-void print128(std::ostream& out, uint8* data) funk;
+void print128(std::ostream& out, uint8* data);
 void print128(std::ostream& out, uint8* data)
 {
 	out.fill('0');
@@ -39,7 +39,7 @@ void print128(std::ostream& out, uint8* data)
 }
 
 
-std::ostream& operator<<(std::ostream& out, m128 in) funk;
+std::ostream& operator<<(std::ostream& out, m128 in);
 inline std::ostream& operator<<(std::ostream& out, m128 in)
 {
 	// Avoid http://gcc.gnu.org/bugzilla/show_bug.cgi?id=35414
@@ -49,7 +49,7 @@ inline std::ostream& operator<<(std::ostream& out, m128 in)
 	return out;
 }
 
-m128 zero() funk;
+m128 zero();
 inline m128 zero()
 {
 	m128 m = _mm_setzero_si128();
@@ -57,7 +57,7 @@ inline m128 zero()
 	return m;
 }
 
-int main(int argc, char* argv[]) funk;
+int main(int argc, char* argv[]);
 int main(int argc, char* argv[])
 {
 	std::cerr << "uint32: " << sizeof(uint32_t) << std::endl;
