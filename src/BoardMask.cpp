@@ -45,8 +45,9 @@ const BoardMask BoardMask::fullBoard(createFullBoard());
 BoardMask BoardMask::createFullBoard()
 {
 	BoardMask r;
-	for(uint i = 0; i < BoardPoint::numPositions; ++i)
-		r.set(BoardPoint(i));
+	for(uint row = 0; row < BoardPoint::size; ++row)
+		for(uint col = 0; col < BoardPoint::size; ++col)
+			r.set(BoardPoint(row, col));
 	return r;
 }
 
@@ -76,13 +77,16 @@ vector<BoardMask> BoardMask::groups() const
 
 BoardPoint BoardMask::firstPoint() const
 {
+	uint index = 0;
 	if(_mask[0] != uint128(0))
-		return BoardPoint(trailingZeros(_mask[0]));
-	if(_mask[1] != uint128(0))
-		return BoardPoint(trailingZeros(_mask[1]) + 128);
-	if(_mask[2] != uint128(0))
-		return BoardPoint(trailingZeros(_mask[2]) + 256);
-	return BoardPoint();
+		index = trailingZeros(_mask[0]);
+	else if(_mask[1] != uint128(0))
+		index = trailingZeros(_mask[1]) + 128;
+	else if(_mask[2] != uint128(0))
+		index = trailingZeros(_mask[2]) + 256;
+	else
+		return BoardPoint();
+	return BoardPoint(index);
 }
 
 BoardPoint BoardMask::randomPoint() const

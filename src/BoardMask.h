@@ -144,7 +144,7 @@ bool BoardMask::isSet(BoardPoint point) const
 {
 	// wcerr << point << endl;
 	// Leave 1 guard bit after each row
-	const uint index = point.row() * (BoardPoint::size + 1) + point.col();
+	const uint index = point.position();
 	const uint mask = index / 128;
 	const uint pos = index % 128;
 	const uint128 bit = uint128(1) << pos;
@@ -153,7 +153,7 @@ bool BoardMask::isSet(BoardPoint point) const
 
 BoardMask& BoardMask::set(BoardPoint point)
 {
-	const uint index = point.row() * (BoardPoint::size + 1) + point.col();
+	const uint index = point.position();
 	const uint mask = index / 128;
 	const uint pos = index % 128;
 	const uint128 bit = uint128(1) << pos;
@@ -163,7 +163,7 @@ BoardMask& BoardMask::set(BoardPoint point)
 
 BoardMask& BoardMask::clear(BoardPoint point)
 {
-	const uint index = point.row() * (BoardPoint::size + 1) + point.col();
+	const uint index = point.position();
 	const uint mask = index / 128;
 	const uint pos = index % 128;
 	const uint128 bit = uint128(1) << pos;
