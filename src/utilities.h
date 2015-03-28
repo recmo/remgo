@@ -88,6 +88,17 @@ inline uint trailingZeros(uint64 n)
 	return __builtin_ctzll(n);
 }
 
+inline uint trailingZeros(uint128 n)
+{
+	const uint64 l = n;
+	if(l)
+		return __builtin_ctzll(l);
+	const uint64 h = n >> 64;
+	if(h)
+		return __builtin_ctzll(h) + 64;
+	return 128;
+}
+
 inline uint64 rotate_left(uint64 a, int p)
 {
 	return (a << (p % 64)) | (a >> (64 - (p % 64)));
