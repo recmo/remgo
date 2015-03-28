@@ -76,8 +76,12 @@ vector<BoardMask> BoardMask::groups() const
 
 BoardPoint BoardMask::firstPoint() const
 {
-	wcerr << "Unimplemented!" << endl;
-	assert(false);
+	if(_mask[0] != uint128(0))
+		return BoardPoint(trailingZeros(_mask[0]));
+	if(_mask[1] != uint128(0))
+		return BoardPoint(trailingZeros(_mask[1]) + 128);
+	if(_mask[2] != uint128(0))
+		return BoardPoint(trailingZeros(_mask[2]) + 256);
 	return BoardPoint();
 }
 
