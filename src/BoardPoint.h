@@ -10,7 +10,7 @@ public:
 	static constexpr uint16 numPositions = size * size;
 	static constexpr uint16 maxPosition = stride * size;
 	
-	BoardPoint(): _position(numPositions) { }
+	BoardPoint(): _position(maxPosition) { }
 	BoardPoint(uint16 position): _position(position) { }
 	BoardPoint(uint16 row, uint16 col): _position(col * stride + row) { }
 	~BoardPoint() { }
