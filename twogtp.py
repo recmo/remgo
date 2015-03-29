@@ -33,7 +33,7 @@ import string
 import re
 
 
-debug = 0 
+debug = 0
 
 
 def coords_to_sgf(size, board_coords):
@@ -84,7 +84,7 @@ class GTP_connection:
             result = result + line
             line = self.infile.readline()
         if debug:
-            sys.stderr.write("Reply: " + line + "\n")
+            sys.stderr.write("Reply: " + result + "\n")
 
         # Remove trailing newline from the result
         if result[-1] == "\n":
@@ -161,7 +161,15 @@ class GTP_player:
                                  str(move_number)]))
 
     def list_stones(self, color):
-        return string.split(self.connection.exec_cmd("list_stones " + color), " ")
+		result = []
+		stones = self.connection.exec_cmd("list_stones " + color)
+		for stone in string.split(stones, " "):
+			if stone == "":
+				continue
+			if len(stone) == 2:
+				stone = stone[0] + "0" + stone[1]
+			result.append(stone)
+		return sorted(result)
 
     def quit(self):
         return self.connection.exec_cmd("quit")
@@ -269,6 +277,10 @@ class GTP_game:
                 self.sgffilestart += "[%s]" % coords_to_sgf(self.size, stone)
             self.sgffilestart += "\n"
 
+    def check_engine_lights(self):
+        assert self.whiteplayer.list_stones("black") == self.blackplayer.list_stones("black")
+        assert self.whiteplayer.list_stones("white") == self.blackplayer.list_stones("white")
+
     def writesgf(self, sgffilename):
         "Write the game to an SGF file after a game"
 
@@ -357,6 +369,7 @@ class GTP_game:
         passes = 0
         won_by_resignation = ""
         while passes < 2:
+            self.check_engine_lights()
             if to_play == "B":
                 move = self.blackplayer.genmove("black")
                 if move[:5] == "ERROR":
