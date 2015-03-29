@@ -74,7 +74,7 @@ BoardMask BoardMask::expanded() const
 
 BoardMask BoardMask::connected(const BoardMask& seed) const
 {
-	BoardMask cur = seed;
+	BoardMask cur = seed & *this;
 	BoardMask next;
 	do {
 		next = cur.expanded() & *this;
