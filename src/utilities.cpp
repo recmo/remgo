@@ -11,7 +11,7 @@ wostream& operator<<(wostream& out, uint128 v)
 	return out;
 }
 
-float cputime()
+float cpuTimeUsed()
 {
 	const int who = RUSAGE_SELF;
 	struct rusage usage;
@@ -24,5 +24,18 @@ float cputime()
 	result += usage.ru_utime.tv_usec * 1.0e-6f;
 	result += usage.ru_stime.tv_sec;
 	result += usage.ru_stime.tv_usec * 1.0e-6f;
+	return result;
+}
+
+float peakMemoryUsed()
+{
+	const int who = RUSAGE_SELF;
+	struct rusage usage;
+	int ret = getrusage(who, &usage);
+	if(ret != 0) {
+		return std::nanf("");
+	}
+	float result = 0.0f;
+	result += usage.ru_maxrss * 1e-3;
 	return result;
 }

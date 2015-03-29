@@ -43,6 +43,7 @@ private:
 	void final_score();
 	void get_random_seed();
 	void cputime();
+	void memory();
 	
 	// Readers/writers
 	bool readCommand();

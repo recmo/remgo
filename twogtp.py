@@ -205,6 +205,12 @@ class GTP_player:
         else:
             return "0"
 
+    def memory(self):
+        if (self.is_known_command("memory")):
+            return self.connection.exec_cmd("memory")
+        else:
+            return "0"
+
 
 class GTP_game:
 
@@ -443,6 +449,12 @@ class GTP_game:
         cputime["white"] = self.whiteplayer.cputime()
         cputime["black"] = self.blackplayer.cputime()
         return cputime
+
+    def memory(self):
+        memory = {}
+        memory["white"] = self.whiteplayer.memory()
+        memory["black"] = self.blackplayer.memory()
+        return memory
     
     def quit(self):
         self.blackplayer.quit()
@@ -570,8 +582,9 @@ class GTP_match:
                 last_streak = 0
             results.append(result)
         cputime = game.cputime()
+        memory = game.memory()
         game.quit()
-        return results, cputime
+        return results, cputime, memory
 
 
 # ================================================================
@@ -700,7 +713,7 @@ if endgame_filelist != []:
          % (len(results), win_black, win_white)
 
 else:
-    results, cputimes = match.play(games, sgfbase)
+    results, cputimes, memories = match.play(games, sgfbase)
 
     i = 0
     for resw, resb in results:
@@ -710,6 +723,6 @@ else:
         else:
             print "Game %d: %s %s" % (i, resb, resw)
     if (cputimes["white"] != "0"):
-        print "White: %ss CPU time" % cputimes["white"]
+        print "White: %ss CPU time and %sMB RAM" % (cputimes["white"], memories["white"])
     if (cputimes["black"] != "0"):
-        print "Black: %ss CPU time" % cputimes["black"]
+        print "Black: %ss CPU time and %sMB RAM" % (cputimes["black"], memories["black"])

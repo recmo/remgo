@@ -44,6 +44,7 @@ GoTextProtocol::GoTextProtocol(Engine* engine, wistream& in, wostream& out)
 	registerCommand(final_score);
 	registerCommand(get_random_seed);
 	registerCommand(cputime);
+	registerCommand(memory);
 }
 
 void GoTextProtocol::run()
@@ -51,7 +52,7 @@ void GoTextProtocol::run()
 	while(!_quit && _in.good()) {
 		if(!readCommand())
 			continue;
-		wcerr << _id << ": " << _command << " " << _arguments << endl;
+		// wcerr << _id << ": " << _command << " " << _arguments << endl;
 		
 		// Find command
 		auto it = _commands.find(_command);
@@ -208,7 +209,15 @@ void GoTextProtocol::cputime()
 {
 	numArguments(0);
 	wostringstream out;
-	out << ::cputime();
+	out << ::cpuTimeUsed();
+	writeResponse(out.str());
+}
+
+void GoTextProtocol::memory()
+{
+	numArguments(0);
+	wostringstream out;
+	out << ::peakMemoryUsed();
 	writeResponse(out.str());
 }
 

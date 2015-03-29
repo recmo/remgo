@@ -134,4 +134,6 @@ wostream& operator<<(wostream& out, const vector<T>& vec)
 }
 
 
-float cputime();
+float cpuTimeUsed();
+
+float peakMemoryUsed();
