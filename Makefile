@@ -10,3 +10,6 @@ remgo: $(patsubst %.cpp,%.o,$(SOURCES))
 
 clean:
 	rm -f $(patsubst %.cpp,%.o,$(SOURCES))
+
+test:
+	./twogtp.py --black 'gnugo --mode=gtp --level=0' --white './remgo' --verbose 2

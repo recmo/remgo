@@ -23,6 +23,7 @@ private:
 	wstring _id;
 	wstring _command;
 	vector<wstring> _arguments;
+	bool _lastGenmove;
 	
 	// Commands
 	void protocol_version();
@@ -37,7 +38,11 @@ private:
 	void play();
 	void genmove();
 	
+	void showboard();
 	void list_stones();
+	void final_score();
+	void get_random_seed();
+	void cputime();
 	
 	// Readers/writers
 	bool readCommand();
@@ -54,4 +59,5 @@ public:
 	virtual BoardPoint generateMove() = 0;
 	virtual BoardMask white() = 0;
 	virtual BoardMask black() = 0;
+	virtual void show(wostream& out) = 0;
 };

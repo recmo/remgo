@@ -133,3 +133,5 @@ wostream& operator<<(wostream& out, const vector<T>& vec)
 	return out;
 }
 
+
+float cputime();

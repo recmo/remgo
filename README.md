@@ -47,6 +47,9 @@ Addendum 2: *Prohibition of repetition*: any position in step one that, after
 steps two and three, results in a board state that was the result of an earlier
 play is illegal.
 
+Addendum 3: *Ko rule*: It is not allowed to play in a position that was captured
+in the previous move.
+
 ### End
 
 The game ends when both players have passed consecutively. The *final* board
@@ -71,6 +74,7 @@ game is a draw.
 
 [GTP — Go Text Protocol version 2](http://www.lysator.liu.se/~gunnar/gtp/gtp2-spec-draft2/gtp2-spec.html)
 
+https://www.gnu.org/software/gnugo/gnugo_19.html
 
 ## Testing
 
@@ -81,6 +85,9 @@ Using the `twogtp.py` script:
 
 
 ## Online competitions
+
+* http://senseis.xmp.net/?KgsGtp
+
 
 * http://cgos.boardspace.net/
 

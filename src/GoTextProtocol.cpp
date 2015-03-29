@@ -18,6 +18,7 @@ GoTextProtocol::GoTextProtocol(Engine* engine, wistream& in, wostream& out)
 , _id()
 , _command()
 , _arguments()
+, _lastGenmove(false)
 {
 	assert(_engine != nullptr);
 	
@@ -38,8 +39,11 @@ GoTextProtocol::GoTextProtocol(Engine* engine, wistream& in, wostream& out)
 	registerCommand(play);
 	registerCommand(genmove);
 	
-	
+	registerCommand(showboard);
 	registerCommand(list_stones);
+	registerCommand(final_score);
+	registerCommand(get_random_seed);
+	registerCommand(cputime);
 }
 
 void GoTextProtocol::run()
@@ -47,7 +51,6 @@ void GoTextProtocol::run()
 	while(!_quit && _in.good()) {
 		if(!readCommand())
 			continue;
-		
 		wcerr << _id << ": " << _command << " " << _arguments << endl;
 		
 		// Find command
@@ -132,6 +135,7 @@ void GoTextProtocol::komi()
 void GoTextProtocol::play()
 {
 	numArguments(2);
+	_lastGenmove = false;
 	
 	wistringstream in(_arguments[1]);
 	BoardPoint move;
@@ -139,22 +143,35 @@ void GoTextProtocol::play()
 	_engine->receiveMove(move);
 	
 	writeResponse();
-	// writeError(L"illegal move");
 }
 
 void GoTextProtocol::genmove()
 {
 	numArguments(1);
+	
+	// If we receive two consecutive 'genmove's with no 'play' in between there
+	// was an implicit pass. Make it explicit to the engine.
+	if(_lastGenmove)
+		_engine->receiveMove(BoardPoint());
+	_lastGenmove = true;
+	
 	const BoardPoint move = _engine->generateMove();
 	if(!move.isValid()) {
 		writeResponse(L"pass");
 		// writeResponse(L"resign");
 	} else {
-		wcerr << move << endl;
 		wostringstream out;
 		out << move;
 		writeResponse(out.str());
 	}
+}
+
+void GoTextProtocol::showboard()
+{
+	numArguments(0);
+	wostringstream out;
+	_engine->show(out);
+	writeResponse(out.str());
 }
 
 void GoTextProtocol::list_stones()
@@ -175,6 +192,25 @@ void GoTextProtocol::list_stones()
 	writeResponse(out.str());
 }
 
+void GoTextProtocol::final_score()
+{
+	numArguments(0);
+	writeResponse(L"0");
+}
+
+void GoTextProtocol::get_random_seed()
+{
+	numArguments(0);
+	writeResponse();
+}
+
+void GoTextProtocol::cputime()
+{
+	numArguments(0);
+	wostringstream out;
+	out << ::cputime();
+	writeResponse(out.str());
+}
 
 bool GoTextProtocol::readCommand()
 {
@@ -222,7 +258,10 @@ bool GoTextProtocol::readCommand()
 
 void GoTextProtocol::writeResponse(const wstring& result)
 {
-	_out << "=" << _id << " " << result << endl << endl;
+	wstring copy = result;
+	while(!copy.empty() && copy.back() == L'\n')
+		copy.pop_back();
+	_out << "=" << _id << " " << copy << endl << endl;
 }
 
 void GoTextProtocol::writeError(const wstring& message)
