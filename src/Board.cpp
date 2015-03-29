@@ -63,12 +63,39 @@ Board::Board(BoardMask white, BoardMask black, uint turn)
 
 BoardMask Board::validMoves() const
 {
-	return free();
+	BoardMask result = free();
+	for(BoardPoint move: result) {
+		if(!isValidMove(move))
+			result.clear(move);
+	}
+	
+	return result;
 }
 
 bool Board::isValidMove(BoardPoint move) const
 {
-	return !free().isSet(move);
+	if(!free().isSet(move))
+		return false;
+	
+	// Copy player state
+	BoardMask f = free();
+	BoardMask p = playerPieces();
+	
+	// Add the move
+	p.set(move);
+	f.clear(move);
+	
+	// Calculate player alive pieces
+	BoardMask playerAlive = p.connected(f.expanded());
+	
+	// Disallow suicide
+	if(!playerAlive.isSet(move))
+		return false;
+	
+	// TODO: Ko
+	// TODO: Super-Ko
+	
+	return true;
 }
 
 Board& Board::play(BoardPoint position)
@@ -87,11 +114,11 @@ Board& Board::play(BoardPoint position)
 	if(player() == White) {
 		_white.set(position);
 		_black = _black.connected(free().expanded());
-		_white = _white.connected(free().expanded());
+		//_white = _white.connected(free().expanded());
 	} else {
 		_black.set(position);
 		_white = _white.connected(free().expanded());
-		_black = _black.connected(free().expanded());
+		//_black = _black.connected(free().expanded());
 	}
 	
 	// Increase move counter
