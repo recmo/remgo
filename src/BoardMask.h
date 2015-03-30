@@ -66,6 +66,7 @@ public:
 	inline bool isEmpty() const;
 	bool isValid() const { return operator==(*this & fullBoard); }
 	BoardPoint firstPoint() const;
+	BoardPoint nthPoint(uint n) const;
 	BoardPoint randomPoint() const;
 	Iterator itterator() const;
 	

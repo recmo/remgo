@@ -41,7 +41,7 @@ void BoardEngine::receiveMove(BoardPoint move)
 
 BoardPoint BoardEngine::generateMove()
 {
-	const BoardPoint move = _board.validMoves().firstPoint();
+	const BoardPoint move = _board.validMoves().randomPoint();
 	_board.play(move);
 	return move;
 }

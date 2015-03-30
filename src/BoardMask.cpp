@@ -109,9 +109,19 @@ BoardPoint BoardMask::firstPoint() const
 	return BoardPoint(index);
 }
 
+BoardPoint BoardMask::nthPoint(uint n) const
+{
+	for(BoardPoint p: *this) {
+		if(n == 0)
+			return p;
+		--n;
+	}
+	return BoardPoint();
+}
+
 BoardPoint BoardMask::randomPoint() const
 {
-	wcerr << "Unimplemented!" << endl;
-	assert(false);
-	return BoardPoint();
+	if(isEmpty())
+		return BoardPoint();
+	return nthPoint(random(popcount()));
 }

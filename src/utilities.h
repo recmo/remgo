@@ -142,21 +142,17 @@ wostream& operator<<(wostream& out, const vector<T>& vec)
 
 inline uint64 nextRandom()
 {
-	static uint64 s0 = 0xf4569e11f0711544ULL;
-	static uint64 s1 = 0x40927e82880a682dULL;
-	uint64 x = s0;
-	uint64 y = s1;
-	s0 = y;
-	x ^= x << 23;
-	x ^= x >> 17;
-	x ^= y ^ (y >> 26);
-	s1 = x;
-	return x + y;
+	static uint64 a = 0xf4569e11f0711544ULL;
+	static uint64 b = 0x40927e82880a682dULL;
+	a ^= a << 23;
+	a ^= a >> 17;
+	a ^= b ^ (b >> 26);
+	swap(a, b);
+	return a + b;
 }
 
-inline uint64 random(uint64 upper = 0)
+inline uint64 random(uint64 upper)
 {
-	// Todo
 	return nextRandom() % upper;
 }
 
