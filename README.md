@@ -83,11 +83,17 @@ Using the `twogtp.py` script:
 > ./twogtp.py --white 'gnugo --mode gtp' --black 'gnugo --mode gtp' --verbose 2
 
 
+Using the KGS
+
+> java -jar others/kgsGtp-3.5.20/kgsGtp.jar kgsGtp.config
+
+
 
 ## Online competitions
 
-* http://senseis.xmp.net/?KgsGtp
+* http://www.gokgs.com/applet.jsp
 
+* http://senseis.xmp.net/?KgsGtp
 
 * http://cgos.boardspace.net/
 
