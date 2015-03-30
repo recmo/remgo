@@ -83,6 +83,13 @@ inline uint popcount(uint64 n)
 	return __builtin_popcountll(n);
 }
 
+inline uint popcount(uint128 n)
+{
+	const uint64 l = n;
+	const uint64 h = n >> 64;
+	return __builtin_popcountll(l) + __builtin_popcountll(h);
+}
+
 inline uint trailingZeros(uint64 n)
 {
 	return __builtin_ctzll(n);
@@ -133,6 +140,25 @@ wostream& operator<<(wostream& out, const vector<T>& vec)
 	return out;
 }
 
+inline uint64 nextRandom()
+{
+	static uint64 s0 = 0xf4569e11f0711544ULL;
+	static uint64 s1 = 0x40927e82880a682dULL;
+	uint64 x = s0;
+	uint64 y = s1;
+	s0 = y;
+	x ^= x << 23;
+	x ^= x >> 17;
+	x ^= y ^ (y >> 26);
+	s1 = x;
+	return x + y;
+}
+
+inline uint64 random(uint64 upper = 0)
+{
+	// Todo
+	return nextRandom() % upper;
+}
 
 float cpuTimeUsed();
 
