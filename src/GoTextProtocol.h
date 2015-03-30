@@ -11,6 +11,8 @@ public:
 	
 	void run();
 	
+	void stop() { _stopping = true; }
+	
 private:
 	typedef void (GoTextProtocol::*Command)();
 	Engine* const _engine;
@@ -23,8 +25,11 @@ private:
 	wstring _id;
 	wstring _command;
 	vector<wstring> _arguments;
+	
+	//
 	bool _lastGenmove;
 	float _komi;
+	bool _stopping;
 	
 	// Commands
 	void protocol_version();
@@ -45,6 +50,8 @@ private:
 	void get_random_seed();
 	void cputime();
 	void memory();
+	
+	void game_over();
 	
 	// Readers/writers
 	bool readCommand();

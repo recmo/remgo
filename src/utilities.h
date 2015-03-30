@@ -37,6 +37,8 @@ using std::vector;
 using std::array;
 using std::map;
 using std::swap;
+using std::bind;
+using namespace std::placeholders;
 
 /*
 // Aligned allocations

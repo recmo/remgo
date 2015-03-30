@@ -1,5 +1,6 @@
 #include "utilities.h"
 #include <locale>
+#include <signal.h>
 #include "Rotation.h"
 #include "BoardPoint.h"
 #include "BoardMask.h"
@@ -47,6 +48,15 @@ BoardPoint BoardEngine::generateMove()
 	return move;
 }
 
+GoTextProtocol* gtp = nullptr;
+
+void sighup(int)
+{
+	wcerr << "SIGHUP received, stopping after next game" << endl;
+	if(gtp != nullptr)
+		gtp->stop();
+}
+
 int main(int argc, char* argv[])
 {
 	// Set output encodings
@@ -66,7 +76,11 @@ int main(int argc, char* argv[])
 	
 	BoardEngine engine;
 	GoTextProtocol gtp(&engine);
+	signal(SIGHUP, &sighup);
+	::gtp = &gtp;
 	gtp.run();
+	
+	
 	
 	return 0;
 }

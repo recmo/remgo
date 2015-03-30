@@ -3,6 +3,9 @@
 #define registerCommand(command)\
 	_commands[L"" #command] = &GoTextProtocol::command;
 
+#define registerKgsCommand(command)\
+	_commands[L"kgs-" #command] = &GoTextProtocol::command;
+
 #define numArguments(N) \
 	if(_arguments.size() != N) { \
 		writeError(L"syntax error"); \
@@ -20,6 +23,7 @@ GoTextProtocol::GoTextProtocol(Engine* engine, wistream& in, wostream& out)
 , _arguments()
 , _lastGenmove(false)
 , _komi(0.0f)
+, _stopping(false)
 {
 	assert(_engine != nullptr);
 	
@@ -46,10 +50,14 @@ GoTextProtocol::GoTextProtocol(Engine* engine, wistream& in, wostream& out)
 	registerCommand(get_random_seed);
 	registerCommand(cputime);
 	registerCommand(memory);
+	
+	// For KGS
+	registerKgsCommand(game_over);
 }
 
 void GoTextProtocol::run()
 {
+	_stopping = false;
 	while(!_quit && _in.good()) {
 		if(!readCommand())
 			continue;
@@ -237,6 +245,18 @@ void GoTextProtocol::memory()
 	writeResponse(out.str());
 }
 
+void GoTextProtocol::game_over()
+{
+	numArguments(0);
+	
+	// If we want to quit, this is the moment
+	if(_stopping)
+		_quit = true;
+	
+	// Or else continue
+	writeResponse();
+}
+
 bool GoTextProtocol::readCommand()
 {
 	// Clear
@@ -278,6 +298,7 @@ bool GoTextProtocol::readCommand()
 		parts.erase(parts.begin(), parts.begin() + 1);
 		_arguments = parts;
 	}
+	
 	return true;
 }
 
