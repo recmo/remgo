@@ -24,6 +24,7 @@ public:
 	virtual BoardMask white() override final { return _board.white(); }
 	virtual BoardMask black() override final { return _board.black(); }
 	virtual void show(wostream& out) override final { out << _board; }
+	virtual sint score() override final { return _board.score(); }
 	
 private:
 	Board _board;

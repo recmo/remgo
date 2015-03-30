@@ -284,8 +284,9 @@ class GTP_game:
             self.sgffilestart += "\n"
 
     def check_engine_lights(self):
-        assert self.whiteplayer.list_stones("black") == self.blackplayer.list_stones("black")
-        assert self.whiteplayer.list_stones("white") == self.blackplayer.list_stones("white")
+        if self.blackplayer.is_known_command("list_stones") and self.whiteplayer.is_known_command("list_stones"):
+            assert self.whiteplayer.list_stones("black") == self.blackplayer.list_stones("black")
+            assert self.whiteplayer.list_stones("white") == self.blackplayer.list_stones("white")
 
     def writesgf(self, sgffilename):
         "Write the game to an SGF file after a game"
@@ -375,7 +376,8 @@ class GTP_game:
         passes = 0
         won_by_resignation = ""
         while passes < 2:
-            self.check_engine_lights()
+            if debug:
+                self.check_engine_lights()
             if to_play == "B":
                 move = self.blackplayer.genmove("black")
                 if move[:5] == "ERROR":
@@ -391,13 +393,11 @@ class GTP_game:
                     self.moves.append(move)
                     if string.lower(move[:4]) == "pass":
                         passes = passes + 1
-                        if verbose >= 1:
-                            print "Black passes"
                     else:
                         passes = 0
-                        self.whiteplayer.black(move)
-                        if verbose >= 1:
-                            print "Black plays " + move
+                    if verbose >= 1:
+                        print "Black plays " + move
+                    self.whiteplayer.black(move)
                 to_play = "W"
             else:
                 move = self.whiteplayer.genmove("white")
@@ -414,13 +414,11 @@ class GTP_game:
                     self.moves.append(move)
                     if string.lower(move[:4]) == "pass":
                         passes = passes + 1
-                        if verbose >= 1:
-                            print "White passes"
                     else:
                         passes = 0
-                        self.blackplayer.white(move)
-                        if verbose >= 1:
-                            print "White plays " + move
+                    if verbose >= 1:
+                        print "White plays " + move
+                    self.blackplayer.white(move)
                 to_play = "B"
 
             if verbose >= 2:

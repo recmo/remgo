@@ -41,3 +41,11 @@ float peakMemoryUsed()
 }
 
 
+wstring toUpper(const wstring& string)
+{
+	wstring result;
+	result.reserve(string.size());
+	for (wchar_t c: string)
+		result.push_back(std::towupper(c));
+	return result;
+}

@@ -24,6 +24,7 @@ private:
 	wstring _command;
 	vector<wstring> _arguments;
 	bool _lastGenmove;
+	float _komi;
 	
 	// Commands
 	void protocol_version();
@@ -61,4 +62,5 @@ public:
 	virtual BoardMask white() = 0;
 	virtual BoardMask black() = 0;
 	virtual void show(wostream& out) = 0;
+	virtual sint score() = 0;
 };

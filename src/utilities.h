@@ -159,3 +159,5 @@ inline uint64 random(uint64 upper)
 float cpuTimeUsed();
 
 float peakMemoryUsed();
+
+wstring toUpper(const wstring& string);

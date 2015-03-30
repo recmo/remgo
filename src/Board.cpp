@@ -125,3 +125,54 @@ Board& Board::play(BoardPoint position)
 	++_turn;
 	return *this;
 }
+
+sint Board::score()
+{
+	BoardMask f = free();
+	BoardMask b = black();
+	BoardMask w = white();
+	
+	// Remove dead groups
+	bool fixedpoint = false;
+	do {
+		fixedpoint = true;
+		for(BoardPoint i: b) {
+			BoardMask group = b.connected(i);
+			uint liberties = (group.expanded() & f).popcount();
+			if(liberties < 2) {
+				b -= group;
+				f |= group;
+				fixedpoint = false;
+			}
+		}
+		for(BoardPoint i: w) {
+			BoardMask group = w.connected(i);
+			uint liberties = (group.expanded() & f).popcount();
+			if(liberties < 2) {
+				w -= group;
+				f |= group;
+				fixedpoint = false;
+			}
+		}
+	} while(!fixedpoint);
+	
+	// Colour territories
+	BoardMask ba = b;
+	BoardMask wa = w;
+	for(BoardPoint i: f) {
+		BoardMask space = f.connected(i).expanded();
+		bool touchesBlack = !(space & b).isEmpty();
+		bool touchesWhite = !(space & w).isEmpty();
+		if(touchesBlack && !touchesWhite)
+			ba.set(i);
+		if(!touchesBlack && touchesWhite)
+			wa.set(i);
+	}
+	
+	Board fin;
+	fin._white = wa;
+	fin._black = ba;
+	wcerr << fin << endl;
+	
+	return ba.popcount() - wa.popcount();
+}

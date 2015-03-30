@@ -19,6 +19,7 @@ GoTextProtocol::GoTextProtocol(Engine* engine, wistream& in, wostream& out)
 , _command()
 , _arguments()
 , _lastGenmove(false)
+, _komi(0.0f)
 {
 	assert(_engine != nullptr);
 	
@@ -130,6 +131,8 @@ void GoTextProtocol::clear_board()
 void GoTextProtocol::komi()
 {
 	numArguments(1);
+	wistringstream in(_arguments[0]);
+	in >> _komi;
 	writeResponse();
 }
 
@@ -138,11 +141,15 @@ void GoTextProtocol::play()
 	numArguments(2);
 	_lastGenmove = false;
 	
-	wistringstream in(_arguments[1]);
-	BoardPoint move;
-	in >> move;
-	_engine->receiveMove(move);
-	
+	_arguments[1] = toUpper(_arguments[1]);
+	if(_arguments[1] == L"PASS") {
+		_engine->receiveMove(BoardPoint());
+	} else {
+		wistringstream in(_arguments[1]);
+		BoardPoint move;
+		in >> move;
+		_engine->receiveMove(move);
+	}
 	writeResponse();
 }
 
@@ -196,7 +203,16 @@ void GoTextProtocol::list_stones()
 void GoTextProtocol::final_score()
 {
 	numArguments(0);
-	writeResponse(L"0");
+	wostringstream out;
+	float score = _engine->score();
+	score -= _komi;
+	if(score > 0.0f)
+		out << "B+" << score;
+	else if (score < 0.0f)
+		out << "W+" << -score;
+	else
+		out << "0";
+	writeResponse(out.str());
 }
 
 void GoTextProtocol::get_random_seed()

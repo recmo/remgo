@@ -28,6 +28,7 @@ public:
 	bool isValidMove(BoardPoint move) const;
 	bool gameOver() const { return validMoves().isEmpty(); }
 	Board& play(BoardPoint move);
+	sint score();
 	
 protected:
 	BoardMask _white aligned;
