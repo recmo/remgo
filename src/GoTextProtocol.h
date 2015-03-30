@@ -11,7 +11,7 @@ public:
 	
 	void run();
 	
-	void stop() { _stopping = true; }
+	void stop();
 	
 private:
 	typedef void (GoTextProtocol::*Command)();
@@ -30,6 +30,7 @@ private:
 	bool _lastGenmove;
 	float _komi;
 	bool _stopping;
+	bool _gameStarted;
 	
 	// Commands
 	void protocol_version();

@@ -24,6 +24,7 @@ GoTextProtocol::GoTextProtocol(Engine* engine, wistream& in, wostream& out)
 , _lastGenmove(false)
 , _komi(0.0f)
 , _stopping(false)
+, _gameStarted(false)
 {
 	assert(_engine != nullptr);
 	
@@ -69,6 +70,17 @@ void GoTextProtocol::run()
 			(this->*it->second)();
 		else
 			writeError(L"unknown command");
+	}
+}
+
+void GoTextProtocol::stop()
+{
+	// Finish current game first if we have one
+	if(_gameStarted) {
+		wcerr << "Stopping after game_over" << endl;
+		_stopping = true;
+	} else {
+		_quit = true;
 	}
 }
 
@@ -148,6 +160,7 @@ void GoTextProtocol::play()
 {
 	numArguments(2);
 	_lastGenmove = false;
+	_gameStarted = true;
 	
 	_arguments[1] = toUpper(_arguments[1]);
 	if(_arguments[1] == L"PASS") {
@@ -164,6 +177,7 @@ void GoTextProtocol::play()
 void GoTextProtocol::genmove()
 {
 	numArguments(1);
+	_gameStarted = true;
 	
 	// If we receive two consecutive 'genmove's with no 'play' in between there
 	// was an implicit pass. Make it explicit to the engine.
@@ -248,11 +262,12 @@ void GoTextProtocol::memory()
 void GoTextProtocol::game_over()
 {
 	numArguments(0);
+	_gameStarted = false;
 	
 	// If we want to quit, this is the moment
 	if(_stopping)
 		_quit = true;
-	
+
 	// Or else continue
 	writeResponse();
 }
