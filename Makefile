@@ -11,13 +11,14 @@ remgo: $(patsubst %.cpp,%.o,$(SOURCES))
 clean:
 	rm -f $(patsubst %.cpp,%.o,$(SOURCES))
 
+GNUGO=gnugo --mode gtp --chinese-rules --quiet
 PACHI1=others/pachi.elf -d 0 -t =500 maximize_score
 PACHI2=others/pachi.elf -d 0 -e random
 PACHI3=others/pachi.elf -d 0 -e montecarlo -t =5000
 
 test: remgo
-	#./twogtp.py --black 'gnugo --chinese-rules --mode=gtp --level=0' --white './remgo' --verbose 2
-	./twogtp.py --black '${PACHI3}' --white './remgo' --verbose 2
+	./twogtp.py --black '${GNUGO} --level=0' --white './remgo' --verbose 2
+	#./twogtp.py --black '${PACHI3}' --white './remgo' --verbose 2
 
 
 startBot: remgo
