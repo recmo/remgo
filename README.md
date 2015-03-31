@@ -91,14 +91,29 @@ Using the KGS
 
 ## Online competitions
 
+
+### KGS (Humans and bots)
+
+* file:///home/remco/Persoonlijk/Projects/remgo/others/kgsGtp-3.5.20/kgsGtp.xhtml
+
 * http://www.gokgs.com/applet.jsp
 
 * http://senseis.xmp.net/?KgsGtp
 
+### Compute Go Server
+
+Time Control is 5 minutes Sudden Death.
+Area Scoring.
+No suicide allowed.
+Komi 7.5
+Positional Superko is used.
+The game is over after 2 consecutive passes and then no further stones are removed. 
+
 * http://cgos.boardspace.net/
 
-* http://www.computer-go.info/events/future.html
+* http://cgos.boardspace.net/19x19/standings.html
 
-* http://www.gokgs.com/
+### Random Go Challenge
 
+* http://www.lysator.liu.se/~gunnar/gtp/random_go_challenge.html
 
