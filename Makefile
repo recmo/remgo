@@ -1,6 +1,6 @@
-CPP:=clang++ -Wall -O3 -g -std=c++0x -Wextra -Werror=return-type -Werror=switch -I.
-
 SOURCES=$(shell cat sources | grep .cpp)
+VERSION=$(shell git rev-parse --short HEAD)
+CPP:=clang++ -Wall -O3 -g -std=c++0x -Wextra -Werror=return-type -Werror=switch -I. -DVERSION=L\"${VERSION}\"
 
 remgo: $(patsubst %.cpp,%.o,$(SOURCES))
 	$(CPP) $^ -lm -o $@

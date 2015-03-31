@@ -100,7 +100,7 @@ void GoTextProtocol::name()
 void GoTextProtocol::version()
 {
 	numArguments(0);
-	writeResponse(L"0.0.1");
+	writeResponse(VERSION);
 }
 
 void GoTextProtocol::known_command()
