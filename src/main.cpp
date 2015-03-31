@@ -43,7 +43,25 @@ void BoardEngine::receiveMove(BoardPoint move)
 
 BoardPoint BoardEngine::generateMove()
 {
-	const BoardPoint move = _board.validMoves().randomPoint();
+	// Collect all moves
+	BoardMask moves;
+	for(BoardPoint move: _board.validMoves()) {
+		// Filter out moves that play own eyes
+		bool eye = true;
+		if(move.up() && !_board.playerPieces().isSet(move.up()))
+			eye = false;
+		if(move.down() && !_board.playerPieces().isSet(move.down()))
+			eye = false;
+		if(move.left() && !_board.playerPieces().isSet(move.left()))
+			eye = false;
+		if(move.right() && !_board.playerPieces().isSet(move.right()))
+			eye = false;
+		if(!eye)
+			moves.set(move);
+	}
+	
+	// Play a random move
+	BoardPoint move = moves.randomPoint();
 	_board.play(move);
 	return move;
 }

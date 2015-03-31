@@ -81,6 +81,7 @@ void GoTextProtocol::stop()
 		_stopping = true;
 	} else {
 		_quit = true;
+		// TODO: Tell 'readline' to stop
 	}
 }
 
@@ -263,6 +264,8 @@ void GoTextProtocol::game_over()
 {
 	numArguments(0);
 	_gameStarted = false;
+	
+	wcerr << "Game over, final score: " << _engine->score() << endl;
 	
 	// If we want to quit, this is the moment
 	if(_stopping)
