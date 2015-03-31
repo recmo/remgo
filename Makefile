@@ -11,6 +11,7 @@ remgo: $(patsubst %.cpp,%.o,$(SOURCES))
 clean:
 	rm -f $(patsubst %.cpp,%.o,$(SOURCES))
 
+KGS=java -jar kgsGtp.jar
 GNUGO=gnugo --mode gtp --chinese-rules --quiet
 PACHI1=others/pachi.elf -d 0 -t =500 maximize_score
 PACHI2=others/pachi.elf -d 0 -e random
@@ -22,7 +23,10 @@ test: remgo
 
 
 startBot: remgo
-	java -jar others/kgsGtp-3.5.20/kgsGtp.jar kgsGtp.config
+	${KGS} kgsGtp.config
 
 stopBot: remgo
 	killall -s SIGHUP remgo
+
+updateServer: startServer.sh kgsGtp.jar kgsGtp.config remgo
+	scp $^ 2pi:~/remgo

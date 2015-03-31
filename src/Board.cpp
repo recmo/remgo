@@ -172,7 +172,5 @@ sint Board::score()
 	Board fin;
 	fin._white = wa;
 	fin._black = ba;
-	wcerr << fin << endl;
-	
 	return ba.popcount() - wa.popcount();
 }

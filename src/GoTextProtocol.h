@@ -52,6 +52,8 @@ private:
 	void cputime();
 	void memory();
 	
+	void time_left();
+	
 	void game_over();
 	
 	// Readers/writers

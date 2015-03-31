@@ -45,12 +45,16 @@ GoTextProtocol::GoTextProtocol(Engine* engine, wistream& in, wostream& out)
 	registerCommand(play);
 	registerCommand(genmove);
 	
+	// Optional administrative commands
 	registerCommand(showboard);
 	registerCommand(list_stones);
 	registerCommand(final_score);
 	registerCommand(get_random_seed);
 	registerCommand(cputime);
 	registerCommand(memory);
+	
+	// Optional play commands
+	registerCommand(time_left);
 	
 	// For KGS
 	registerKgsCommand(game_over);
@@ -258,6 +262,13 @@ void GoTextProtocol::memory()
 	wostringstream out;
 	out << ::peakMemoryUsed();
 	writeResponse(out.str());
+}
+
+void GoTextProtocol::time_left()
+{
+	//numArguments(3);
+	/// TODO
+	writeResponse();
 }
 
 void GoTextProtocol::game_over()
