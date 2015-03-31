@@ -60,13 +60,13 @@ BoardMask BoardMask::expanded() const
 {
 	BoardMask result = *this;
 	for(BoardPoint p: *this) {
-		if(p.left().isValid())
+		if(p.left())
 			result.set(p.left());
-		if(p.right().isValid())
+		if(p.right())
 			result.set(p.right());
-		if(p.up().isValid())
+		if(p.up())
 			result.set(p.up());
-		if(p.down().isValid())
+		if(p.down())
 			result.set(p.down());
 	}
 	return result;

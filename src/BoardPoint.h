@@ -15,6 +15,7 @@ public:
 	BoardPoint(uint16 row, uint16 col): _position(col * stride + row) { }
 	~BoardPoint() { }
 	
+	operator bool() const { return isValid(); }
 	BoardPoint& operator=(const BoardPoint& other) { _position = other._position; return *this; }
 	bool operator!=(const BoardPoint& other) const { return _position != other._position; }
 	bool operator==(const BoardPoint& other) const { return _position == other._position; }
