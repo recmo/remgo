@@ -126,6 +126,7 @@ T min(const T& a, const T& b, const T& c, const T& d)
 }
 
 wostream& operator<<(wostream& out, uint128 v);
+wistream& operator>>(wistream& in, uint128& v);
 
 template<class T>
 wostream& operator<<(wostream& out, const vector<T>& vec)
@@ -140,22 +141,6 @@ wostream& operator<<(wostream& out, const vector<T>& vec)
 	}
 	out << "]";
 	return out;
-}
-
-inline uint64 nextRandom()
-{
-	static uint64 a = 0xf4569e11f0711544ULL;
-	static uint64 b = 0x40927e82880a682dULL;
-	a ^= a << 23;
-	a ^= a >> 17;
-	a ^= b ^ (b >> 26);
-	swap(a, b);
-	return a + b;
-}
-
-inline uint64 random(uint64 upper)
-{
-	return nextRandom() % upper;
 }
 
 float cpuTimeUsed();

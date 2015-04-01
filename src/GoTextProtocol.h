@@ -49,12 +49,14 @@ private:
 	void list_stones();
 	void final_score();
 	void get_random_seed();
+	void set_random_seed();
 	void cputime();
 	void memory();
 	
 	void time_left();
 	
 	void game_over();
+	
 	
 	// Readers/writers
 	bool readCommand();

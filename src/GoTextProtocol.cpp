@@ -1,4 +1,5 @@
 #include "GoTextProtocol.h"
+#include "Random.h"
 
 #define registerCommand(command)\
 	_commands[L"" #command] = &GoTextProtocol::command;
@@ -52,6 +53,8 @@ GoTextProtocol::GoTextProtocol(Engine* engine, wistream& in, wostream& out)
 	registerCommand(get_random_seed);
 	registerCommand(cputime);
 	registerCommand(memory);
+	registerCommand(get_random_seed);
+	registerCommand(set_random_seed);
 	
 	// Optional play commands
 	registerCommand(time_left);
@@ -245,6 +248,16 @@ void GoTextProtocol::final_score()
 void GoTextProtocol::get_random_seed()
 {
 	numArguments(0);
+	wostringstream out;
+	out << entropy;
+	writeResponse(out.str());
+}
+
+void GoTextProtocol::set_random_seed()
+{
+	numArguments(1);
+	wistringstream in(_arguments[0]);
+	in >> entropy;
 	writeResponse();
 }
 

@@ -1,10 +1,12 @@
 src/utilities.h
+src/Random.h
 src/Rotation.h
 src/BoardPoint.h
 src/BoardMask.h
 src/Board.h
 src/GoTextProtocol.h
 src/utilities.cpp
+src/Random.cpp
 src/Rotation.cpp
 src/BoardPoint.cpp
 src/BoardMask.cpp

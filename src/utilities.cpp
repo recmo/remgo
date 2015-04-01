@@ -11,6 +11,26 @@ wostream& operator<<(wostream& out, uint128 v)
 	return out;
 }
 
+wistream& operator>>(wistream& in, uint128& v)
+{
+	wstring value;
+	in >> value;
+	assert(value.length() == 34);
+	assert(value[0] == L'0' && value[1] == L'x');
+	wstring highStr = value.substr(2, 16);
+	wstring lowStr = value.substr(18, 16);
+	wistringstream highWss(highStr);
+	wistringstream lowWss(lowStr);
+	uint64 high = 0;
+	uint64 low = 0;
+	highWss >> hex >> high;
+	lowWss >> hex >> low;
+	v = high;
+	v <<= 64;
+	v |= low;
+	return in;
+}
+
 float cpuTimeUsed()
 {
 	const int who = RUSAGE_SELF;

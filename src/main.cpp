@@ -89,7 +89,6 @@ int main(int argc, char* argv[])
 	// Print some size info
 	dumpTypeInfo(BoardPoint);
 	dumpTypeInfo(BoardMask);
-	srand(time(0));
 	// Rotation::test();
 	
 	BoardEngine engine;
@@ -97,8 +96,6 @@ int main(int argc, char* argv[])
 	signal(SIGHUP, &sighup);
 	::gtp = &gtp;
 	gtp.run();
-	
-	
 	
 	return 0;
 }

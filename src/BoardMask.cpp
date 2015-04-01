@@ -1,4 +1,5 @@
 #include "BoardMask.h"
+#include "Random.h"
 
 wostream& operator<<(wostream& out, const BoardMask& mask)
 {
@@ -123,5 +124,5 @@ BoardPoint BoardMask::randomPoint() const
 {
 	if(isEmpty())
 		return BoardPoint();
-	return nthPoint(random(popcount()));
+	return nthPoint(entropy(popcount()));
 }
