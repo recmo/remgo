@@ -42,6 +42,10 @@ wostream& operator<<(wostream& out, const BoardMask& mask)
 }
 
 const BoardMask BoardMask::fullBoard(createFullBoard());
+const BoardMask BoardMask::topEdge(createTopEdge());
+const BoardMask BoardMask::bottomEdge(createBottomEdge());
+const BoardMask BoardMask::leftEdge(createLeftEdge());
+const BoardMask BoardMask::rightEdge(createRightEdge());
 
 BoardMask BoardMask::createFullBoard()
 {
@@ -49,6 +53,38 @@ BoardMask BoardMask::createFullBoard()
 	for(uint row = 0; row < BoardPoint::size; ++row)
 		for(uint col = 0; col < BoardPoint::size; ++col)
 			r.set(BoardPoint(row, col));
+	return r;
+}
+
+BoardMask BoardMask::createLeftEdge()
+{
+	BoardMask r;
+	for(uint row = 0; row < BoardPoint::size; ++row)
+		r.set(BoardPoint(row, 0));
+	return r;
+}
+
+BoardMask BoardMask::createRightEdge()
+{
+	BoardMask r;
+	for(uint row = 0; row < BoardPoint::size; ++row)
+		r.set(BoardPoint(row, BoardPoint::size - 1));
+	return r;
+}
+
+BoardMask BoardMask::createTopEdge()
+{
+	BoardMask r;
+	for(uint col = 0; col < BoardPoint::size; ++col)
+		r.set(BoardPoint(BoardPoint::size - 1, col));
+	return r;
+}
+
+BoardMask BoardMask::createBottomEdge()
+{
+	BoardMask r;
+	for(uint col = 0; col < BoardPoint::size; ++col)
+		r.set(BoardPoint(0, col));
 	return r;
 }
 
@@ -125,4 +161,40 @@ BoardPoint BoardMask::randomPoint() const
 	if(isEmpty())
 		return BoardPoint();
 	return nthPoint(entropy(popcount()));
+}
+
+BoardMask BoardMask::up() const
+{
+	BoardMask result;
+	for(BoardPoint i: *this)
+		if(i.up())
+			result.set(i.up());
+	return result;
+}
+
+BoardMask BoardMask::down() const
+{
+	BoardMask result;
+	for(BoardPoint i: *this)
+		if(i.down())
+			result.set(i.down());
+	return result;
+}
+
+BoardMask BoardMask::left() const
+{
+	BoardMask result;
+	for(BoardPoint i: *this)
+		if(i.left())
+			result.set(i.left());
+	return result;
+}
+
+BoardMask BoardMask::right() const
+{
+	BoardMask result;
+	for(BoardPoint i: *this)
+		if(i.right())
+			result.set(i.right());
+	return result;
 }

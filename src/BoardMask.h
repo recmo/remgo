@@ -35,6 +35,10 @@ public:
 	typedef array<uint128, 3> Bits;
 	class Iterator; 
 	const static BoardMask fullBoard;
+	const static BoardMask topEdge;
+	const static BoardMask bottomEdge;
+	const static BoardMask leftEdge;
+	const static BoardMask rightEdge;
 	
 	inline BoardMask();
 	BoardMask(const BoardMask& other): _mask(other._mask) { }
@@ -55,6 +59,10 @@ public:
 	BoardMask expanded() const;
 	BoardMask connected(BoardPoint seed) const { return connected(BoardMask(seed)); }
 	BoardMask connected(const BoardMask& seed) const;
+	BoardMask up() const;
+	BoardMask down() const;
+	BoardMask left() const;
+	BoardMask right() const;
 	vector<BoardMask> groups() const;
 	BoardMask& invert() { return operator=(operator~()); }
 	BoardMask& expand() { return operator=(expanded()); }
@@ -76,6 +84,10 @@ public:
 protected:
 	friend wostream& operator<<(wostream& out, const BoardMask& mask);
 	static BoardMask createFullBoard();
+	static BoardMask createTopEdge();
+	static BoardMask createBottomEdge();
+	static BoardMask createLeftEdge();
+	static BoardMask createRightEdge();
 	Bits _mask aligned;
 };
 

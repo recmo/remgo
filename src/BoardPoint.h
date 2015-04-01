@@ -27,10 +27,10 @@ public:
 	BoardPoint& position(uint16 value) { _position = value; return *this; }
 	BoardPoint& row(uint16 r) { _position = col() * stride + r; return *this; }
 	BoardPoint& col(uint16 c) { _position = c * stride + row(); return *this; }
-	BoardPoint left() const { return row() > 0 ? BoardPoint(row() - 1, col()) : BoardPoint(); }
-	BoardPoint right() const { return row() < (size - 1) ? BoardPoint(row() + 1, col()) : BoardPoint(); }
-	BoardPoint up() const { return col() > 0 ? BoardPoint(row(), col() - 1) : BoardPoint(); }
-	BoardPoint down() const { return col() < (size - 1) ? BoardPoint(row(), col() + 1) : BoardPoint(); }
+	BoardPoint up() const { return row() < (size - 1) ? BoardPoint(row() + 1, col()) : BoardPoint(); }
+	BoardPoint down() const { return row() > 0 ? BoardPoint(row() - 1, col()) : BoardPoint(); }
+	BoardPoint left() const { return col() > 0 ? BoardPoint(row(), col() - 1) : BoardPoint(); }
+	BoardPoint right() const { return col() < (size - 1) ? BoardPoint(row(), col() + 1) : BoardPoint(); }
 	BoardMask mask() const;
 	BoardMask neighbors() const;
 	
